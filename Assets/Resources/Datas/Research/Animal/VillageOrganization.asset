@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: VillageOrganization
   Label: "\u805A\u843D\u7EC4\u7EC7"
-  Description: "以任务分派、轮班和公共区域规划协调聚落，增加可供建筑使用的生产力。"
+  Description: "分派任务，安排轮班，照料公共区域，让聚落中的每一份劳动都能相互接续。"
   BaseCost: "2200"
   prerequisites:
   - {fileID: 11400000, guid: 69fe973ac1d24cc488e9591eaaba0d12, type: 2}

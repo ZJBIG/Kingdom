@@ -35,6 +35,7 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
     private PointerEventData pointerEventData;
     private PointerEventData secondPointerEventData;
     private bool initialized;
+    private bool preserveTopOnViewportResize;
 
     public bool IsDragging => dragging;
     public bool IsInitialized => initialized && viewport != null && content != null;
@@ -51,12 +52,13 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
         ResetPointers();
     }
 
-    public void Initialize(RectTransform graphViewport, RectTransform graphContent)
+    public void Initialize(RectTransform graphViewport, RectTransform graphContent, bool preserveTopOnViewportResize = false)
     {
         initialized = false;
         ResetPointers();
         viewport = graphViewport;
         content = graphContent;
+        this.preserveTopOnViewportResize = preserveTopOnViewportResize;
         if (viewport == null || content == null)
             return;
 
@@ -87,7 +89,7 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
         RefreshLayoutBounds(true);
         lastLoggedPosition = content == null ? Vector2.zero : content.anchoredPosition;
         hasLoggedMotion = false;
-        measuredViewportSize = Vector2.zero;
+        if (!preserveTopOnViewportResize) measuredViewportSize = Vector2.zero;
         measuredContentSize = Vector2.zero;
         measuredScale = -1f;
         initialized = true;
@@ -210,7 +212,7 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
             return;
         dragging = true;
         Vector2 localPointerPosition = GetLocalPointerPosition(eventData);
-        Vector2 movement = localPointerPosition - lastPointerLocalPosition;
+        Vector2 movement = (localPointerPosition - lastPointerLocalPosition) * KingdomScrollRect.DragSpeedMultiplier;
         lastPointerLocalPosition = localPointerPosition;
         // anchoredPosition belongs to the viewport, so content zoom does not scale this delta.
         if (!canPanHorizontal)
@@ -302,6 +304,12 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
         // a tall tree gets its real range from its measured content height.
         extentAdjusted = true;
         RefreshOverflowState();
+        // Apply the production tree's resize anchor before this owner clamps the new bounds.
+        if (!resetToTop && preserveTopOnViewportResize && measuredViewportSize.x > 1f && measuredViewportSize.y > 1f)
+        {
+            Vector2 delta = viewportSize - measuredViewportSize;
+            content.anchoredPosition += new Vector2(delta.x * .5f, delta.y);
+        }
         measuredViewportSize = viewportSize;
         measuredContentSize = contentSize;
         measuredScale = content.localScale.x;

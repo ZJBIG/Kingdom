@@ -337,6 +337,7 @@ public class GameManager : Singleton<GameManager>
             Events = State.Events.CaptureSaveData(),
             TechLevel = State.TechLevel,
             HasBuiltHousing = State.HasBuiltHousing,
+            HasCurrentFeudalTerritoryReward = State.HasCurrentFeudalTerritoryReward,
             FoodAmount = State.FoodAmount.ToString(),
             Population = State.Population.Population.ToString(),
             PopulationChangeProgress =
@@ -378,6 +379,7 @@ public class GameManager : Singleton<GameManager>
             data.LastSaveUnixSeconds);
         State.RestorePopulation(Parse(data.Population, nameof(data.Population)));
         State.RestoreHousingMilestone(data.HasBuiltHousing);
+        State.RestoreFeudalTerritoryReward(data.HasCurrentFeudalTerritoryReward);
         State.Events.Restore(data.Events);
         State.RestoreTerritoryTotal(Parse(data.TerritoryTotal, nameof(data.TerritoryTotal)));
         State.RestoreCampaign(

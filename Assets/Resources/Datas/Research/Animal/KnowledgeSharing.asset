@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: KnowledgeSharing
   Label: "\u77E5\u8BC6\u4F20\u627F"
-  Description: "通过讲述、示范和共同记录传递经验，提高全局研究效率。"
+  Description: "让亲历者讲述，让后来者练习，把一双爪子的经验变成整个聚落的知识。"
   BaseCost: "1200"
   prerequisites:
   - {fileID: 11400000, guid: 0f3d70375d0fdf14dabc4dfd617c19c8, type: 2}

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Unity.Profiling;
 using UnityEngine;
@@ -22,6 +23,8 @@ public sealed class SimulationManager : Singleton<SimulationManager>
     private bool running;
     private bool resumeAfterApplicationPause;
     private bool backlogWarningLogged;
+    private OfflineProgressSession offlineSession;
+    private bool applicationPaused;
 #if UNITY_EDITOR
     private float slowTickLogCooldown;
     private float memoryLogCooldown;
@@ -113,13 +116,16 @@ public sealed class SimulationManager : Singleton<SimulationManager>
 
     public void SetRunning(bool value)
     {
-        running = value;
+        if (value && applicationPaused) resumeAfterApplicationPause = true;
+        running = value && !applicationPaused && offlineSession == null &&
+            (!SaveManager.TryGetInstance(out SaveManager saves) || !saves.IsLoading);
         if (!running)
             accumulatedSeconds = 0d;
     }
 
     private void OnApplicationPause(bool pauseStatus)
     {
+        applicationPaused = pauseStatus;
         if (pauseStatus)
         {
             resumeAfterApplicationPause = running;
@@ -381,42 +387,141 @@ public sealed class SimulationManager : Singleton<SimulationManager>
     {
         if (double.IsNaN(elapsedSeconds) || double.IsInfinity(elapsedSeconds) || elapsedSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(elapsedSeconds));
-        if (elapsedSeconds <= 0d)
-            return 0d;
+        if (elapsedSeconds == 0d) return 0d;
+        bool wasRunning = running;
+        double previousAccumulatedSeconds = accumulatedSeconds;
+        OfflineProgressSession session = BeginOfflineProgress(elapsedSeconds);
+        while (!session.Completed)
+            session.Advance(double.PositiveInfinity);
+        SetRunning(wasRunning);
+        accumulatedSeconds = previousAccumulatedSeconds;
+        return elapsedSeconds;
+    }
 
-        double remaining = elapsedSeconds;
-        double elapsed = 0d;
-        double advanced = 0d;
-        while (remaining > 0d)
+    public OfflineProgressSession BeginOfflineProgress(double elapsedSeconds)
+    {
+        if (double.IsNaN(elapsedSeconds) || double.IsInfinity(elapsedSeconds) || elapsedSeconds < 0d)
+            throw new ArgumentOutOfRangeException(nameof(elapsedSeconds));
+        if (offlineSession != null)
+            throw new InvalidOperationException("离线进度正在结算。");
+        offlineSession = new OfflineProgressSession(this, elapsedSeconds);
+        SetRunning(false);
+        return offlineSession;
+    }
+
+    public sealed class OfflineProgressSession
+    {
+        private readonly SimulationManager owner;
+        private readonly IEnumerator<double> steps;
+        private double totalSeconds;
+        private double advancedSeconds;
+        public bool Completed { get; private set; }
+        public double TotalSeconds => totalSeconds;
+        public float Progress => totalSeconds <= 0d ? 1f : (float)Math.Min(1d, advancedSeconds / totalSeconds);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        private double maximumStepMilliseconds;
+        private double maximumSliceMilliseconds;
+        private int sliceCount;
+#endif
+
+        internal OfflineProgressSession(SimulationManager owner, double seconds)
         {
-            double step = Math.Min(OfflineStepSeconds, remaining);
+            this.owner = owner;
+            totalSeconds = seconds;
+            steps = owner.AdvanceOfflineSteps(this);
+        }
+
+        public void Extend(double additionalSeconds)
+        {
+            if (double.IsNaN(additionalSeconds) || double.IsInfinity(additionalSeconds) || additionalSeconds < 0d)
+                throw new ArgumentOutOfRangeException(nameof(additionalSeconds));
+            if (Completed) throw new InvalidOperationException("离线进度已经结算完成。");
+            if (double.IsInfinity(totalSeconds + additionalSeconds))
+                throw new ArgumentOutOfRangeException(nameof(additionalSeconds));
+            totalSeconds += additionalSeconds;
+        }
+
+        public void Advance(double budgetMilliseconds = 4d)
+        {
+            if (double.IsNaN(budgetMilliseconds) || budgetMilliseconds <= 0d)
+                throw new ArgumentOutOfRangeException(nameof(budgetMilliseconds));
+            if (Completed) return;
+            long started = System.Diagnostics.Stopwatch.GetTimestamp();
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            sliceCount++;
+#endif
+            try
+            {
+                do
+                {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                    long stepStarted = System.Diagnostics.Stopwatch.GetTimestamp();
+#endif
+                    bool hasStep = steps.MoveNext();
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                    maximumStepMilliseconds = Math.Max(maximumStepMilliseconds,
+                        (System.Diagnostics.Stopwatch.GetTimestamp() - stepStarted) * 1000d / System.Diagnostics.Stopwatch.Frequency);
+#endif
+                    if (!hasStep)
+                    {
+                        Completed = true;
+                        advancedSeconds = totalSeconds;
+                        steps.Dispose();
+                        owner.offlineSession = null;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                        maximumSliceMilliseconds = Math.Max(maximumSliceMilliseconds,
+                            (System.Diagnostics.Stopwatch.GetTimestamp() - started) * 1000d / System.Diagnostics.Stopwatch.Frequency);
+                        Debug.Log($"[KingdomOffline] seconds={totalSeconds:0.###} slices={sliceCount} maxStepMs={maximumStepMilliseconds:0.###} maxSliceMs={maximumSliceMilliseconds:0.###}");
+#endif
+                        return;
+                    }
+                    advancedSeconds += steps.Current;
+                } while ((System.Diagnostics.Stopwatch.GetTimestamp() - started) * 1000d /
+                    System.Diagnostics.Stopwatch.Frequency < budgetMilliseconds);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                maximumSliceMilliseconds = Math.Max(maximumSliceMilliseconds,
+                    (System.Diagnostics.Stopwatch.GetTimestamp() - started) * 1000d / System.Diagnostics.Stopwatch.Frequency);
+#endif
+            }
+            catch
+            {
+                steps.Dispose();
+                owner.offlineSession = null;
+                throw;
+            }
+        }
+    }
+
+    private IEnumerator<double> AdvanceOfflineSteps(OfflineProgressSession session)
+    {
+        double elapsed = 0d;
+        while (elapsed < session.TotalSeconds)
+        {
+            double step = Math.Min(OfflineStepSeconds, session.TotalSeconds - elapsed);
             GameManager gameManager = GameManager.Instance;
             if (gameManager.State.Campaign.Active || HasActiveColonization(gameManager.Sectors))
             {
-                AdvanceOfflineCampaignWindow(
+                using IEnumerator<double> campaignSteps = AdvanceOfflineCampaignWindow(
                     step,
                     elapsed,
-                    gameManager,
-                    ref offlineCampaignPendingCalendarSeconds,
-                    ref offlineCampaignPendingSimulationSeconds);
+                    gameManager);
+                while (campaignSteps.MoveNext()) yield return campaignSteps.Current;
             }
             else
             {
                 FlushOfflineCampaignRemainder();
-                TickOfflineSimulation(
+                using IEnumerator<double> simulationSteps = TickOfflineSimulationSteps(
                     step,
                     CalculateOfflineEffectiveSeconds(elapsed, step),
                     gameManager);
+                while (simulationSteps.MoveNext()) yield return simulationSteps.Current;
             }
-            remaining -= step;
             elapsed += step;
-            advanced += step;
         }
 
         StoryManager.RefreshProgress(GameManager.Instance.State.TechLevel,
             TutorialManager.Current);
 
-        return advanced;
     }
 
     private static bool HasActiveColonization(SectorManager sectors)
@@ -462,12 +567,10 @@ public sealed class SimulationManager : Singleton<SimulationManager>
         offlineCampaignPendingSimulationSeconds = 0d;
     }
 
-    private void AdvanceOfflineCampaignWindow(
+    private IEnumerator<double> AdvanceOfflineCampaignWindow(
         double calendarSeconds,
         double elapsedSeconds,
-        GameManager gameManager,
-        ref double pendingCalendarSeconds,
-        ref double pendingSimulationSeconds)
+        GameManager gameManager)
     {
         double effectiveTickSeconds = tickIntervalSeconds;
         if (double.IsNaN(effectiveTickSeconds) ||
@@ -498,7 +601,7 @@ public sealed class SimulationManager : Singleton<SimulationManager>
             }
 
             double simulationUntilNextTick =
-                effectiveTickSeconds - pendingSimulationSeconds;
+                effectiveTickSeconds - offlineCampaignPendingSimulationSeconds;
             double calendarUntilNextTick = simulationUntilNextTick / rate;
             double calendarDelta = Math.Min(
                 remainingCalendar,
@@ -507,24 +610,35 @@ public sealed class SimulationManager : Singleton<SimulationManager>
             double simulationDelta = completesTick
                 ? simulationUntilNextTick
                 : calendarDelta * rate;
-            pendingCalendarSeconds += calendarDelta;
-            pendingSimulationSeconds += simulationDelta;
+            offlineCampaignPendingCalendarSeconds += calendarDelta;
+            offlineCampaignPendingSimulationSeconds += simulationDelta;
             currentElapsed += calendarDelta;
             remainingCalendar -= calendarDelta;
 
             if (completesTick)
             {
-                TickOfflineSimulation(
-                    pendingCalendarSeconds,
+                using IEnumerator<double> simulationSteps = TickOfflineSimulationSteps(
+                    offlineCampaignPendingCalendarSeconds,
                     effectiveTickSeconds,
                     gameManager);
-                pendingCalendarSeconds = 0d;
-                pendingSimulationSeconds = 0d;
+                while (simulationSteps.MoveNext()) yield return 0d;
+                offlineCampaignPendingCalendarSeconds = 0d;
+                offlineCampaignPendingSimulationSeconds = 0d;
             }
+            yield return calendarDelta;
         }
     }
 
     private void TickOfflineSimulation(
+        double calendarSeconds,
+        double simulationSeconds,
+        GameManager gameManager)
+    {
+        using IEnumerator<double> steps = TickOfflineSimulationSteps(calendarSeconds, simulationSeconds, gameManager);
+        while (steps.MoveNext()) { }
+    }
+
+    private IEnumerator<double> TickOfflineSimulationSteps(
         double calendarSeconds,
         double simulationSeconds,
         GameManager gameManager)
@@ -537,6 +651,7 @@ public sealed class SimulationManager : Singleton<SimulationManager>
             TickOfflineSimulationCore(calendarStep, step, gameManager);
             gameManager.AdvanceWorldEvents(step, false);
             remaining -= step;
+            yield return calendarStep;
         } while (remaining > 0d);
     }
 

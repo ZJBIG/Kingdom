@@ -15,7 +15,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: cca3e7d26f0643df9deff0da66b3605b, type: 3}
   id: DawnDysonSphere
   Label: "戴森球：总装与试验阵列"
-  Description: "曜心唯一的戴森球总装与控制基地。依托近恒星作业区部署试验阵列，再逐阶段投资集能卫星、环恒星集能带与联控网络，将恒星能量送回本系产业与远航准备设施。"
+  Description: "曜心的戴森球总装与控制基地。从近恒星试验阵列到环恒星集能带，鼠族在灼热光芒中铺设通向家园的能源网络。"
   TechLevel: 4
   upgradeTo: {fileID: 0}
   costGrowth: "1.25"

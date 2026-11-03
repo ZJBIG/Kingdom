@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: UrbanHousing
   Label: "\u57CE\u5E02\u4F4F\u5B85"
-  Description: "以紧凑街区和多层住宅支持城市定居，降低全局建造材料需求，并提高拆除返还比例。"
+  Description: "让多层住宅、紧凑街区与可回用构件共同承载城市生活，在有限的土地上安顿更多家园。"
   BaseCost: "135000"
   prerequisites:
   - {fileID: 11400000, guid: 11a1763744a4e2b42b651b4bc8ddb331, type: 2}

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ScholasticInstitutions
   Label: "\u5B66\u9662\u4E0E\u5929\u6587\u5B66"
-  Description: "以课程、藏书、辩论与天象观测传承知识，提高全局研究效率，并降低建造材料需求。"
+  Description: "以课程、藏书、辩论和观测建立求学之所，让知识从零散心得成为可以传授的体系。"
   BaseCost: "220000"
   prerequisites:
   - {fileID: 11400000, guid: ae9e433b1c0d4074baf90342f66c2509, type: 2}

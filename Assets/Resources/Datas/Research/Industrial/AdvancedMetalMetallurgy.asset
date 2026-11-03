@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: AdvancedMetalMetallurgy
   Label: "高级金属冶金"
-  Description: "研究工业电解与矿物处理，开启高级金属矿到高级金属锭的冶炼，支撑轻质结构、机械与电力设施。"
+  Description: "把矿物处理与电解原理结合，让轻质耐蚀金属成为可以加工和检验的工程材料。"
   BaseCost: "1300000"
   prerequisites:
   - {fileID: 11400000, guid: d2f78c059dca49546b8ea16a89b1f296, type: 2}

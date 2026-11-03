@@ -53,7 +53,7 @@ public sealed partial class KingdomUIRoot
         viewportImage.raycastTarget = true;
         detailScrollViewport.gameObject.AddComponent<RectMask2D>();
         EnsureNestedCanvas(detailScrollViewport);
-        detailScroll = detailScrollViewport.gameObject.AddComponent<ScrollRect>();
+        detailScroll = detailScrollViewport.gameObject.AddComponent<KingdomScrollRect>();
         detailScroll.horizontal = false;
         detailScroll.vertical = true;
         detailScroll.movementType = ScrollRect.MovementType.Clamped;

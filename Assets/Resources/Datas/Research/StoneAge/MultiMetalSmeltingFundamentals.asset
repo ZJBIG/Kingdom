@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: MultiMetalSmeltingFundamentals
   Label: "多金属冶炼基础"
-  Description: "研究矿石还原和初级冶炼，开启低级金属矿到基础金属锭的加工，为金属工具奠定基础。"
+  Description: "认识矿石还原与初级冶炼，从混杂矿料中分离可以锻造的金属。"
   BaseCost: "15000"
   prerequisites:
   - {fileID: 11400000, guid: 5836e23d4da2eb54887e0bb4f6e2c875, type: 2}

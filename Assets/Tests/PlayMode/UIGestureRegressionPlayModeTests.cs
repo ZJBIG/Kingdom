@@ -72,8 +72,8 @@ public sealed class UIGestureRegressionPlayModeTests
         RectTransformUtility.ScreenPointToLocalPointInRectangle(viewport, pointer.position,
             eventCamera, out Vector2 endLocal);
         graph.OnDrag(pointer);
-        Assert.That(Vector2.Distance(content.anchoredPosition - before, endLocal - startLocal),
-            Is.LessThan(.1f), "Content translation must follow the pointer regardless of content zoom or render camera.");
+        Assert.That(Vector2.Distance(content.anchoredPosition - before, (endLocal - startLocal) * 1.5f),
+            Is.LessThan(.1f), "Content translation must use the faster drag speed regardless of content zoom or render camera.");
     }
 
     [TestCase(false)]
@@ -158,9 +158,14 @@ public sealed class UIGestureRegressionPlayModeTests
         ExecuteEvents.ExecuteHierarchy(button, pointer, ExecuteEvents.initializePotentialDrag);
         ExecuteEvents.ExecuteHierarchy(button, pointer, ExecuteEvents.beginDragHandler);
         Assert.That(detail.IsDragging, Is.True, "Button owns PointerDown; the detail viewport must still accept BeginDrag.");
+        Vector2 startScreen = pointer.position;
         Move(pointer, new Vector2(0, 30));
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(viewport, startScreen,
+            eventCamera, out Vector2 startLocal);
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(viewport, pointer.position,
+            eventCamera, out Vector2 endLocal);
         ExecuteEvents.ExecuteHierarchy(button, pointer, ExecuteEvents.dragHandler);
-        Assert.That(content.anchoredPosition.y, Is.GreaterThan(1f));
+        Assert.That(content.anchoredPosition.y, Is.EqualTo((endLocal.y - startLocal.y) * 1.5f).Within(.1f));
         Assert.That(pointer.eligibleForClick, Is.False);
         ExecuteEvents.ExecuteHierarchy(button, pointer, ExecuteEvents.endDragHandler);
         Assert.That(detail.IsDragging, Is.False, "EndDrag must release ownership even when PointerUp went to the Button.");
@@ -170,12 +175,13 @@ public sealed class UIGestureRegressionPlayModeTests
         Assert.That(detail.IsDragging, Is.False);
     }
 
-    [Test]
-    public void OrdinaryPageRowForwardsDragToScrollRect()
+    [TestCase(false)]
+    [TestCase(true)]
+    public void OrdinaryPageDragUsesFasterSpeedOnce(bool fromRow)
     {
         CreateGraph(false);
         graph.enabled = false;
-        ScrollRect scroll = viewport.gameObject.AddComponent<ScrollRect>();
+        ScrollRect scroll = viewport.gameObject.AddComponent<KingdomScrollRect>();
         scroll.viewport = viewport;
         scroll.content = content;
         scroll.horizontal = false;
@@ -188,12 +194,30 @@ public sealed class UIGestureRegressionPlayModeTests
             typeof(Button), typeof(UIPageScrollDragForwarder));
         button.transform.SetParent(content, false);
         var pointer = Pointer(-1, Vector2.zero);
-        ExecuteEvents.Execute(button, pointer, ExecuteEvents.initializePotentialDrag);
-        ExecuteEvents.Execute(button, pointer, ExecuteEvents.beginDragHandler);
+        GameObject target = fromRow ? button : viewport.gameObject;
+        ExecuteEvents.Execute(target, pointer, ExecuteEvents.initializePotentialDrag);
+        ExecuteEvents.Execute(target, pointer, ExecuteEvents.beginDragHandler);
         Move(pointer, new Vector2(0, 30));
-        ExecuteEvents.Execute(button, pointer, ExecuteEvents.dragHandler);
-        Assert.That(content.anchoredPosition.y, Is.GreaterThan(1f));
-        ExecuteEvents.Execute(button, pointer, ExecuteEvents.endDragHandler);
+        Vector2 realPointerPosition = pointer.position;
+        ExecuteEvents.Execute(target, pointer, ExecuteEvents.dragHandler);
+        Assert.That(content.anchoredPosition.y, Is.EqualTo(45f).Within(.1f));
+        Assert.That(Vector2.Distance(pointer.position, realPointerPosition), Is.LessThan(.001f),
+            "Forwarding must not leave the pointer multiplied for another handler.");
+        ExecuteEvents.Execute(target, pointer, ExecuteEvents.endDragHandler);
+    }
+
+    [TestCase("UI/Kingdom/KingdomUIRoot")]
+    [TestCase("UI/Kingdom/KingdomUIResearchGraph")]
+    [TestCase("UI/Kingdom/KingdomUIReviewControls")]
+    [TestCase("UI/Kingdom/StoryChapterCard")]
+    public void AuthoredScrollOwnersUseTheSharedDragSpeed(string path)
+    {
+        GameObject prefab = Resources.Load<GameObject>(path);
+        Assert.That(prefab, Is.Not.Null);
+        ScrollRect[] scrolls = prefab.GetComponentsInChildren<ScrollRect>(true);
+        Assert.That(scrolls, Is.Not.Empty);
+        foreach (ScrollRect scroll in scrolls)
+            Assert.That(scroll, Is.InstanceOf<KingdomScrollRect>(), path + ": " + scroll.name);
     }
 
     private void CreateGraph(bool cameraCanvas)

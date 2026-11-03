@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Woodworking
   Label: "\u6728\u6750\u5229\u7528"
-  Description: "改进伐木、干燥和木构连接，提高伐木场产出，并降低全局建造材料需求。"
+  Description: "摸清木材的纹理与干湿，练习伐木和榫接，让林中的树木成为坚固的家。"
   BaseCost: "1100"
   prerequisites:
   - {fileID: 11400000, guid: 748cc4d872b7300488f8cc565e5483b1, type: 2}

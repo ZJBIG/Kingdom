@@ -15,7 +15,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: e28534ca75d14dd8b796ab48f4219277, type: 3}
   id: DawnOrbitalObservatory
   Label: "曙光轨道观测站"
-  Description: "在曙光环建设观测与实验平台，利用无大气干扰的环境提供研究力，支持本恒星系开发与后续星际导航研究。需要供电、物流与电子设备维护。"
+  Description: "曙光环上的观测与实验平台。在大气之外，族人记录清晰的星光，为本恒星系测绘和更远的航路留下依据。"
   TechLevel: 4
   upgradeTo: {fileID: 0}
   costGrowth: "1.25"

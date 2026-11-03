@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: PhaseMaterialDurabilityTheory
   Label: "相位材料耐久理论"
-  Description: "研究相位材料在辐射和温差下的稳定条件，提高相位材料产出。"
+  Description: "记录辐射、温差与时间对相位材料的影响，为长期使用寻找稳定边界。"
   BaseCost: "3740000000"
   prerequisites:
   - {fileID: 11400000, guid: 5e6f708192a3b4c5d6e7f8091a2b3c4d, type: 2}

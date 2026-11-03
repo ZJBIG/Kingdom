@@ -15,7 +15,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 456707a4148d4ea49b72e51ae3f67df5, type: 3}
   id: AzureIceSeaArk
   Label: "冰海方舟"
-  Description: "碧池星唯一的冰下封闭生态基地，利用海洋热环境与冰壳屏障开展生态循环和极端环境研究，持续供应食物与研究力。设备和营养循环需要化学品、机械与电子元件维护；不增加居住人口容量。"
+  Description: "碧池星的冰下封闭生态基地。海洋热环境与厚重冰壳守护着循环种植舱和极端环境实验室，食物与新的发现从这里送往远方。"
   TechLevel: 4
   upgradeTo: {fileID: 0}
   costGrowth: "1.25"

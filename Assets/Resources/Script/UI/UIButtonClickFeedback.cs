@@ -18,7 +18,6 @@ public sealed class UIButtonClickFeedback : MonoBehaviour, IPointerDownHandler, 
             !OnboardingInputGate.Allows(transform)) return;
         pointerId = data.pointerId;
         pressedAt = Time.unscaledTime;
-        InteractionFrameRateController.NotifyInteraction();
     }
 
     public void OnPointerUp(PointerEventData data)

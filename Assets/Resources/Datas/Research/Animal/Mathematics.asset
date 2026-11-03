@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Mathematics
   Label: "\u5B9E\u7528\u6570\u5B66"
-  Description: "统一算术、比例和几何方法，提高全局研究效率。"
+  Description: "用算术清点收获，用比例分配材料，用几何描绘家园，让模糊的估量有据可循。"
   BaseCost: 1700
   prerequisites:
   - {fileID: 11400000, guid: 69fe973ac1d24cc488e9591eaaba0d12, type: 2}

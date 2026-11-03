@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ClosedLoopAgroecology
   Label: "闭环农业生态"
-  Description: "回收营养与水分并统一安排轨道种植，提高全局食物产出。"
+  Description: "回收营养与水分，协调轨道种植，让一轮收获滋养下一轮生长。"
   BaseCost: "2.0e13"
   prerequisites:
   - {fileID: 11400000, guid: e7b3c9d1f5a64280bc14e6a9d2f7c5b8, type: 2}

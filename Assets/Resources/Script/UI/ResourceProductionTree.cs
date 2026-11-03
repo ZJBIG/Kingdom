@@ -27,13 +27,11 @@ public sealed class ResourceProductionTree
     private readonly Func<ResourceDef, bool> resourceVisible;
     private readonly Func<BuildingDef, bool> buildingVisible;
     private readonly Func<SectorDef, bool> sectorVisible;
-    private readonly Func<BuildingDef, bool> producerVisible;
     public Node Root { get; }
 
     public ResourceProductionTree(ResourceDef resource, IReadOnlyList<BuildingDef> buildings,
         IReadOnlyList<SectorDef> sectors, Func<ResourceDef, bool> resourceVisible = null,
-        Func<BuildingDef, bool> buildingVisible = null, Func<SectorDef, bool> sectorVisible = null,
-        Func<BuildingDef, bool> producerVisible = null)
+        Func<BuildingDef, bool> buildingVisible = null, Func<SectorDef, bool> sectorVisible = null)
     {
         if (resource == null) throw new ArgumentNullException(nameof(resource));
         this.buildings = buildings ?? Array.Empty<BuildingDef>();
@@ -41,15 +39,13 @@ public sealed class ResourceProductionTree
         this.resourceVisible = resourceVisible;
         this.buildingVisible = buildingVisible;
         this.sectorVisible = sectorVisible;
-        this.producerVisible = producerVisible;
         Root = new Node { Resource = resource, Expanded = true };
     }
 
     /// <summary>A building root traces ongoing inputs and upgrades, never construction costs.</summary>
     public ResourceProductionTree(BuildingDef building, IReadOnlyList<BuildingDef> buildings,
         IReadOnlyList<SectorDef> sectors, Func<ResourceDef, bool> resourceVisible = null,
-        Func<BuildingDef, bool> buildingVisible = null, Func<SectorDef, bool> sectorVisible = null,
-        Func<BuildingDef, bool> producerVisible = null)
+        Func<BuildingDef, bool> buildingVisible = null, Func<SectorDef, bool> sectorVisible = null)
     {
         if (building == null) throw new ArgumentNullException(nameof(building));
         this.buildings = buildings ?? Array.Empty<BuildingDef>();
@@ -57,15 +53,13 @@ public sealed class ResourceProductionTree
         this.resourceVisible = resourceVisible;
         this.buildingVisible = buildingVisible;
         this.sectorVisible = sectorVisible;
-        this.producerVisible = producerVisible;
         Root = new Node { Building = building, Expanded = true };
     }
 
     /// <summary>A sector root groups its local facilities and direct resource outputs.</summary>
     public ResourceProductionTree(SectorDef sector, IReadOnlyList<BuildingDef> buildings,
         IReadOnlyList<SectorDef> sectors, Func<ResourceDef, bool> resourceVisible = null,
-        Func<BuildingDef, bool> buildingVisible = null, Func<SectorDef, bool> sectorVisible = null,
-        Func<BuildingDef, bool> producerVisible = null)
+        Func<BuildingDef, bool> buildingVisible = null, Func<SectorDef, bool> sectorVisible = null)
     {
         if (sector == null) throw new ArgumentNullException(nameof(sector));
         this.buildings = buildings ?? Array.Empty<BuildingDef>();
@@ -73,7 +67,6 @@ public sealed class ResourceProductionTree
         this.resourceVisible = resourceVisible;
         this.buildingVisible = buildingVisible;
         this.sectorVisible = sectorVisible;
-        this.producerVisible = producerVisible;
         Root = new Node { Sector = sector, Expanded = true };
     }
 
@@ -194,9 +187,7 @@ public sealed class ResourceProductionTree
     private bool IsVisible(Node node) => node.Resource != null
         ? resourceVisible == null || resourceVisible(node.Resource)
         : node.Building != null
-            ? (buildingVisible == null || buildingVisible(node.Building)) &&
-              (node.Relationship != Relation.ProductionSource && node.Relationship != Relation.SectorFacility ||
-               producerVisible == null || producerVisible(node.Building))
+            ? buildingVisible == null || buildingVisible(node.Building)
             : sectorVisible == null || sectorVisible(node.Sector);
 
     private static ExpantaNum FindRate(IReadOnlyList<Pair<ResourceDef, ExpantaNum>> rates, ResourceDef resource)

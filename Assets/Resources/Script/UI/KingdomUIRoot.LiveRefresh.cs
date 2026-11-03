@@ -28,7 +28,7 @@ public sealed partial class KingdomUIRoot
 
     private void Update()
     {
-        RefreshProductionViewportGeometry();
+        if (RefreshLoadingState()) return;
 #if UNITY_EDITOR
         float frameMilliseconds = Time.unscaledDeltaTime * 1000f;
         bool scrolling = IsPageScrolling();
@@ -949,7 +949,8 @@ public sealed partial class KingdomUIRoot
                 StringBuilder onboarding = developmentGuidanceTextBuilder;
                 onboarding.Clear();
                 onboarding.Append("<b>聚落下一步</b>\n").Append(tutorialSnapshot.CurrentGoal).Append("\n\n");
-                onboarding.Append("<b>当前条件</b>\n").Append(LinkTutorialMaterial(tutorialSnapshot.Blocker)).Append("\n\n");
+                if (!string.IsNullOrWhiteSpace(tutorialSnapshot.Blocker))
+                    onboarding.Append("<b>当前条件</b>\n").Append(LinkTutorialMaterial(tutorialSnapshot.Blocker)).Append("\n\n");
                 onboarding.Append("<b>现在就做</b>\n").Append(tutorialSnapshot.RecommendedAction);
                 if (!string.IsNullOrEmpty(tutorialSnapshot.Benefit))
                     onboarding.Append("\n\n").Append(tutorialSnapshot.Benefit);
@@ -1267,7 +1268,8 @@ public sealed partial class KingdomUIRoot
             DataBase<ResearchDef>.TryFind(targetId, out ResearchDef research) &&
             research != null)
         {
-            ShowResearchDetails(research);
+            if (pageName == "Research") NavigateToOverviewResearch(research);
+            else ShowResearchDetails(research);
             return;
         }
         if (pageName == "Buildings" &&
@@ -1415,14 +1417,14 @@ public sealed partial class KingdomUIRoot
     private void BindTopStatusTooltips()
     {
         if (topStatusTooltipsBound) return;
-        BindTopStatusTooltip(topFoodValue, "食物库存／容量；当前实际日常净产出与战略需粮");
-        BindTopStatusTooltip(topHappinessValue, "幸福度；建筑的最终生产效率见对应详情。");
-        BindTopStatusTooltip(topPopulationValue, "人口／住房容量；实际人口变化");
-        BindTopStatusTooltip(topTerritoryValue, "空闲土地／领土总量");
-        BindTopStatusTooltip(topResearchPowerValue, "有效研究力：已含全局增益与幸福度");
-        BindTopStatusTooltip(topPowerValue, "电力：余量（总需求／实际供给）");
-        BindTopStatusTooltip(topLogisticsValue, "物流：余量（总需求／实际供给）");
-        BindTopStatusTooltip(topCurrentResearchValue, "聚落劳力：建筑总需求／可供生产力；不足时按比例降低开工率");
+        BindTopStatusTooltip(topFoodValue, "食物养活居民。数值为库存／储存上限，括号内是每秒日常净变化；负数表示正在消耗存粮。战略需粮列出远行与工程的额外消耗。");
+        BindTopStatusTooltip(topHappinessValue, "幸福度影响居民增长与生产。稳定的食物盈余让族人更幸福，断粮则会拖慢发展；各建筑的实际生产效率可在详情中查看。");
+        BindTopStatusTooltip(topPopulationValue, "人口／住房容量。居民消耗食物并提供生产力；有空余住房且供粮充足，才有更多族人入住。括号内为每秒人口变化。");
+        BindTopStatusTooltip(topTerritoryValue, "空闲土地／领土总量。普通建筑需要占地；土地不足时，研究拓展领土或拆除闲置建筑。");
+        BindTopStatusTooltip(topResearchPowerValue, "研究力决定每秒推进多少研究进度。研究所需材料先一次付清，再持续投入研究力；这里已计入当前增益与幸福度。");
+        BindTopStatusTooltip(topPowerValue, "电力支撑用电设施。数值为余量（总需求／实际供给）；余量为负时用电建筑减产，应增加供电或停用部分设施。");
+        BindTopStatusTooltip(topLogisticsValue, "物流连接生产与远征。数值为余量（总需求／实际供给）；不足时相关设施减产，应增加运输能力或减少需求。");
+        BindTopStatusTooltip(topCurrentResearchValue, "生产力：建筑总需求／可供生产力。居民和相关设施提供生产力；不足时建筑按比例减产。增加居民或停用闲置设施，可缓解短缺。");
         topStatusTooltipsBound = true;
     }
 

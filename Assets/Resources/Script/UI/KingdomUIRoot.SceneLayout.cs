@@ -8,6 +8,16 @@ using UnityEngine.UI;
 public sealed partial class KingdomUIRoot
 {
     private string pageScrollDiagnosticSignature;
+    private string shownLoadingError;
+
+    private bool RefreshLoadingState()
+    {
+        SaveManager save = SaveManager.Instance;
+        if (!string.IsNullOrEmpty(save.LoadingError) && shownLoadingError != save.LoadingError)
+            ShowTooltip(save.LoadingError);
+        shownLoadingError = save.LoadingError;
+        return save.IsLoading && !save.IsOfflineProgressRunning;
+    }
 
     private void SaveCurrentPagePosition()
     {
@@ -265,7 +275,7 @@ public sealed partial class KingdomUIRoot
             return;
         musicListScroll = viewport.GetComponent<ScrollRect>();
         if (musicListScroll == null)
-            musicListScroll = viewport.gameObject.AddComponent<ScrollRect>();
+            musicListScroll = viewport.gameObject.AddComponent<KingdomScrollRect>();
         musicListScroll.viewport = viewport;
         musicListScroll.horizontal = false;
         musicListScroll.vertical = true;
@@ -432,7 +442,7 @@ public sealed partial class KingdomUIRoot
 
         pageScroll = pageHost.GetComponent<ScrollRect>();
         if (pageScroll == null)
-            pageScroll = pageHost.gameObject.AddComponent<ScrollRect>();
+            pageScroll = pageHost.gameObject.AddComponent<KingdomScrollRect>();
         pageScroll.viewport = pageHost;
         pageScroll.content = pages["Overview"];
         pageScroll.horizontal = false;

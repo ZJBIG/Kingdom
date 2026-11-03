@@ -15,7 +15,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 5d8849fc4c5f427ea2e7c200b7ebb376, type: 3}
   id: Academy
   Label: "\u5B66\u9662"
-  Description: "组织专职学者、系统课程与天象观测，持续提供研究力，推动新研究完成。"
+  Description: "专职学者在这里授课、辩论和观测天象，让新问题接续着旧知识不断生长。"
   TechLevel: 2
   upgradeTo: {fileID: 11400000, guid: 90fb7b8f48c5728499f5935878656473, type: 2}
   costGrowth: "1.22"

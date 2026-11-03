@@ -15,7 +15,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: c2b9e5f8d2cb482497b1de5b49e191b6, type: 3}
   id: ThunderGatePropellantWorks
   Label: "雷门推进剂基地：大气采集平台"
-  Description: "雷门环唯一的推进剂基地。首批采集平台配有低温试验线，立即生产火箭燃料；继续投资低温分离、并联精馏与轨道装载环，可提高燃料效率和物流供给。扩建复用现有维护配方，需要持续供电和补给。"
+  Description: "雷门环的推进剂基地。大气采集平台与低温试验线把巨行星的原料变成远航燃料，后续分离、精馏与轨道装载设施共同连接星港和舰队。"
   TechLevel: 4
   upgradeTo: {fileID: 0}
   costGrowth: "1.25"

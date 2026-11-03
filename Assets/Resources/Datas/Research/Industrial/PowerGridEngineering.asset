@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: PowerGridEngineering
   Label: "电网工程"
-  Description: "统一发电、输电和负载调度，解锁中央发电站并提升全局供电能力，为电解冶金、电子制造和轨道设施提供能源基础。"
+  Description: "连接发电机、输电线与调度台，让分散的厂房分享一张可靠的电网。"
   BaseCost: "900000"
   prerequisites:
   - {fileID: 11400000, guid: 874a8698c303e984795406fc7f83008b, type: 2}

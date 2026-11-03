@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: IndustrialAgriculture
   Label: "\u519C\u4E1A\u673A\u68B0\u5316"
-  Description: "以机械播种、灌溉与收割改造农业，提高全局食物产出和机械化农田的生产倍率。"
+  Description: "将播种、灌溉与收割编入机械作业，让耕作从依赖天时与体力转向有序的田间工程。"
   BaseCost: "1150000"
   prerequisites:
   - {fileID: 11400000, guid: 56de2faec444b084cba012f0f4113ba5, type: 2}

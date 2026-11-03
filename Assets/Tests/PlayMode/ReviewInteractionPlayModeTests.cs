@@ -59,6 +59,95 @@ public sealed class ReviewInteractionPlayModeTests
         yield return null;
     }
 
+    [UnityTest, Category("Performance")]
+    public IEnumerator MobileCadence_RecordsBoundedSixtyThirtyFrameComparison()
+    {
+        int previousFrameRate = Application.targetFrameRate;
+        int previousVSync = QualitySettings.vSyncCount;
+        try
+        {
+            yield return Load();
+            Assert.That(Object.FindObjectOfType<GameBootstrap>()?.Completed, Is.True);
+            ui.SetPage("Overview");
+            Object.FindObjectOfType<MusicManager>()?.Stop();
+            QualitySettings.vSyncCount = 0;
+            var rows = new List<string>
+            {
+                "targetFps,frames,seconds,actualFps,mainThreadAllocatedBytes,gc0,gc1,gc2,activeObjectsBefore,activeObjectsAfter,audioClipsBefore,audioClipsAfter,totalMemoryBefore,totalMemoryAfter,monoMemoryBefore,monoMemoryAfter"
+            };
+            foreach (int target in new[] { 60, 30 })
+            {
+                Application.targetFrameRate = target;
+                yield return new WaitForSecondsRealtime(1f);
+                int objectsBefore = Object.FindObjectsOfType<GameObject>().Length;
+                int clipsBefore = Resources.FindObjectsOfTypeAll<AudioClip>().Length;
+                long totalBefore = UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong();
+                long monoBefore = UnityEngine.Profiling.Profiler.GetMonoUsedSizeLong();
+                int gc0 = GC.CollectionCount(0);
+                int gc1 = GC.CollectionCount(1);
+                int gc2 = GC.CollectionCount(2);
+                long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
+                double startedAt = Time.realtimeSinceStartupAsDouble;
+                int frames = 0;
+                do
+                {
+                    yield return null;
+                    frames++;
+                } while (Time.realtimeSinceStartupAsDouble - startedAt < 3d);
+                double elapsed = Time.realtimeSinceStartupAsDouble - startedAt;
+                long allocatedAfter = GC.GetAllocatedBytesForCurrentThread();
+                string allocated = allocatedBefore > 0L ? (allocatedAfter - allocatedBefore).ToString(System.Globalization.CultureInfo.InvariantCulture) : "NA";
+                int gc0Delta = GC.CollectionCount(0) - gc0;
+                int gc1Delta = GC.CollectionCount(1) - gc1;
+                int gc2Delta = GC.CollectionCount(2) - gc2;
+                long totalAfter = UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong();
+                long monoAfter = UnityEngine.Profiling.Profiler.GetMonoUsedSizeLong();
+                int objectsAfter = Object.FindObjectsOfType<GameObject>().Length;
+                int clipsAfter = Resources.FindObjectsOfTypeAll<AudioClip>().Length;
+                Assert.That(SimulationManager.Instance.IsRunning, Is.False);
+                Assert.That(Application.targetFrameRate, Is.EqualTo(target), "The requested render cap must remain selected throughout this sample.");
+                rows.Add(FormattableString.Invariant($"{target},{frames},{elapsed:F4},{frames / elapsed:F2},{allocated},{gc0Delta},{gc1Delta},{gc2Delta},{objectsBefore},{objectsAfter},{clipsBefore},{clipsAfter},{totalBefore},{totalAfter},{monoBefore},{monoAfter}"));
+            }
+            string directory = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "data", "startup-mobile-20261103"));
+            Directory.CreateDirectory(directory);
+            string path = Path.Combine(directory, "frame-cadence-" + DateTime.UtcNow.ToString("yyyyMMdd-HHmmss-fff") + ".csv");
+            File.WriteAllLines(path, rows);
+            var saves = new List<string> { "sample,totalSaveMilliseconds" };
+            for (int sample = 0; sample < 3; sample++)
+            {
+                long started = System.Diagnostics.Stopwatch.GetTimestamp();
+                Assert.That(SaveManager.Instance.SaveNow(true), Is.True);
+                double milliseconds = (System.Diagnostics.Stopwatch.GetTimestamp() - started) * 1000d / System.Diagnostics.Stopwatch.Frequency;
+                saves.Add(FormattableString.Invariant($"{sample},{milliseconds:F3}"));
+            }
+            File.WriteAllLines(Path.Combine(directory, "save-cost-" + DateTime.UtcNow.ToString("yyyyMMdd-HHmmss-fff") + ".csv"), saves);
+            Debug.Log("[KingdomPerf] Same-scene Overview, paused simulation, music stopped; Editor frame/allocation observations, not device power or leak acceptance. " + path + "\n" + string.Join("\n", rows));
+        }
+        finally
+        {
+            Application.targetFrameRate = previousFrameRate;
+            QualitySettings.vSyncCount = previousVSync;
+        }
+    }
+
+    [UnityTest]
+    public IEnumerator BuildingDescription_RemainsVisibleInBothDetailModes()
+    {
+        yield return Load();
+        BuildingDef building = DataBase<BuildingDef>.Find("WoodHouse");
+        Assert.That(building.Description, Is.Not.Null.And.Not.Empty);
+        ui.SetPage("Buildings");
+        Toggle details = ui.transform.Find("SafeAreaRoot/Content/PageTool/BuildingControls/ShowDetails").GetComponent<Toggle>();
+        TMP_Text body = ui.transform.Find("SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent/Body").GetComponent<TMP_Text>();
+        ui.ShowBuildingDetailsForEditor(building);
+        foreach (bool expanded in new[] { false, true })
+        {
+            details.isOn = expanded;
+            ui.RefreshLiveCardValuesForEditor();
+            Assert.That(body.text, Does.Contain(building.Description));
+        }
+    }
+
     [UnityTest]
     public IEnumerator BuildingQuantity_UpdatesBatchAvailabilityAndClipsCustomInput()
     {
@@ -154,7 +243,7 @@ public sealed class ReviewInteractionPlayModeTests
         ui.RefreshLiveCardValuesForEditor();
         AssertBuildingStatusIcons(effect, 3);
         ui.ShowBuildingDetailsForEditor(building);
-        Assert.That(body.text, Does.Contain("<sprite=\"BuildingStatusIcons\" index=5>"), "Material shortage belongs in the selected building detail.");
+        AssertMaterialShortageRows(building);
         CaptureBuildingStatus("all-shortages");
         yield return null;
         foreach (var cost in building.ResourceRequirements)
@@ -208,9 +297,35 @@ public sealed class ReviewInteractionPlayModeTests
         effect.ForceMeshUpdate(true, true);
         Assert.That(effect.text, Is.Empty, "Material shortage belongs only in the selected detail panel.");
         ui.ShowBuildingDetailsForEditor(building);
-        Assert.That(body.text, Does.Contain("<sprite=\"BuildingStatusIcons\" index=5>"));
+        AssertMaterialShortageRows(building);
         CaptureBuildingStatus("materials-shortage");
         yield return null;
+    }
+
+    private void AssertMaterialShortageRows(BuildingDef building)
+    {
+        Transform content = ui.transform.Find("SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent/BuildingRequirements/RequirementContent");
+        Assert.That(content != null && content.gameObject.activeInHierarchy, Is.True);
+        Assert.That(building.ResourceRequirements.Count, Is.GreaterThan(0));
+        foreach (var cost in building.ResourceRequirements)
+        {
+            TMP_Text amount = null;
+            // Old rows await deferred destruction; inspect the newest matching row.
+            for (int i = content.childCount - 1; i >= 0; i--)
+            {
+                Transform row = content.GetChild(i);
+                if (row.name.StartsWith("Requirement_", StringComparison.Ordinal) &&
+                    row.Find("Label").GetComponent<TMP_Text>().text == cost.First.Label)
+                { amount = row.Find("Amount").GetComponent<TMP_Text>(); break; }
+            }
+            Assert.That(amount, Is.Not.Null, cost.First.Id);
+            ExpantaNum owned = ResourceManager.Instance.GetAmount(cost.First);
+            Assert.That(amount.text, Does.EndWith(" (" + owned.ToGameString() + ")"),
+                "The material row must show the current inventory beside its demand.");
+            int inventoryStart = amount.text.IndexOf(" (", StringComparison.Ordinal);
+            ExpantaNum demand = amount.text.Substring(0, inventoryStart);
+            Assert.That(demand, Is.GreaterThan(owned), "The displayed material requirement must expose the actual shortage.");
+        }
     }
 
     private static void AssertBuildingStatusIcons(TMP_Text effect, params int[] indices)
@@ -354,7 +469,7 @@ public sealed class ReviewInteractionPlayModeTests
         Assert.That(effect.text, Is.Empty, "Material warnings belong to the right detail panel.");
         ui.ShowBuildingDetailsForEditor(building);
         TMP_Text body = ui.transform.Find("SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent/Body").GetComponent<TMP_Text>();
-        Assert.That(body.text, Does.Contain("<sprite=\"BuildingStatusIcons\" index=5>"));
+        AssertMaterialShortageRows(building);
         Assert.That(body.text, Does.Contain("<sprite=\"HudProductionEfficiency\" index=0>" + (state.Efficiency * 100).ToGameString() + "%"));
         state.SetEfficiencyForEditor(ExpantaNum.Zero);
         ui.ShowBuildingDetailsForEditor(building);
@@ -550,6 +665,125 @@ public sealed class ReviewInteractionPlayModeTests
         Assert.That(warning.text, Does.Contain("当前产出："));
         ClickConfirmation("Cancel");
         Assert.That(state.Amount, Is.GreaterThan(ExpantaNum.Zero));
+    }
+
+    [UnityTest]
+    public IEnumerator ResearchDetails_ShowAllDirectUsesAndHideEmptySections()
+    {
+        yield return Load();
+        GameManager.Instance.State.AdvanceTechLevelForEditor(TechLevel.Ultra);
+        BuildingDef house = DataBase<BuildingDef>.Find("WoodHouse");
+        BuildingManager.Instance.SetAmountAndRatesForEditor(BuildingManager.Instance.EnsureBuilding(house), ExpantaNum.One);
+        ResearchDef mostConnected = null;
+        int largest = -1;
+        var targets = new HashSet<ResearchDef>();
+        foreach (ResearchDef research in DataBase<ResearchDef>.All)
+        {
+            int count = 0;
+            foreach (BuildingDef building in DataBase<BuildingDef>.All)
+                if (HasResearch(building.RequiredResearch, research)) count++;
+            foreach (ResearchDef next in DataBase<ResearchDef>.All)
+                if (HasResearch(next.Prerequisites, research)) count++;
+            if (count > largest) { mostConnected = research; largest = count; }
+        }
+        Assert.That(largest, Is.GreaterThan(3), "The real definitions must exercise the former three-item truncation.");
+        targets.Add(mostConnected);
+        foreach (BuildingDef building in DataBase<BuildingDef>.All)
+            if (building is SectorBuildingDef && building.RequiredResearch.Count > 0)
+            { targets.Add(building.RequiredResearch[0]); break; }
+        foreach (WorkshopUpgradeDef upgrade in DataBase<WorkshopUpgradeDef>.All)
+            if (upgrade.RequiredResearch.Count > 0)
+            { targets.Add(upgrade.RequiredResearch[0]); break; }
+        foreach (SectorDef sector in DataBase<SectorDef>.All)
+            if (sector.InteriorExploration != null && sector.InteriorExploration.RequiredResearch.Count > 0)
+            { targets.Add(sector.InteriorExploration.RequiredResearch[0]); break; }
+        TMP_Text body = ui.transform.Find("SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent/Body").GetComponent<TMP_Text>();
+        foreach (ResearchDef research in targets)
+        {
+            ui.ShowResearchDetailsForEditor(research);
+            foreach (BuildingDef building in DataBase<BuildingDef>.All)
+                if (HasResearch(building.RequiredResearch, research))
+                    Assert.That(body.text, Does.Contain(building.Label), research.Id + " -> " + building.Id);
+            foreach (WorkshopUpgradeDef upgrade in DataBase<WorkshopUpgradeDef>.All)
+                if (HasResearch(upgrade.RequiredResearch, research))
+                    Assert.That(body.text, Does.Contain(upgrade.Label), research.Id + " -> " + upgrade.Id);
+            foreach (ResearchDef next in DataBase<ResearchDef>.All)
+                if (HasResearch(next.Prerequisites, research))
+                    Assert.That(body.text, Does.Contain("research:" + next.Id), research.Id + " -> " + next.Id);
+            foreach (SectorDef sector in DataBase<SectorDef>.All)
+                if (sector.InteriorExploration != null && HasResearch(sector.InteriorExploration.RequiredResearch, research))
+                    Assert.That(body.text, Does.Contain(sector.InteriorExploration.Label).And.Contain("sector:" + sector.Id),
+                        research.Id + " -> " + sector.Id);
+        }
+        ResearchDef agriculture = DataBase<ResearchDef>.Find("Agriculture");
+        ui.ShowResearchDetailsForEditor(agriculture);
+        Assert.That(body.text, Does.Not.Contain("研究前置\n  无"));
+        Assert.That(body.text, Does.Contain("×" + agriculture.Effects[0].NumericValue.ToGameString()),
+            "Multipliers must be visibly distinguished from added amounts.");
+        ResearchDef processing = DataBase<ResearchDef>.Find("StoneProcessing");
+        ui.ShowResearchDetailsForEditor(processing);
+        foreach (ResearchEffectDefinition effect in processing.Effects)
+            if (effect.Type == ResearchEffectType.DeconstructionReturnRate)
+                Assert.That(body.text, Does.Contain((effect.NumericValue * 100).ToGameString() + "%"),
+                    "A refund fraction must be presented as a percentage.");
+        foreach (var system in new[]
+        {
+            (ProgressionVisibilityRules.EraResearchId, "开放时代页"),
+            (ProgressionVisibilityRules.ProductionResearchId, "开放生产页"),
+            ("Calendar", "历法日期")
+        })
+        {
+            ui.ShowResearchDetailsForEditor(DataBase<ResearchDef>.Find(system.Item1));
+            Assert.That(body.text, Does.Contain(system.Item2), "Real system uses must remain visible outside narrative descriptions.");
+            ui.RefreshLiveCardValuesForEditor();
+            Assert.That(body.text, Does.Contain(system.Item2), "Refreshing prerequisite status must preserve system uses.");
+        }
+    }
+
+    private static bool HasResearch(System.Collections.Generic.IReadOnlyList<ResearchDef> values, ResearchDef target)
+    {
+        foreach (ResearchDef value in values) if (value == target) return true;
+        return false;
+    }
+
+    [UnityTest]
+    public IEnumerator BuildingResearchPrerequisiteLink_OpensAndFramesItsResearch()
+    {
+        yield return Load();
+        BuildingDef house = DataBase<BuildingDef>.Find("WoodHouse");
+        BuildingManager.Instance.SetAmountAndRatesForEditor(BuildingManager.Instance.EnsureBuilding(house), ExpantaNum.One);
+        ui.SetPage("Buildings");
+        ui.transform.Find("SafeAreaRoot/Content/PageTool/BuildingControls/ShowDetails").GetComponent<Toggle>().isOn = true;
+        ui.ShowBuildingDetailsForEditor(DataBase<BuildingDef>.Find("Farm"));
+        TMP_Text body = ui.transform.Find("SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent/Body").GetComponent<TMP_Text>();
+        body.ForceMeshUpdate(true);
+        bool clicked = false;
+        for (int i = 0; i < body.textInfo.linkCount; i++)
+            if (body.textInfo.linkInfo[i].GetLinkID() == "research:Agriculture")
+            {
+                TMP_CharacterInfo character = body.textInfo.characterInfo[body.textInfo.linkInfo[i].linkTextfirstCharacterIndex];
+                Vector3 world = body.transform.TransformPoint((character.bottomLeft + character.topRight) * .5f);
+                body.GetComponent<UIReviewTextLinks>().OnPointerClick(new PointerEventData(EventSystem.current)
+                { position = RectTransformUtility.WorldToScreenPoint(null, world) });
+                clicked = true;
+                break;
+            }
+        Assert.That(clicked, Is.True, "Research prerequisites must expose executable links.");
+        UIResearchGraphGesture gesture = null;
+        for (int frame = 0; frame < 480; frame++)
+        {
+            gesture = ui.transform.Find("SafeAreaRoot/Content/PageHost/Research/DataRows/ResearchGraphViewport")?.GetComponent<UIResearchGraphGesture>();
+            if (gesture != null && gesture.IsInitialized && ResearchManager.Instance.SelectedResearchId == "Agriculture") break;
+            yield return null;
+        }
+        Assert.That(gesture != null && gesture.IsInitialized, Is.True);
+        Assert.That(ResearchManager.Instance.SelectedResearchId, Is.EqualTo("Agriculture")); // Stable navigation ID.
+        RectTransform viewport = (RectTransform)gesture.transform;
+        Transform node = viewport.Find("ResearchGraphContent/ResearchNode_Agriculture");
+        Assert.That(node, Is.Not.Null);
+        Bounds bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(viewport, node);
+        Assert.That(viewport.rect.Overlaps(new Rect(bounds.min, bounds.size)), Is.True,
+            "Navigation must bring the selected node into the graph viewport.");
     }
 
     [UnityTest]

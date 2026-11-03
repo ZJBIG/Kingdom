@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: AnimalFodder
   Label: "\u9972\u6599\u914D\u5236"
-  Description: "按牲畜食性配制饲料，改善养殖收成，提高全局食物产出。"
+  Description: "辨认牲畜的食性，搭配草料与谷物，让圈栏里的兽群安稳度过四季。"
   BaseCost: "7000"
   prerequisites:
   - {fileID: 11400000, guid: 37a795c6180558f498b019934dbdf9cb, type: 2}

@@ -1,9 +1,11 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public sealed class GameBootstrap : Singleton<GameBootstrap>
 {
     private bool completed;
+    private bool started;
 
     public bool Completed => completed;
 
@@ -14,11 +16,45 @@ public sealed class GameBootstrap : Singleton<GameBootstrap>
 
     public void Bootstrap()
     {
-        if (completed)
-            return;
+        if (started || completed) return;
+        started = true;
+        SaveManager.Instance.BeginLoading("正在读取存档");
+        StartCoroutine(BootstrapRoutine());
+    }
 
-        SimulationManager.Instance.SetRunning(false);
+    private IEnumerator BootstrapRoutine()
+    {
+        yield return null;
+        bool settling = false;
+        try
+        {
+            bool loadedExistingGame = InitializeGame();
+            settling = loadedExistingGame && SaveManager.Instance.BeginStartupOfflineProgress();
+        }
+        catch (Exception exception)
+        {
+            SaveManager.Instance.FailLoading(exception);
+        }
+        if (!string.IsNullOrEmpty(SaveManager.Instance.LoadingError)) yield break;
+        while (SaveManager.Instance.IsOfflineProgressRunning) yield return null;
+        if (!string.IsNullOrEmpty(SaveManager.Instance.LoadingError)) yield break;
+        try
+        {
+            SaveManager.Instance.FinishLoading();
+            SaveManager.Instance.SetReady(true);
+            if (settling && !SaveManager.Instance.SaveNow(true))
+                throw new System.IO.IOException(SaveManager.Instance.LastSaveError);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            ProgressionMilestoneRecorder.Attach(gameObject, SaveManager.Instance.LastLoadCreatedNewGame);
+#endif
+            completed = true;
+            SimulationManager.Instance.SetRunning(true);
+        }
+        catch (Exception exception) { SaveManager.Instance.FailLoading(exception); }
+    }
 
+    private static bool InitializeGame()
+    {
         ValidateDefinitions();
 
         _ = GameManager.Instance;
@@ -31,15 +67,7 @@ public sealed class GameBootstrap : Singleton<GameBootstrap>
         TutorialManager.Ensure();
         GameManager.Instance.Sectors.InitializeDefinitions();
 
-        bool loadedExistingGame = SaveManager.Instance.LoadOrCreateGame();
-        SaveManager.Instance.SetReady(true);
-        if (loadedExistingGame && SaveManager.Instance.ApplyOfflineProgress())
-            SaveManager.Instance.SaveNow(true);
-        SimulationManager.Instance.SetRunning(true);
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-        ProgressionMilestoneRecorder.Attach(gameObject, SaveManager.Instance.LastLoadCreatedNewGame);
-#endif
-        completed = true;
+        return SaveManager.Instance.LoadOrCreateGame();
     }
 
     private static void ValidateDefinitions()

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -9,10 +10,12 @@ public sealed class OfflineProgressSummaryTests
     private ResourceManager resources;
     private BuildingManager buildings;
     private SaveManager save;
+    private TutorialManager initialTutorial;
 
     [SetUp]
     public void SetUp()
     {
+        initialTutorial = UnityEngine.Object.FindObjectOfType<TutorialManager>(true);
         ProgressionModifierManager.Rebuild(null);
         host = new GameObject("OfflineSummaryTestManagers");
         resources = host.AddComponent<ResourceManager>();
@@ -36,7 +39,111 @@ public sealed class OfflineProgressSummaryTests
     public void TearDown()
     {
         UnityEngine.Object.DestroyImmediate(host);
+        TutorialManager tutorial = UnityEngine.Object.FindObjectOfType<TutorialManager>(true);
+        if (tutorial != null && tutorial != initialTutorial) UnityEngine.Object.DestroyImmediate(tutorial.gameObject);
         ProgressionModifierManager.Rebuild(null);
+    }
+
+    [Test]
+    public void CompletedTerritoryRewards_AreNotReappliedAfterSavingAndReloading()
+    {
+        ResearchManager research = host.GetComponent<ResearchManager>();
+        CompleteResearchPrerequisites(DataBase<ResearchDef>.Find("FeudalAdministration"), research);
+        SaveManager.KingdomSaveData data = save.CaptureSaveData();
+        data.General.TechLevel = TechLevel.Medieval;
+        data.General.HasCurrentFeudalTerritoryReward = true;
+        // The saved total already contains research and one-time territory rewards.
+        data.General.TerritoryTotal = "9000";
+        for (int reload = 0; reload < 3; reload++)
+        {
+            save.ApplySaveDataForEditor(data);
+            AssertNear(game.State.TerritoryTotal, new ExpantaNum(9000d));
+            data = JsonUtility.FromJson<SaveManager.KingdomSaveData>(JsonUtility.ToJson(save.CaptureSaveData()));
+        }
+    }
+
+    private static void CompleteResearchPrerequisites(ResearchDef definition, ResearchManager research)
+    {
+        ResearchState state = research.GetState(definition);
+        if (state.Status == ResearchStatus.Completed) return;
+        foreach (ResearchDef prerequisite in definition.Prerequisites)
+            CompleteResearchPrerequisites(prerequisite, research);
+        var paid = new Dictionary<ResourceDef, ExpantaNum>();
+        foreach (Pair<ResourceDef, ExpantaNum> cost in definition.ResourceRequirements)
+            paid.Add(cost.First, cost.Second);
+        state.RestoreForEditor(state.BaseCost, true, true, paid);
+    }
+
+    [Test]
+    public void ExistingFeudalReward_IsCompensatedOnceAndPersistsItsReceipt()
+    {
+        CompleteResearchPrerequisites(DataBase<ResearchDef>.Find("FeudalAdministration"), ResearchManager.Instance);
+        SaveManager.KingdomSaveData data = save.CaptureSaveData();
+        data.General.TechLevel = TechLevel.Medieval;
+        data.General.TerritoryTotal = "9000";
+        string oldJson = JsonUtility.ToJson(data).Replace("\"HasCurrentFeudalTerritoryReward\":false,", string.Empty);
+        Assert.That(oldJson, Does.Not.Contain("HasCurrentFeudalTerritoryReward"));
+        save.ApplySaveDataForEditor(JsonUtility.FromJson<SaveManager.KingdomSaveData>(oldJson));
+        AssertNear(game.State.TerritoryTotal, new ExpantaNum(11175d));
+        Assert.That(game.State.HasCurrentFeudalTerritoryReward, Is.True);
+        for (int reload = 0; reload < 3; reload++)
+        {
+            data = JsonUtility.FromJson<SaveManager.KingdomSaveData>(JsonUtility.ToJson(save.CaptureSaveData()));
+            Assert.That(data.General.HasCurrentFeudalTerritoryReward, Is.True);
+            save.ApplySaveDataForEditor(data);
+            AssertNear(game.State.TerritoryTotal, new ExpantaNum(11175d));
+        }
+    }
+
+    [Test]
+    public void NewFeudalCompletion_Grants2200AndDoesNotReceiveTheOldSaveCompensation()
+    {
+        ResearchManager research = ResearchManager.Instance;
+        ResearchDef feudal = DataBase<ResearchDef>.Find("FeudalAdministration");
+        foreach (ResearchDef prerequisite in feudal.Prerequisites) CompleteResearchPrerequisites(prerequisite, research);
+        SaveManager.KingdomSaveData data = save.CaptureSaveData();
+        data.General.TechLevel = TechLevel.StoneAge;
+        save.ApplySaveDataForEditor(data);
+        ExpantaNum before = game.State.TerritoryTotal;
+        Assert.That(game.State.HasCurrentFeudalTerritoryReward, Is.False);
+        foreach (Pair<ResourceDef, ExpantaNum> cost in feudal.ResourceRequirements)
+            resources.SetAmount(cost.First, cost.Second * 2d);
+        Assert.That(research.EnqueueResearch(feudal), Is.True);
+        research.TickOfflineForEditor(1000000d);
+        Assert.That(research.GetState(feudal).Status, Is.EqualTo(ResearchStatus.Completed));
+        AssertNear(game.State.TerritoryTotal - before, new ExpantaNum(2200d));
+        Assert.That(game.State.HasCurrentFeudalTerritoryReward, Is.True);
+        ExpantaNum completedTotal = game.State.TerritoryTotal;
+        save.ApplySaveDataForEditor(JsonUtility.FromJson<SaveManager.KingdomSaveData>(JsonUtility.ToJson(save.CaptureSaveData())));
+        AssertNear(game.State.TerritoryTotal, completedTotal);
+    }
+
+    [TestCase(7201d)]
+    [TestCase(28801d)]
+    public void IncrementalSettlement_PreservesSynchronousRateBoundaries(double seconds)
+    {
+        SaveManager.KingdomSaveData initial = save.CaptureSaveData();
+        save.ApplySaveDataForEditor(initial);
+        initial = save.CaptureSaveData();
+        SimulationManager simulation = host.GetComponent<SimulationManager>();
+        ResourceDef wood = DataBase<ResourceDef>.Find(ResourceManager.StartingResourceId);
+        simulation.AdvanceOffline(seconds);
+        ExpantaNum expectedWood = resources.GetAmount(wood);
+        ExpantaNum expectedFood = game.State.FoodAmount;
+        int expectedDay = game.State.CalendarDays;
+
+        save.ApplySaveDataForEditor(initial);
+        SimulationManager.OfflineProgressSession session = simulation.BeginOfflineProgress(seconds - 1d);
+        session.Advance(double.Epsilon);
+        Assert.That(session.Completed, Is.False, "One integration step must leave a long session resumable.");
+        Assert.That(session.Progress, Is.GreaterThanOrEqualTo(0f).And.LessThan(1f));
+        session.Extend(1d);
+        while (!session.Completed) session.Advance(4d);
+
+        AssertNear(resources.GetAmount(wood), expectedWood);
+        AssertNear(game.State.FoodAmount, expectedFood);
+        Assert.That(game.State.CalendarDays, Is.EqualTo(expectedDay), "Calendar day is a discrete counter.");
+        Assert.That(session.Progress, Is.EqualTo(1f), "One denotes the completed progress protocol state.");
     }
 
     [Test]

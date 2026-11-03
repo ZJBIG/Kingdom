@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: SyntheticFertilizers
   Label: "\u5408\u6210\u6C28\u4E0E\u5316\u80A5\u5DE5\u4E1A"
-  Description: "\u7EDF\u4E00\u5408\u6210\u6C28\u3001\u9AD8\u538B\u53CD\u5E94\u548C\u5316\u80A5\u914D\u5236\uFF0C\u4E3A\u673A\u68B0\u5316\u519C\u4E1A\u63D0\u4F9B\u6301\u7EED\u589E\u4EA7\u624B\u6BB5\u3002"
+  Description: "研究合成氨、高压反应与养分配制，为不再肥沃的田地寻找补回生机的方法。"
   BaseCost: "850000"
   prerequisites:
   - {fileID: 11400000, guid: 2e63e0ad0dbfd7b41a7fe50f3fc6b93a, type: 2}

@@ -157,7 +157,7 @@ public sealed class StoryIllustrationPreview : MonoBehaviour,
         if (RectTransformUtility.ScreenPointToLocalPointInRectangle(viewport, eventData.position,
                 eventData.pressEventCamera, out Vector2 position))
         {
-            Pan(position - previousDragPosition);
+            Pan((position - previousDragPosition) * KingdomScrollRect.DragSpeedMultiplier);
             previousDragPosition = position;
         }
     }

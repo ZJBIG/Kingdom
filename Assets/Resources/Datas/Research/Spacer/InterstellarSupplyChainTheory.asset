@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: InterstellarSupplyChainTheory
   Label: "\u661f\u9645\u8865\u7ed9\u94fe\u7406\u8bba"
-  Description: "\u5c06\u8fdc\u5f81\u8865\u7ed9\u3001\u524d\u6cbf\u4ed3\u50a8\u4e0e\u8230\u961f\u8fd0\u8f93\u7edf\u4e00\u4e3a\u53ef\u9884\u6d4b\u7684\u661f\u9645\u4f9b\u5e94\u94fe\uff0c\u964d\u4f4e\u957f\u65f6\u95f4\u6218\u5f79\u7684\u6301\u7eed\u8865\u7ed9\u6d88\u8017\u3002"
+  Description: "将前沿储运、舰队运输与远征补给连为一体，让漫长战役不再因一次迟到的运送而中断。"
   BaseCost: "992000000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}

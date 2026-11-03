@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ModernMedicine
   Label: "现代医学"
-  Description: "以无菌流程、临床记录和标准护理改善健康，提高每名人口提供的生产力与幸福度。"
+  Description: "用无菌操作、临床记录与规范护理照料族人，让健康不再只依赖运气。"
   BaseCost: "650000"
   prerequisites:
   - {fileID: 11400000, guid: 1cd97b5535bbb6b4d99b9b2bf483dfcf, type: 2}

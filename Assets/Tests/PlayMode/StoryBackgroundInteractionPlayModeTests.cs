@@ -96,9 +96,14 @@ public sealed class StoryBackgroundInteractionPlayModeTests
         Assert.That(preview.ViewPosition.magnitude, Is.LessThan(.1f));
         preview.OnScroll(new PointerEventData(EventSystem.current) { position = center, scrollDelta = Vector2.up });
         Assert.That(preview.Zoom, Is.GreaterThan(fittedZoom));
+        preview.ZoomAt(100f, center);
         preview.OnBeginDrag(pointer);
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(viewport, pointer.position, null, out Vector2 dragStart);
         MovePointer(pointer, new Vector2(40, 20));
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(viewport, pointer.position, null, out Vector2 dragEnd);
         preview.OnDrag(pointer);
+        Assert.That(Vector2.Distance(preview.ViewPosition, (dragEnd - dragStart) * 1.5f), Is.LessThan(.1f),
+            "Illustration dragging uses the same faster movement as page and graph dragging.");
         preview.OnEndDrag(pointer);
         preview.transform.Find("Header/Reset").GetComponent<Button>().onClick.Invoke();
         Assert.That(preview.Zoom, Is.GreaterThan(0f).And.LessThanOrEqualTo(fittedZoom), "Reset restores the fitted view.");
@@ -177,9 +182,14 @@ public sealed class StoryBackgroundInteractionPlayModeTests
         outerBefore = outer.content.anchoredPosition;
         inner.OnInitializePotentialDrag(pointer);
         inner.OnBeginDrag(pointer);
+        innerBefore = inner.content.anchoredPosition;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(inner.viewport, pointer.position, null, out Vector2 dragStart);
         MovePointer(pointer, Vector2.up * 20);
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(inner.viewport, pointer.position, null, out Vector2 dragEnd);
         inner.OnDrag(pointer);
         Assert.That(inner.IsDraggingOuter, Is.False);
+        Assert.That(inner.content.anchoredPosition.y - innerBefore.y,
+            Is.EqualTo((dragEnd.y - dragStart.y) * 1.5f).Within(.1f));
         Assert.That(Vector2.Distance(outerBefore, outer.content.anchoredPosition), Is.LessThan(.1f));
         inner.verticalNormalizedPosition = 0;
         innerBefore = inner.content.anchoredPosition;

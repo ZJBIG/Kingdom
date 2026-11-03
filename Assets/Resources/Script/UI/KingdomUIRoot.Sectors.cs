@@ -941,7 +941,8 @@ public sealed partial class KingdomUIRoot
         body.AppendLine(exploration.Description);
         body.AppendLine("勘探状态：" + GetSectorInteriorExplorationStatusText(preview.Status));
         body.AppendLine("勘探进度：" + (preview.Progress * 100).ToGameString() + "%");
-        if (preview.MissingResearch != null) body.AppendLine("需要研究：" + preview.MissingResearch.Label);
+        if (preview.MissingResearch != null) body.AppendLine("需要研究：" +
+            ReviewLink("research", preview.MissingResearch.Id, preview.MissingResearch.Label));
         if (preview.MissingResource != null) body.AppendLine("等待补给：" + preview.MissingResource.Label);
         if (preview.Status != SectorInteriorExplorationStatus.Completed)
         {

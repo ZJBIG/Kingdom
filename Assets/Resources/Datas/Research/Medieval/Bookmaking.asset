@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Bookmaking
   Label: "\u4E66\u7C4D\u4E0E\u5370\u5237"
-  Description: "改进抄录、活字排版与装订，让研究记录更易复制，提高全局研究效率。"
+  Description: "改进抄录、活字排版和装订，让珍贵的记录走出少数人的书桌，传到更多族人爪中。"
   BaseCost: "200000"
   prerequisites:
   - {fileID: 11400000, guid: 11a1763744a4e2b42b651b4bc8ddb331, type: 2}

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: BronzeAlloyCrafting
   Label: "\u9752\u94DC\u5408\u91D1\u4E0E\u5668\u5177\u5236\u9020"
-  Description: "通过青铜合金配比、浇铸和工具标准化提升基础金属冶炼效率，为后续机械工艺与钢材加工奠定技术基础。"
+  Description: "摸索合金配比、浇铸与检验，让金属的坚韧能够被工具和构件可靠承接。"
   BaseCost: "21000"
   prerequisites:
   - {fileID: 11400000, guid: 18eb5ef84f011af42afa13a9c95e24b9, type: 2}

@@ -30,7 +30,7 @@ public enum ResearchPaymentResult
 
 public class ResearchManager : Singleton<ResearchManager>
 {
-    public static readonly ExpantaNum BaseResearchPower = new ExpantaNum(4);
+    public static readonly ExpantaNum BaseResearchPower = new ExpantaNum(10);
 
     private ExpantaNum globalEfficiencyFactor = ExpantaNum.One;
     public ExpantaNum GlobalEfficiencyFactor
@@ -840,6 +840,8 @@ public class ResearchManager : Singleton<ResearchManager>
         BuildingManager.Instance.ApplyProgressionModifierChange(
             previousModifiers,
             ProgressionModifierManager.Current);
+        if (current.Definition.Id == "FeudalAdministration")
+            GameManager.Instance.State.RestoreFeudalTerritoryReward(true);
         BuildingManager.Instance.RefreshBuildingChainAvailability();
 #if UNITY_EDITOR
         float buildingApplyEnd = Time.realtimeSinceStartup;

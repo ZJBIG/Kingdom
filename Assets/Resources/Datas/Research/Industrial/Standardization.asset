@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Standardization
   Label: "\u6807\u51C6\u5316"
-  Description: "统一部件尺寸、货箱接口和检验方法，提高铁路枢纽的物流供给。"
+  Description: "约定零件尺寸、货箱接口与检验方法，让不同作坊的成果也能彼此契合。"
   BaseCost: "620000"
   prerequisites:
   - {fileID: 11400000, guid: 0ac8b644aa954cf49aec2922361454db, type: 2}

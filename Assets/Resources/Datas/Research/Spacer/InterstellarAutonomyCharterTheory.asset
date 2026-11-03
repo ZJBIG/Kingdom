@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: InterstellarAutonomyCharterTheory
   Label: "\u661f\u9645\u81ea\u6cbb\u5baa\u7ae0\u7406\u8bba"
-  Description: "建立星区代表、自治权与资源协商规则，提高居民幸福度。"
+  Description: "约定星区代表、自治权与资源协商，让远离母星的族人仍拥有共同的归属。"
   BaseCost: "1564000000"
   prerequisites:
   - {fileID: 11400000, guid: 1d6f4b8a2c9e47f0b5d3a7c1e8f6b204, type: 2}

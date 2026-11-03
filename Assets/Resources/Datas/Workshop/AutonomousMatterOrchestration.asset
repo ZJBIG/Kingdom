@@ -15,7 +15,7 @@ MonoBehaviour:
   id: AutonomousMatterOrchestration
   icon: {fileID: 21300000, guid: 0f7891ffe3d96af4cb342f88c66be2d3, type: 3}
   Label: "自主材料调度"
-  Description: "以自动工单协调跨星区材料生产，提高所有建筑的生产倍率。"
+  Description: "以自动工单协调跨星区的材料制造，让组装、质检与回收在各处工坊之间顺畅接续。"
   SortOrder: 720
   TechLevel: 5
   requiredResearch:

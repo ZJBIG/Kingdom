@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: StoneAgeTransition
   Label: "迈入石器时代"
-  Description: "把定居聚落的经验整理为共同的文明基础，正式迈入石器时代，开放新的生产与研究。"
+  Description: "把定居聚落的经验整理成共同传承，让打磨的石器与稳固的家园标记鼠族文明的新起点。"
   BaseCost: "600"
   prerequisites:
   - {fileID: 11400000, guid: 8e0fc30982c64b7290ae89c352265c3d, type: 2}

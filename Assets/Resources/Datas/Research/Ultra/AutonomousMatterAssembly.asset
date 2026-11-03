@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: AutonomousMatterAssembly
   Label: "自主物质组装"
-  Description: "以分布式认知协调材料组装、质检与回收，提高所有建筑的生产倍率。"
+  Description: "以分布式认知协调组装、质检与回收，让遥远工坊的制造过程也能彼此应答。"
   BaseCost: "1.6e12"
   prerequisites:
   - {fileID: 11400000, guid: c4e8a1f7b2d94690ad35ef681c0b7a23, type: 2}

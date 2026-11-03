@@ -865,6 +865,7 @@ public sealed partial class KingdomUIRoot
             pendingOverviewResearchFocusId = null;
             FocusResearchNode(currentTarget);
         }
+        else ShowResearchDetails(target);
     }
 
     private void FocusResearchNode(ResearchDef research)

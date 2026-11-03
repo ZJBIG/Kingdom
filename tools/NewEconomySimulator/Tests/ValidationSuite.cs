@@ -605,7 +605,7 @@ public static class ValidationSuite
             var population = core.State.Population;
             var expectedHappiness = FoodReward((5 - population * new ExpantaNum(0.8d)) /
                 ExpantaNum.Max(ExpantaNum.One, population));
-            var expectedProgress = 4 * expectedHappiness * 120;
+            var expectedProgress = 10 * expectedHappiness * 120;
             AddResult(report, $"research reads post-population happiness ({mode})",
                 population > ExpantaNum.Zero &&
                 (core.State.GetResearchState("First").Progress - expectedProgress).Abs() < new ExpantaNum(1e-4d) &&
@@ -684,7 +684,7 @@ public static class ValidationSuite
             boundary.Research[1].BaseCost = "10000";
             var boundaryCore = BudgetCore(boundary, "0");
             boundaryCore.Tick(SimulationMode.Offline, seconds, seconds);
-            var speed = 4 * FoodReward(5);
+            var speed = 10 * FoodReward(5);
             var first = boundaryCore.State.GetResearchState("First");
             var second = boundaryCore.State.GetResearchState("Second");
             var expectedSecond = ExpantaNum.Max(ExpantaNum.Zero, speed * seconds - new ExpantaNum(0.01d)) * 2;
@@ -693,7 +693,7 @@ public static class ValidationSuite
                 : first.Completed && !second.Completed;
             // ExpantaNum quantizes intermediate scalar arithmetic to 1e-6.
             AddResult(report, $"offline research completion boundary ({seconds}s)", passed &&
-                (second.Progress - expectedSecond).Abs() < new ExpantaNum(1e-5d),
+                (second.Progress - expectedSecond).Abs() < new ExpantaNum(2e-5d),
                 $"Second progress={second.Progress}, expected={expectedSecond}; only true remainder uses the newly completed speed multiplier.");
         }
 

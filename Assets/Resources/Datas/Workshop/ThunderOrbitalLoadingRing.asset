@@ -15,7 +15,7 @@ MonoBehaviour:
   id: ThunderOrbitalLoadingRing
   icon: {fileID: 21300000, guid: 232cce0b68485224dadf374abfa0751f, type: 3}
   Label: "雷门推进剂基地：轨道装载环"
-  Description: "建成环绕基地的储运、对接与自动装载网络，进一步提高燃料回收效率，并将轨道物流供给扩大至基础值的十倍。燃料生产与装载系统都必须依托运行中的基地。"
+  Description: "建成环绕基地的储运、对接与自动装载网络，让回收的燃料沿轨道送往远航舰队。装载环依赖基地持续供电与运转。"
   SortOrder: 552
   TechLevel: 4
   requiredResearch:

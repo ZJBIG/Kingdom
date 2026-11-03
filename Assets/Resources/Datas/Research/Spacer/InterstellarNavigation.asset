@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: InterstellarNavigation
   Label: "星际导航"
-  Description: "利用导航设备与火箭燃料绘制太阳系外航线，解锁首个星际前沿区域。"
+  Description: "测定恒星方位、规划燃料与航线，让母恒星系之外的微光第一次成为可以抵达的目的地。"
   BaseCost: "227500000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}

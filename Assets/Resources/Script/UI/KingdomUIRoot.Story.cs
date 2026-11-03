@@ -532,7 +532,7 @@ public sealed partial class KingdomUIRoot
             DataBase<ResearchDef>.TryFind(targetId, out ResearchDef research) &&
             research != null)
         {
-            ShowResearchDetails(research);
+            NavigateToOverviewResearch(research);
             return;
         }
         if (pageName == "Workshop" &&

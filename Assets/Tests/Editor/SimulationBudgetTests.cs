@@ -14,6 +14,16 @@ public sealed class SimulationBudgetTests
     }
 
     [Test]
+    public void ZeroOfflineWindowRequiresNoOtherManagersAndPreservesTheClock()
+    {
+        managerObject = new GameObject("Zero-Offline-Test");
+        SimulationManager simulation = managerObject.AddComponent<SimulationManager>();
+        simulation.SetRunning(true);
+        Assert.That(simulation.AdvanceOffline(0d), Is.Zero, "Zero is the exact empty-window sentinel.");
+        Assert.That(simulation.IsRunning, Is.True);
+    }
+
+    [Test]
     public void Advance_PreservesBacklogWhileRespectingMaximumTicksPerFrame()
     {
         managerObject = new GameObject("Simulation-Budget-Test");

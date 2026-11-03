@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Fortification
   Label: "防御工事规划"
-  Description: "统一公共工程的结构与施工规划，提高全局建造效率，降低建造材料需求。"
+  Description: "校核承重、墙体与施工次序，让公共工程经得起风雨，也经得起时间。"
   BaseCost: "210000"
   prerequisites:
   - {fileID: 11400000, guid: 11a1763744a4e2b42b651b4bc8ddb331, type: 2}

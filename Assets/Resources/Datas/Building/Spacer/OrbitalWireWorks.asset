@@ -15,7 +15,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 2deaf9e2d1c1453f97981670ea9d874d, type: 3}
   id: OrbitalWireWorks
   Label: "\u8F68\u9053\u7EBF\u6750\u5382"
-  Description: "承接电气制造厂的铜线与基础电子元件生产，以钛合金维持轨道产线运转。"
+  Description: "在密闭轨道舱中制造导线与电子组件，为空间设施接通电力、控制和通信。"
   TechLevel: 4
   upgradeTo: {fileID: 11400000, guid: e2f3a4b5c67890d1e2f3a4b5c67890d1, type: 2}
   costGrowth: "1.24"

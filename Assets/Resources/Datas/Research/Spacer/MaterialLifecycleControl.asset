@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: MaterialLifecycleControl
   Label: "材料生命周期控制"
-  Description: "统一高级材料的装配、检修与回收标准，提高全局建造效率，降低建造材料需求。"
+  Description: "从装配到检修，再到拆卸与回收，为每种材料安排可以延续的使用历程。"
   BaseCost: "4500000000"
   prerequisites:
   - {fileID: 11400000, guid: 4b5c6d7e8f901a2b3c4d5e6f708192a3, type: 2}

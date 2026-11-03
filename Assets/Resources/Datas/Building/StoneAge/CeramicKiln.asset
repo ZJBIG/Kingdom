@@ -15,7 +15,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 370fa7d5f4bc442fb4df5afcf0718e14, type: 3}
   id: CeramicKiln
   Label: "\u9676\u74F7\u7A91"
-  Description: "\u4EE5\u9AD8\u6E29\u70E7\u5236\u9ECF\u571F\uFF0C\u751F\u4EA7\u8DE8\u65F6\u4EE3\u4F7F\u7528\u7684\u9676\u74F7\uFF0C\u652F\u6301\u50A8\u7CAE\u3001\u519C\u4E1A\u8BBE\u65BD\u548C\u65E9\u671F\u5EFA\u7B51\u3002"
+  Description: "在高温中烧制黏土，让储粮器皿、农业设施和耐火构件从窑中成形。"
   TechLevel: 1
   upgradeTo: {fileID: 11400000, guid: 6a2f8c4d1e9b5073a6c2f8e4b1d7a930, type: 2}
   costGrowth: "1.16"

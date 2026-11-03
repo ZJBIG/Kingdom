@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: HeliosCore
   Label: "曜心"
-  Description: "靠近日冕的灼热开发区。旧阵列已沉寂，光焰之间没有可直接接收的库存；王国必须承担设施建设和长期补给，才能在此立足。"
+  Description: "靠近日冕的灼热开发区。沉寂的旧阵列隐现在光焰之间，耐热设施与长久补给是鼠族在这里立足的依靠。"
   starSystemId: Sol
   domain: 0
   enemyPower: "0"

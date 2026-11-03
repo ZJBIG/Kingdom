@@ -15,7 +15,7 @@ MonoBehaviour:
   id: DeepSpaceInfrastructureMaintenanceConsole
   icon: {fileID: 21300000, guid: 44cecbf61f9f3b741a2d5399ae404494, type: 3}
   Label: "\u6df1\u7a7a\u57fa\u7840\u8bbe\u65bd\u7ef4\u62a4\u63a7\u5236\u53f0"
-  Description: "\u4f7f\u7528\u72b6\u6001\u76d1\u6d4b\u7ec8\u7aef\u3001\u8fdc\u7a0b\u68c0\u4fee\u63a5\u53e3\u548c\u5907\u4ef6\u8c03\u5ea6\u6a21\u5757\u7ec4\u6210\u5b9e\u4f53\u63a7\u5236\u53f0\uff0c\u843d\u5b9e\u6df1\u7a7a\u57fa\u7840\u8bbe\u65bd\u53ef\u9760\u6027\u7406\u8bba\uff0c\u63d0\u5347\u73b0\u6709\u8f68\u9053\u7269\u6d41\u67a2\u7ebd\u7684\u7ef4\u62a4\u4e0e\u6301\u7eed\u8fd0\u884c\u6548\u7387\u3002"
+  Description: "在维护台上汇总设备状态、远程检修和备件调度，让轨道物流枢纽的故障能够及时得到照料。"
   SortOrder: 440
   TechLevel: 4
   requiredResearch:

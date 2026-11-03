@@ -18,6 +18,101 @@ public sealed class SaveManager : Singleton<SaveManager>
     private bool dirty = true;
     private long lastSavedStateSignature;
     private long applicationPausedAtUnixSeconds;
+    private bool applicationPaused;
+    private SimulationManager.OfflineProgressSession offlineSession;
+    private OfflineProgressSummary.Snapshot offlineBefore;
+    private long offlineSavedAt;
+    private long offlineNow;
+    private double offlineSeconds;
+    private bool finishLoadingAfterOffline;
+    private long loadingPausedAtUnixSeconds;
+
+    public bool IsLoading { get; private set; }
+    public string LoadingStage { get; private set; } = string.Empty;
+    public float LoadingProgress { get; private set; }
+    public string LoadingError { get; private set; } = string.Empty;
+    public bool IsOfflineProgressRunning => offlineSession != null;
+
+    internal void BeginLoading(string stage)
+    {
+        IsLoading = true;
+        LoadingStage = stage;
+        LoadingProgress = 0f;
+        LoadingError = string.Empty;
+        SimulationManager.Instance.SetRunning(false);
+    }
+
+    internal void FinishLoading()
+    {
+        IsLoading = false;
+        LoadingProgress = 1f;
+    }
+
+    internal void FailLoading(Exception exception)
+    {
+        ready = false;
+        IsLoading = true;
+        LoadingError = string.IsNullOrWhiteSpace(exception.Message)
+            ? "初始化或离线结算失败。" : exception.Message;
+        SimulationManager.Instance.SetRunning(false);
+        Debug.LogError($"Kingdom 初始化或离线结算失败：{exception}");
+    }
+
+    internal bool BeginStartupOfflineProgress()
+    {
+        return BeginOfflineProgress(GameManager.Instance.State.LastSaveUnixSeconds,
+            DateTimeOffset.UtcNow.ToUnixTimeSeconds(), false);
+    }
+
+    private bool BeginOfflineProgress(long savedAt, long now, bool finishLoading)
+    {
+        if (offlineSession != null) return true;
+        LastOfflineProgressSeconds = 0d;
+        LastOfflineSummary = null;
+        double seconds = CalculateOfflineElapsedSeconds(savedAt, now, Math.Max(0d, maximumOfflineHours) * 3600d);
+        if (seconds <= 0d) return false;
+        BeginLoading("正在结算离线进度");
+        offlineBefore = OfflineProgressSummary.Capture();
+        offlineSavedAt = savedAt;
+        offlineNow = now;
+        offlineSeconds = seconds;
+        finishLoadingAfterOffline = finishLoading;
+        offlineSession = SimulationManager.Instance.BeginOfflineProgress(seconds);
+        return true;
+    }
+
+    private void Update()
+    {
+        if (offlineSession == null || applicationPaused) return;
+        try
+        {
+            offlineSession.Advance(4d);
+            LoadingProgress = offlineSession.Progress;
+            if (!offlineSession.Completed) return;
+            offlineSeconds = offlineSession.TotalSeconds;
+            offlineSession = null;
+            LastOfflineProgressSeconds = offlineSeconds;
+            LastOfflineSummary = new OfflineProgressSummary(offlineBefore,
+                OfflineProgressSummary.Capture(), offlineNow - offlineSavedAt, offlineSeconds);
+            GameManager.Instance.MarkSaveTimestamp(offlineNow);
+            dirty = true;
+            if (finishLoadingAfterOffline)
+            {
+                FinishLoading();
+                if (!SaveNow(true))
+                {
+                    FailLoading(new IOException(LastSaveError));
+                    return;
+                }
+                SimulationManager.Instance.SetRunning(true);
+            }
+        }
+        catch (Exception exception)
+        {
+            offlineSession = null;
+            FailLoading(exception);
+        }
+    }
 
 #if UNITY_EDITOR || UNITY_INCLUDE_TESTS
     private static string saveRootOverride;
@@ -155,7 +250,7 @@ public sealed class SaveManager : Singleton<SaveManager>
 
     public bool SaveNow(bool force = false)
     {
-        if (!ready)
+        if (!ready || IsLoading || !string.IsNullOrEmpty(LoadingError))
             return false;
 
         UpdateDirtyFromStateVersions();
@@ -216,6 +311,29 @@ public sealed class SaveManager : Singleton<SaveManager>
         if (unixSeconds < 0L)
             throw new ArgumentOutOfRangeException(nameof(unixSeconds));
 
+        applicationPaused = paused;
+        if (IsLoading)
+        {
+            if (paused)
+            {
+                if (loadingPausedAtUnixSeconds == 0L) loadingPausedAtUnixSeconds = unixSeconds;
+            }
+            else
+            {
+                long pausedAtDuringLoading = loadingPausedAtUnixSeconds;
+                loadingPausedAtUnixSeconds = 0L;
+                if (offlineSession != null && pausedAtDuringLoading > 0L && unixSeconds > pausedAtDuringLoading)
+                {
+                    long extraSeconds = unixSeconds - pausedAtDuringLoading;
+                    double maximumSeconds = Math.Max(0d, maximumOfflineHours) * 3600d;
+                    offlineSession.Extend(Math.Min(extraSeconds,
+                        Math.Max(0d, maximumSeconds - offlineSession.TotalSeconds)));
+                    LoadingProgress = offlineSession.Progress;
+                    offlineNow += extraSeconds;
+                }
+            }
+            return;
+        }
         if (paused)
         {
             applicationPausedAtUnixSeconds = unixSeconds;
@@ -227,8 +345,16 @@ public sealed class SaveManager : Singleton<SaveManager>
         applicationPausedAtUnixSeconds = 0L;
         LastOfflineProgressSeconds = 0d;
         LastOfflineSummary = null;
-        if (ready && pausedAt > 0L && ApplyOfflineProgress(pausedAt, unixSeconds))
-            SaveNow(true);
+        if (ready && pausedAt > 0L)
+        {
+            if (Application.isPlaying)
+            {
+                try { BeginOfflineProgress(pausedAt, unixSeconds, true); }
+                catch (Exception exception) { FailLoading(exception); }
+            }
+            else if (ApplyOfflineProgress(pausedAt, unixSeconds))
+                SaveNow(true);
+        }
     }
 
 #if UNITY_EDITOR || UNITY_INCLUDE_TESTS
@@ -285,6 +411,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         BuildingManager.Instance.InitializeStartingBuildings();
         GameManager.Instance.RestoreSaveData(data.General);
         ExpantaNum savedFood = GameManager.Instance.State.FoodAmount;
+        ExpantaNum savedTerritory = GameManager.Instance.State.TerritoryTotal;
         GameManager.Instance.ResetDerivedEconomy();
         ResourceManager.Instance.ResetDerivedRates();
         GameManager.Instance.InitializeStartingResources();
@@ -305,6 +432,14 @@ public sealed class SaveManager : Singleton<SaveManager>
         GameManager.Instance.Relic.RestoreSaveData(data.Relic);
         // Derived capacity is rebuilt incrementally; preserve legal stock across interim clamps.
         GameState restoredState = GameManager.Instance.State;
+        // Saved territory already includes permanent research, workshop and sector rewards.
+        restoredState.RestoreTerritoryTotal(savedTerritory);
+        if (!restoredState.HasCurrentFeudalTerritoryReward && ResearchManager.Instance.IsResearchCompleted("FeudalAdministration"))
+        {
+            // Authorized one-time correction of the already-collected 25 reward to 2200.
+            restoredState.AdjustTerritoryTotal(new ExpantaNum(2175d));
+            restoredState.RestoreFeudalTerritoryReward(true);
+        }
         restoredState.RestoreFoodExact(
             ExpantaNum.Min(savedFood, restoredState.FoodCapacity), restoredState.FoodCapacity);
         TutorialManager.Ensure().RestoreSaveData(data.Tutorial, GameManager.Instance.State.TechLevel);
@@ -774,6 +909,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         public int CalendarDays;
         public TechLevel TechLevel;
         public bool HasBuiltHousing;
+        public bool HasCurrentFeudalTerritoryReward;
         public string FoodAmount;
         public string Population;
         public string PopulationChangeProgress;

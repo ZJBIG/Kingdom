@@ -630,3 +630,30 @@ SectorRow高192→264，SectorIcon136方图左内缩64、标题区中心y=-132�
 - 新增PlayMode：NewChapterPreservesExpandedBodyReadingPosition通过持续缩窄pageHost制造新旧正文overflow，验证重建actual y保留与手动重开归零；IllustrationPreviewDefersTheGateWithoutCompletingTheStage通过正常图片回调打开预览，等待一帧Graphic进入raycast，再真实点击Close，检查阶段未完成/跳过且关闭后恢复gate。首轮正文通过；预览首轮立即射线无hit，诊断迭代等待一帧后已能关闭，但关闭后再查询inactive处理器造成测试误判，现改为检查所命中Graphic属Close及preview关闭结果。失败日志保留，不混入最终通过证据。
 - 最终PlayMode reading-preview-verified-play.xml/log：2/2 Passed，包装器正常退出0。EditMode wait-guidance-edit.xml/log：4/4 Passed，但保存XML后Unity退出超时120秒，包装器报错并结束自己启动的进程，不称运行器正常通过。最终真实Unity编译compile-reading-wait-final.log退出0且实际日志return code 0。证据均在data/experience-20261101/。限定8个源码/测试文件git diff --check通过（既有换行提示）。
 - 字体按reading-wait-font-before.sha256恢复本轮前字节并核验，本轮备份已删除且不存在；无Unity进程及StagedOnboarding/KingdomStoryBackgroundTests临时目录残留。未做画面/触摸手感或性能测量，未跑全项目测试；继续早期至工业有证据体验问题，不以低影响整理凑数。
+
+## 2026-11-02 建筑详情描述恢复
+- `KingdomUIRoot.DetailPanel.cs`：普通建筑及普通星区设施的共享详情在名称后恢复 `BuildingDef.Description`；巨构继续显示当前/下一阶段描述，未修改定义字段或数值。
+- `ReviewInteractionPlayModeTests.BuildingDescription_RemainsVisibleInBothDetailModes`：覆盖住宅在紧凑/完整模式和刷新后的描述。修复前 `TestResults/description-before.xml` 为 0/1，断言实际正文缺少住宅描述；修复后 `TestResults/description-after.xml` 为 6/6（包括 SectorBuildingPlayModeTests），runner 正常退出，日志 `Logs/description-after.log`。
+- `EarlyGameUiPresentationTests` 的 `TestResults/description-edit.xml` 为 2/2，Unity 写出结果后卡在退出，终止本次启动的进程，runner 退出 -1；日志 `Logs/description-edit.log`。不可称为正常退出。运行产生的字体资产改写已恢复到运行前干净状态。
+- 未运行完整测试套件；下一动作是按需查看本轮日志与结果。测试产生的 `data/building-detail-raw-20261026/` 留存，未删除。
+
+## 2026-11-02 续接：必要信息、研究定位与拖动提速
+- 研究详情移除空区，完整列出建筑/星区设施/工坊/后续研究/勘探用途；研究前置和后续等具体目标入口可跳转Research并定位；总览、剧情、队列复用同一定位API。系统开启用途独立保留，叙事文案审查160处。
+- 新增KingdomScrollRect(.cs/.meta)共享1.5x拖动，8个实际滚动组件及图/详情/插图均覆盖；原生ScrollRect脚本GUID在47个Prefab/Scene中零命中。指针、故事内外交接、点击和缩放焦点均有回归。
+- 开场目标/HUD教学和原木基础速率2.5/s详见同日首局交接；统一证据data/player-clarity-20261102/verification.md。GPU81/81正常退出，最终八页开场1/1正常退出，EditMode相关35/35写出但退出卡住，现有独立失败如报告。未commit/push，未处理用户真实存档。
+
+## 2026-11-03：隔夜启动分帧、30 FPS、领土补差与生产树保留
+
+- 已按用户计划完成源码/Prefab/回归。权威本轮证据与完整运行边界：`data/startup-mobile-20261103/verification.md`；逐项日志/XML、CSV、截图同目录，生产截图见其中路径。
+- 冷启动与后台恢复统一分帧结算（4 ms预算），保留同步积分入口与原经济；加载遮罩先绘制，阻止半结算保存/操作，后台暂停同一会话并继续。34,800s测试43切片，最长4.44ms。
+- `FeudalAdministration.asset` 领土25→2200。用户本轮明确授权既有已完成存档一次性补2175，新增当前v1 General.HasCurrentFeudalTerritoryReward收据；已保存领土作为总量恢复，避免重建永久效果重复累计。新研究正常给2200并记收据，补差重复读档不叠加。
+- 生产树取消沿用建筑列表替代隐藏过滤，Manager判断替代状态，灰框+文案；详情/展开/拖动保留，保底来源与材料不足不误标。修复视口尺寸变化补偿和共享拖动裁剪顺序，新增往返测试。
+- 手机固定30FPS，去掉触摸/滚动升60检测，DPI阈值保留。音乐未发现已证实的持续资源泄漏，策略与导入不变；添加手动暂停恢复回归。Editor短样本对象/音频片段数稳定，分配API标NA；同步存档4.2–12.6ms，设备功耗/音频体验未实测。
+- 静态闭包前后通过。确定性诊断前后同一既有幸福度短缺失败，未扩大改动。EditMode57/57、退出0；GPU最终31项先30通过1旧断言失败，修正不存在Heading的测试后剩余1/1通过、退出0。真实Unity最终编译通过、退出0、无编译/导入错误；早期重复新fileID已修正，失败证据保留。
+- 字体已恢复本轮前SHA256且备份已移除；无本轮Unity进程/测试临时目录残留。未运行全项目测试、未取得手机档、未重建APK、未操作真实档、未提交推送。下一动作若用户要求交付安装包，使用当前工作树按既有Android构建入口打包；不要让用户用旧APK验证本轮修改。
+
+## 2026-11-03 续接：正常画面离线加速、清理与Git上传
+- 用户最终要求“一切照常，玩家只是感觉时间加速，不新增文案、不限制操作”。已删除本轮LoadingOverlay及CanvasGroup/导航锁；离线会话继续分帧积分，普通UI真实刷新日期/资源/研究，导航建造等命令正常。保留内部实时tick防重与存档事务，异常用已有Tooltip显示原错误。
+- 最新GPU play-gpu-natural-acceleration：5/5 Passed、进程退出0；覆盖无新增遮罩、HUD日期变化、加速中导航并建造、后台恢复、禁半结算保存、音乐续播。真实Unity编译随该运行完成，无脚本或Prefab导入错误；未跑全套。额外旧新游戏农场Efficiency>0测试失败0，未改规则掩盖。
+- 首次Android构建Burst OutOfMemoryException失败；用户明确要求“先暂停，等我唤醒再构建，先上传git”。APK仍为2026-11-02旧包。恢复时先确认无用户Editor，释放内存后用tools/codex/build-android.ps1重打包，检查签名/包身份/时间，完成后清理所留构建缓存；不得因本交接自动恢复打包。
+- 用户授权上传所有有意义资产修改（含前几轮源码/Prefab/内容/测试），排除生成输出/缓存。旧生成证据216文件303139868字节逐SHA验证归档后原位清除；当前startup证据同样归档至.codex/archive/2026-11-03-pre-apk-evidence/data/startup-mobile-20261103，活动摘要保留data/startup-mobile-20261103/verification.md。字体已恢复hash722BFD776012F77B34C3C33AB7BC512BE7DDDDBC4FD9C44709CE0206689C539F并移除本轮备份。

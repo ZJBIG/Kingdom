@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: GuildSystem
   Label: "\u884C\u4F1A\u5236\u5EA6"
-  Description: "由行会训练学徒、保存工艺和交流经验，持续提高全局研究效率。"
+  Description: "由行会带领学徒、保存工艺、交换经验，让技艺在作坊之间和世代之间流传。"
   BaseCost: "150000"
   prerequisites:
   - {fileID: 11400000, guid: 11a1763744a4e2b42b651b4bc8ddb331, type: 2}

@@ -65,6 +65,26 @@ public sealed class MusicContinuationPlayModeTests
     }
 
     [UnityTest]
+    public IEnumerator ManualPausePreservesTrackAndCursorUntilResume()
+    {
+        yield return WaitForPlaying();
+        MusicManager.MusicTrack track = manager.CurrentTrack;
+        manager.Pause();
+        float pausedAt = manager.AudioSource.time;
+        yield return new WaitForSecondsRealtime(.6f);
+        Assert.That(manager.IsPaused, Is.True);
+        Assert.That(manager.AudioSource.isPlaying, Is.False);
+        Assert.That(manager.CurrentTrack, Is.SameAs(track));
+        Assert.That(manager.AudioSource.time, Is.EqualTo(pausedAt).Within(.05f));
+
+        manager.Resume();
+        yield return new WaitForSecondsRealtime(.4f);
+        Assert.That(manager.IsPlaying, Is.True);
+        Assert.That(manager.CurrentTrack, Is.SameAs(track));
+        Assert.That(manager.AudioSource.time, Is.GreaterThan(pausedAt));
+    }
+
+    [UnityTest]
     public IEnumerator NaturalEndAfterSeekStartsAnotherRandomTrack()
     {
         yield return WaitForPlaying();

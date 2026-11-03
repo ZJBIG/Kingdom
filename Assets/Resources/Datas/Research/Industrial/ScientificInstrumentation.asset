@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ScientificInstrumentation
   Label: "\u5DE5\u4E1A\u4EEA\u5668\u4E0E\u8FC7\u7A0B\u63A7\u5236"
-  Description: "以实验仪器、传感和计量核对研究结果，提高全局研究效率。"
+  Description: "用仪器捕捉感官无法分辨的变化，让测量结果能够被记录、比较与重现。"
   BaseCost: "760000"
   prerequisites:
   - {fileID: 11400000, guid: c1e5bab7941cbc2448480c7a63cc8177, type: 2}

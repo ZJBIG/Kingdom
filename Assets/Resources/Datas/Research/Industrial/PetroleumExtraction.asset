@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: PetroleumExtraction
   Label: "\u77F3\u6CB9\u94BB\u4E95\u57FA\u7840"
-  Description: "\u5B8C\u6210\u5730\u8D28\u52D8\u63A2\u3001\u57FA\u7840\u94BB\u4E95\u548C\u5957\u7BA1\u65BD\u5DE5\uFF0C\u89E3\u9501\u77F3\u6CB9\u94BB\u4E95\uFF0C\u4E3A\u71C3\u6599\u3001\u6DA6\u6ED1\u5242\u548C\u5316\u5DE5\u539F\u6599\u5EFA\u7ACB\u57FA\u7840\u6765\u6E90\u3002"
+  Description: "绘出地下油层，研究钻井、固井与套管，让沉睡的原油沿着安全的井道来到地面。"
   BaseCost: "110000"
   prerequisites:
   - {fileID: 11400000, guid: ea25df4d3b4dae645b0cec00cf53d779, type: 2}

@@ -317,7 +317,7 @@ public sealed partial class KingdomUIRoot
 
     private void SelectResearchQueueNode(ResearchDef research)
     {
-        ShowResearchDetails(research);
+        NavigateToOverviewResearch(research);
         RefreshResearchQueueGraphic();
     }
 

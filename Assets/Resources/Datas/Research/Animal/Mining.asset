@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Mining
   Label: "\u7EFC\u5408\u91C7\u77FF"
-  Description: "\u6574\u5408\u77FF\u8109\u8BC6\u522B\u3001\u7164\u4E0E\u91D1\u5C5E\u77FF\u5F00\u91C7\u3001\u6D4B\u91CF\u52D8\u63A2\u548C\u77FF\u77F3\u9664\u6742\uFF0C\u7EDF\u4E00\u89E3\u9501\u65E9\u671F\u77FF\u4E1A\u4F53\u7CFB\u3002"
+  Description: "辨认矿脉，测量岩层，整理坑道与选矿经验，寻找埋在群山深处的金属和燃料。"
   BaseCost: "1800"
   prerequisites:
   - {fileID: 11400000, guid: 01237db29f0c5354db0129f54f07b9e7, type: 2}

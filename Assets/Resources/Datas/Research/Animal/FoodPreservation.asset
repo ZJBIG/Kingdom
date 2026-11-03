@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: FoodPreservation
   Label: "\u98DF\u7269\u4FDD\u5B58"
-  Description: "用晾晒、熏制和低温保存粮食，提高食物储量上限。"
+  Description: "用晾晒、烟熏与低温留住收获，让族人不必在寒季重新忍饥。"
   BaseCost: "1800"
   prerequisites:
   - {fileID: 11400000, guid: 0f3d70375d0fdf14dabc4dfd617c19c8, type: 2}

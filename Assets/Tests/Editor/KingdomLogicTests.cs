@@ -189,6 +189,23 @@ public sealed class KingdomLogicTests
         Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(60)));
     }
 
+    [Test]
+    public void StartingWoodProduction_IsTwoAndAHalfPerSecondAfterInitializationAndRecalculation()
+    {
+        ResourceManager resources = CreateManager<ResourceManager>("Starting-Rate-Resources");
+        GameManager game = CreateManager<GameManager>("Starting-Rate-Game");
+        BuildingManager buildings = CreateManager<BuildingManager>("Starting-Rate-Buildings");
+        game.InitializeNewGameForEditor();
+        ResourceDef wood = DataBase<ResourceDef>.Find(ResourceManager.StartingResourceId);
+        Assert.That(resources.GetState(wood).ProductionRate.ToDouble(), Is.EqualTo(2.5d).Within(0.000001d));
+        buildings.PrepareTickResourceSatisfactionForEditor(1d);
+        Assert.That(resources.GetState(wood).ProductionRate.ToDouble(), Is.EqualTo(2.5d).Within(0.000001d));
+        ExpantaNum before = resources.GetAmount(wood);
+        resources.Tick(1d);
+        Assert.That((resources.GetAmount(wood) - before).ToDouble(),
+            Is.EqualTo(2.5d * game.State.HappinessRewardMultiplier.ToDouble()).Within(0.000001d));
+    }
+
     [TestCase("0")]
     [TestCase("13")]
     public void SaveApply_PreservesSavedWoodLogAmount(string amount)

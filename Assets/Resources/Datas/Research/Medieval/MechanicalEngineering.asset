@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: MechanicalEngineering
   Label: "\u673A\u68B0\u5DE5\u7A0B"
-  Description: "改进齿轮、曲柄与水轮传动，提高全局食物产出，并降低建造材料需求。"
+  Description: "研究齿轮、曲柄与水轮的传动，把流动的水和转动的轴变成稳定的劳作伙伴。"
   BaseCost: "133920"
   prerequisites:
   - {fileID: 11400000, guid: 11a1763744a4e2b42b651b4bc8ddb331, type: 2}

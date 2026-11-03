@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Measurement
   Label: "\u5EA6\u91CF\u8861"
-  Description: "统一长度、重量与容量单位，减少施工误差，降低全局建造材料需求。"
+  Description: "约定长度、重量与容积，让不同爪子量出的材料和画出的图纸能够相互吻合。"
   BaseCost: "3200"
   prerequisites:
   - {fileID: 11400000, guid: 5e7a600ae8d297e45b3666f2b17cb5df, type: 2}

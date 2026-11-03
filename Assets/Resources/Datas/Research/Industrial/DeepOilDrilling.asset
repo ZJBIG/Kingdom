@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: DeepOilDrilling
   Label: "\u6DF1\u5C42\u77F3\u6CB9\u589E\u4EA7"
-  Description: "\u5728\u77F3\u6CB9\u94BB\u4E95\u5DF2\u5EFA\u7ACB\u540E\uFF0C\u7528\u6DF1\u4E95\u94BB\u5934\u3001\u56FA\u4E95\u5957\u7BA1\u548C\u9AD8\u538B\u6CF5\u9001\u5F00\u53D1\u66F4\u6DF1\u6CB9\u5C42\uFF0C\u63D0\u9AD8\u77F3\u6CB9\u94BB\u4E95\u7684\u4EA7\u80FD\u3002"
+  Description: "研究深层岩压、套管密封与泵送，让钻头抵达从前无法安全触及的油层。"
   BaseCost: "420000"
   prerequisites:
   - {fileID: 11400000, guid: 2e63e0ad0dbfd7b41a7fe50f3fc6b93a, type: 2}

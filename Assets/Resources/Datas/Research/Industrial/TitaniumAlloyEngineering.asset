@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: TitaniumAlloyEngineering
   Label: "\u949B\u5408\u91D1\u5DE5\u7A0B"
-  Description: "以真空熔炼、成分控制和热处理加工特级金属矿，提高钛合金冶炼厂的产出，供应后续太空建设。"
+  Description: "研究真空熔炼、成分控制与热处理，让轻质金属在高温和重载下仍能保持可靠。"
   BaseCost: 2700000
   prerequisites:
   - {fileID: 11400000, guid: a8f616f3932e140449f43a6d7b6087c6, type: 2}

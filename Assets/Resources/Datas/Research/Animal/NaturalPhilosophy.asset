@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: NaturalPhilosophy
   Label: "\u81EA\u7136\u54F2\u5B66"
-  Description: "以观察、分类和比较整理自然知识，提高知识圈与文书小屋的研究力。"
+  Description: "观察、分类、比较，追问自然为何如此。火塘边的好奇渐渐成为可以讨论和验证的学问。"
   BaseCost: "2800"
   prerequisites:
   - {fileID: 11400000, guid: 5e7a600ae8d297e45b3666f2b17cb5df, type: 2}

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: DeepSpacePowerGridResilience
   Label: "深空电网韧性"
-  Description: "研究轨道电网的负载均衡、远距离输电稳定和故障隔离，使深空工业电力系统降低传输与调度损失，提高全局供电效率。"
+  Description: "研究负载均衡、远距离输电与故障隔离，让一处设施的失效不再拖垮整张深空电网。"
   BaseCost: "384000000"
   prerequisites:
   - {fileID: 11400000, guid: a9f3c7e1d5b248609c4e2f7a1b8d6350, type: 2}

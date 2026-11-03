@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: PrecisionManufacturing
   Label: "精密制造"
-  Description: "以精密机床和检验流程，提升机器制造与工业建造效率。"
+  Description: "以精密机床和检验量具校正微小误差，让复杂机械的零件能够准确配合。"
   BaseCost: "520000"
   prerequisites:
   - {fileID: 11400000, guid: 874a8698c303e984795406fc7f83008b, type: 2}

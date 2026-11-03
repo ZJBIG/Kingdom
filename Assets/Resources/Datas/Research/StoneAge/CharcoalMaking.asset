@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: CharcoalMaking
   Label: "\u70E7\u70AD\u6280\u672F"
-  Description: "掌握限氧炭化与窑温控制，提高炭窑的炉用燃料产出；成品计入煤炭库存。"
+  Description: "研究限氧炭化与窑温，让木材化作适合炉火和冶炼的炭料。"
   BaseCost: "6000"
   prerequisites:
   - {fileID: 11400000, guid: cd344edfb133f8249aad441aaa4c5002, type: 2}

@@ -29,6 +29,11 @@ and runtime evidence gates; simulator fixtures are not Unity acceptance.
 - `KingdomUIRoot` partials are presentation only;
   lifecycle ownership is documented in `docs/architecture/ui-boundaries.md`.
 - SaveManager captures non-derivable State using stable definition IDs.
+- Saved total territory already includes permanent research, workshop and sector
+  rewards; rebuilding derived effects during load must preserve that total.
+  `General.HasCurrentFeudalTerritoryReward` records the current v1 reward receipt:
+  an existing completed FeudalAdministration without it receives the authorized
+  2175 correction once; a new completion grants 2200 and records the receipt.
 - StoryProgressState stores only the completed chapter ID prefix and a version;
   completion is permanent history and never grants economic effects.
 

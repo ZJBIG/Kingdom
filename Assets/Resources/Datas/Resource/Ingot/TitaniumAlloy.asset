@@ -15,6 +15,6 @@ MonoBehaviour:
   id: TitaniumAlloy
   Label: "\u949B\u5408\u91D1"
   TechLevel: 3
-  Description: "\u7279\u7EA7\u77FF\u6599\u4E0E\u5DE5\u4E1A\u8F85\u6599\u52A0\u5DE5\u7684\u8F7B\u8D28\u9AD8\u5F3A\u5408\u91D1\uFF0C\u5DE5\u4E1A\u540E\u671F\u5F00\u59CB\u4F9B\u5E94\u822A\u5929\u4E0E\u6218\u7565\u8BBE\u65BD\u3002"
+  Description: "由精选矿料与工业辅料制成的轻质高强合金，用于航天结构与战略设施。"
   Sprite: {fileID: 21310007, guid: a863c8798f7b44d3a4e76eed1f86c197, type: 3}
   Color: {r: 1, g: 1, b: 1, a: 1}

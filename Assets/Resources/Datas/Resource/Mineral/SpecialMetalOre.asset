@@ -15,6 +15,6 @@ MonoBehaviour:
   id: SpecialMetalOre
   Label: "\u7279\u7EA7\u91D1\u5C5E\u77FF"
   TechLevel: 3
-  Description: "\u96BE\u7194\u7A00\u6709\u91D1\u5C5E\u7684\u7CBE\u9009\u77FF\u6599\uFF0C\u5DE5\u4E1A\u540E\u671F\u53EF\u7528\u4E8E\u7279\u7EA7\u5408\u91D1\u52A0\u5DE5\u3002"
+  Description: "难熔稀有金属的精选矿料，是耐高温合金与航天材料的重要原料。"
   Sprite: {fileID: 21310003, guid: a863c8798f7b44d3a4e76eed1f86c197, type: 3}
   Color: {r: 1, g: 1, b: 1, a: 1}

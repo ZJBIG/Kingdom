@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: OrbitalEngineering
   Label: "轨道工程"
-  Description: "整合电力、发动机、复合材料与电气连接技术，为近地轨道设施奠定基础，并提高深空观测站的研究力。"
+  Description: "研究失重环境下的结构、电力与连接，让工程不再以坚实地面为前提。"
   BaseCost: "38400000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}

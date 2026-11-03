@@ -15,7 +15,7 @@ MonoBehaviour:
   id: InterstellarSupplyMesh
   icon: {fileID: 21300000, guid: 08f7f55f3ae6ca6438092e5ba1b2a8c9, type: 3}
   Label: "星际补给网络"
-  Description: "统一安排长距离货运和舰队补给，提高全局物流供给。"
+  Description: "把长距离货运、前沿转运与舰队补给编成网络，让远方据点彼此接续。"
   SortOrder: 740
   TechLevel: 5
   requiredResearch:

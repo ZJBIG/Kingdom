@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: TextileCraft
   Label: "\u7EBA\u7EC7\u5DE5\u827A"
-  Description: "改进纺线、织布与布匹整理工艺，提高纺织工坊的布料产出。"
+  Description: "练习纺线、织造与整理，让柔软植物纤维成为御寒的衣物和结实的布匹。"
   BaseCost: "1600"
   prerequisites:
   - {fileID: 11400000, guid: 748cc4d872b7300488f8cc565e5483b1, type: 2}

@@ -21,6 +21,7 @@ public sealed class TutorialStageTests
         tutorial = host.AddComponent<TutorialManager>();
         TutorialManager.Ensure();
         tutorial.ResetForNewGameForEditor();
+        for (int i = 0; i < 8; i++) tutorial.AcknowledgeCurrentStage();
     }
 
     [TearDown]
@@ -28,6 +29,38 @@ public sealed class TutorialStageTests
     {
         Object.DestroyImmediate(host);
         ProgressionModifierManager.Rebuild(null);
+    }
+
+    [Test]
+    public void NewGameExplainsMissionAndHudBeforeHousingAndCanSkipOnlyIntroduction()
+    {
+        tutorial.ResetForNewGameForEditor();
+        Assert.That(tutorial.EvaluateStage().Title, Is.EqualTo("复兴鼠族"));
+        foreach (string target in new[] { "mission", "food", "population", "productivity", "research", "territory", "happiness", "materials" })
+        {
+            TutorialStageSnapshot stage = tutorial.EvaluateStage();
+            Assert.That(stage.StageId, Is.EqualTo("orientation")); // Stable stage/target protocol.
+            Assert.That(stage.TargetId, Is.EqualTo(target));
+            Assert.That(stage.Action, Is.EqualTo(TutorialStageAction.Inspect));
+            Assert.That(tutorial.Evaluate().NavigationTargetId, Is.EqualTo(target));
+            Assert.That(stage.Instruction, Is.Not.Empty);
+            tutorial.AcknowledgeCurrentStage();
+            if (target == "food")
+            {
+                SaveManager.TutorialSaveData midway = tutorial.CaptureSaveData();
+                tutorial.RestoreSaveData(midway, TechLevel.Animal);
+                Assert.That(tutorial.EvaluateStage().TargetId, Is.EqualTo("population"), "Reading progress resumes after save/load.");
+            }
+        }
+        Assert.That(tutorial.EvaluateStage().StageId, Is.EqualTo("building"));
+        SaveManager.TutorialSaveData saved = tutorial.CaptureSaveData();
+        tutorial.RestoreSaveData(saved, TechLevel.Animal);
+        Assert.That(tutorial.EvaluateStage().StageId, Is.EqualTo("building"));
+        tutorial.ResetForNewGameForEditor();
+        tutorial.EvaluateStage();
+        tutorial.SkipCurrentStage();
+        Assert.That(tutorial.EvaluateStage().StageId, Is.EqualTo("building"));
+        Assert.That(tutorial.SkippedStageIds, Does.Not.Contain("building"));
     }
 
     [Test]
@@ -149,10 +182,10 @@ public sealed class TutorialStageTests
         SaveManager.TutorialSaveData saved = tutorial.CaptureSaveData();
         tutorial.RestoreSaveData(saved, TechLevel.Animal);
         Assert.That(tutorial.SkippedStageIds, Does.Contain("building"));
-        Assert.That(tutorial.CompletedStageIds, Is.Empty);
+        Assert.That(tutorial.CompletedStageIds, Does.Not.Contain("building"));
         tutorial.ResetForNewGameForEditor();
         Assert.That(tutorial.SkippedStageIds, Is.Empty);
-        Assert.That(tutorial.EvaluateStage().StageId, Is.EqualTo("building"));
+        Assert.That(tutorial.EvaluateStage().StageId, Is.EqualTo("orientation"));
     }
 
     [Test]

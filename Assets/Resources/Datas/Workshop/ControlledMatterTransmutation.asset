@@ -15,7 +15,7 @@ MonoBehaviour:
   id: ControlledMatterTransmutation
   icon: {fileID: 21300000, guid: 3b82b940326c44446b9ac5b786d03c14, type: 3}
   Label: "受控材料重构装置"
-  Description: "将高能场约束与材料重组工序标准化，提高所有建筑的生产倍率。"
+  Description: "把高能场约束与材料重组编入标准工序，让复杂的物质加工能够稳定重复。"
   SortOrder: 760
   TechLevel: 4
   requiredResearch:

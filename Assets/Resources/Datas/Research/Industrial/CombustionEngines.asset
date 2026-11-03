@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: CombustionEngines
   Label: "\u5185\u71C3\u673A\u5236\u9020"
-  Description: "\u6574\u5408\u5185\u71C3\u673A\u539F\u7406\u3001\u7CBE\u5BC6\u52A0\u5DE5\u3001\u8F74\u627F\u4E0E\u71C3\u6CB9\u4F9B\u7ED9\uFF0C\u89E3\u9501\u7A33\u5B9A\u7684\u53D1\u52A8\u673A\u6279\u91CF\u5236\u9020\u3002"
+  Description: "研究燃烧、活塞与曲轴的配合，让小巧的动力装置能够离开固定机房，随车辆与机械一同前行。"
   BaseCost: "1500000"
   prerequisites:
   - {fileID: 11400000, guid: 71ebdc916ab8b85498698228066d1d55, type: 2}

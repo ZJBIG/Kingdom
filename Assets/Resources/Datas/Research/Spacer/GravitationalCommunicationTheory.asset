@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: GravitationalCommunicationTheory
   Label: "引力通信理论"
-  Description: "校准引力信号与远距离时钟，将跨星区观测纳入统一科研标准，提高全局研究效率。"
+  Description: "辨认微弱的引力信号，校准远方时钟，让相隔星区的观测仍能指向同一个时刻。"
   BaseCost: "700000000"
   prerequisites:
   - {fileID: 11400000, guid: 91e2d3c4b5a60718293a4e5f6b7c8d90, type: 2}

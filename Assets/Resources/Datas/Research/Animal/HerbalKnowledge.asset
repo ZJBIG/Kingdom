@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: HerbalKnowledge
   Label: "\u8349\u836F\u77E5\u8BC6"
-  Description: "辨认和配伍草药，改善健康与幸福度，提高人口生产力与全局建造效率。"
+  Description: "辨认草药，记录药性，让照料伤病的经验不再随着一位长者的离去而失传。"
   BaseCost: "850"
   prerequisites:
   - {fileID: 11400000, guid: 748cc4d872b7300488f8cc565e5483b1, type: 2}

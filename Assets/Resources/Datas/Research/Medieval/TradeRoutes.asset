@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: TradeRoutes
   Label: "\u9053\u8DEF\u4E0E\u8D38\u6613\u7F51\u7EDC"
-  Description: "统一道路、驿站和物资交接规范，降低全局建造材料需求。"
+  Description: "约定道路、驿站与物资交接规矩，让陌生聚落之间的往来也有信任和秩序。"
   BaseCost: "220000"
   prerequisites:
   - {fileID: 11400000, guid: 11a1763744a4e2b42b651b4bc8ddb331, type: 2}

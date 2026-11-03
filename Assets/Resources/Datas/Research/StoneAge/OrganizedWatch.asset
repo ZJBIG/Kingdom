@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: OrganizedWatch
   Label: "聚落值守制度"
-  Description: "建立轮班值守与任务排程，提升聚落建筑的持续产出效率。"
+  Description: "安排轮班值守与交接，让忙碌聚落中的火种、工具和工位始终有人照料。"
   BaseCost: "17000"
   prerequisites:
   - {fileID: 11400000, guid: 1578ecedcc4ad3344bf78130018ac2f9, type: 2}

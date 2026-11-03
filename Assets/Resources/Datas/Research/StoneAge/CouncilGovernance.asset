@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: CouncilGovernance
   Label: "\u8BAE\u4E8B\u6CBB\u7406"
-  Description: "由代表共同整理记录、讨论公共事务，提高全局研究效率。"
+  Description: "由代表共同保存记录、讨论事务，让聚落的经验和分歧都能在议事中得到回应。"
   BaseCost: "14000"
   prerequisites:
   - {fileID: 11400000, guid: 3869174a039765c4499c4d8576bd23d4, type: 2}

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: SteamPower
   Label: "\u84B8\u6C7D\u52A8\u529B"
-  Description: "用高压蒸汽驱动活塞与旋转机组，提高全局供电能力，并为工业动力设施奠定技术基础。"
+  Description: "把高压蒸汽引入气缸，用活塞与旋转机组承接它的力量，让机械替族人分担沉重的劳作。"
   BaseCost: "750000"
   prerequisites:
   - {fileID: 11400000, guid: ea25df4d3b4dae645b0cec00cf53d779, type: 2}

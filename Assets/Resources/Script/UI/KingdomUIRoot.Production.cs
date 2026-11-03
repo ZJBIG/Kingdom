@@ -14,9 +14,9 @@ public sealed partial class KingdomUIRoot
     private Vector2 productionSavedPosition;
     private float productionSavedScale = 1f;
     private bool productionViewSaved;
-    private Vector2 productionMeasuredViewport;
     private Vector2 productionGraphSize;
     private readonly Dictionary<ResourceProductionTree.Node, TMP_Text> productionStatuses = new();
+    private readonly Dictionary<ResourceProductionTree.Node, Image> productionSurfaces = new();
     private float nextProductionVisibilityRefresh;
     private readonly HashSet<ResourceDef> productionResources = new();
     private readonly HashSet<BuildingDef> productionBuildings = new();
@@ -59,7 +59,7 @@ public sealed partial class KingdomUIRoot
         SetPage("Production");
         if (productionTree?.Root.Resource == resource) return;
         productionTree = new ResourceProductionTree(resource, DataBase<BuildingDef>.All, DataBase<SectorDef>.All,
-            productionResources.Contains, productionBuildings.Contains, productionSectors.Contains, ShouldDisplayBuilding);
+            productionResources.Contains, productionBuildings.Contains, productionSectors.Contains);
         RebuildProductionGraph();
         CenterProductionRoot();
     }
@@ -73,7 +73,7 @@ public sealed partial class KingdomUIRoot
         SetPage("Production");
         if (productionTree?.Root.Building == building) return;
         productionTree = new ResourceProductionTree(building, DataBase<BuildingDef>.All, DataBase<SectorDef>.All,
-            productionResources.Contains, productionBuildings.Contains, productionSectors.Contains, ShouldDisplayBuilding);
+            productionResources.Contains, productionBuildings.Contains, productionSectors.Contains);
         RebuildProductionGraph();
         CenterProductionRoot();
     }
@@ -87,7 +87,7 @@ public sealed partial class KingdomUIRoot
         SetPage("Production");
         if (productionTree?.Root.Sector == sector) return;
         productionTree = new ResourceProductionTree(sector, DataBase<BuildingDef>.All, DataBase<SectorDef>.All,
-            productionResources.Contains, productionBuildings.Contains, productionSectors.Contains, ShouldDisplayBuilding);
+            productionResources.Contains, productionBuildings.Contains, productionSectors.Contains);
         RebuildProductionGraph();
         CenterProductionRoot();
     }
@@ -99,10 +99,10 @@ public sealed partial class KingdomUIRoot
         {
             if (selectedBuilding != null && productionBuildings.Contains(selectedBuilding))
                 productionTree = new ResourceProductionTree(selectedBuilding, DataBase<BuildingDef>.All, DataBase<SectorDef>.All,
-                    productionResources.Contains, productionBuildings.Contains, productionSectors.Contains, ShouldDisplayBuilding);
+                    productionResources.Contains, productionBuildings.Contains, productionSectors.Contains);
             else if (selectedSectorDefinition != null && productionSectors.Contains(selectedSectorDefinition))
                 productionTree = new ResourceProductionTree(selectedSectorDefinition, DataBase<BuildingDef>.All, DataBase<SectorDef>.All,
-                    productionResources.Contains, productionBuildings.Contains, productionSectors.Contains, ShouldDisplayBuilding);
+                    productionResources.Contains, productionBuildings.Contains, productionSectors.Contains);
             else
             {
                 ResourceDef root = selectedResource;
@@ -116,7 +116,7 @@ public sealed partial class KingdomUIRoot
                     return;
                 }
                 productionTree = new ResourceProductionTree(root, DataBase<BuildingDef>.All, DataBase<SectorDef>.All,
-                    productionResources.Contains, productionBuildings.Contains, productionSectors.Contains, ShouldDisplayBuilding);
+                    productionResources.Contains, productionBuildings.Contains, productionSectors.Contains);
             }
             RebuildProductionGraph();
             CenterProductionRoot();
@@ -155,8 +155,7 @@ public sealed partial class KingdomUIRoot
         productionHeading.text = productionTree.Root.Building != null
             ? productionTree.Root.Building.Label
             : productionTree.Root.Resource != null ? productionTree.Root.Resource.Label : productionTree.Root.Sector.Label;
-        productionGesture.Initialize(productionViewport, productionContent);
-        productionMeasuredViewport = productionViewport.rect.size;
+        productionGesture.Initialize(productionViewport, productionContent, true);
     }
 
     private RectTransform CreateProductionNode(ResourceProductionTree.Node node)
@@ -180,7 +179,9 @@ public sealed partial class KingdomUIRoot
         }
         label.text = node.Resource != null ? node.Resource.Label : node.Building != null ? node.Building.Label : node.Sector.Label;
         productionStatuses.Add(node, status);
-        status.text = ProductionNodeStatus(node);
+        Image surface = row.GetComponent<Image>();
+        productionSurfaces.Add(node, surface);
+        RefreshProductionNode(node, status, surface, resourceTreeRowPrefab.GetComponent<Image>().color);
         Button expand = row.transform.Find("Expand").GetComponent<Button>();
         expand.interactable = node.ReferenceTarget != null || productionTree.GetChildren(node).Count > 0;
         expand.transform.Find("Label").GetComponent<TMP_Text>().text = node.ReferenceTarget != null ? "↩" : !expand.interactable ? "·" : node.Expanded ? "-" : "+";
@@ -226,6 +227,15 @@ public sealed partial class KingdomUIRoot
         SaveProductionView();
     }
 
+    private static void RefreshProductionNode(ResourceProductionTree.Node node, TMP_Text status, Image surface, Color normalColor)
+    {
+        BuildingManager buildings = BuildingManager.Instance;
+        bool superseded = node.Building != null && buildings != null &&
+            buildings.ArePrerequisitesMet(node.Building, out _) && !buildings.CanConstructNew(node.Building);
+        surface.color = superseded ? new Color(.32f, .32f, .32f, normalColor.a) : normalColor;
+        status.text = superseded ? "已被替代 · 不可新建" : ProductionNodeStatus(node);
+    }
+
     private static string ProductionNodeStatus(ResourceProductionTree.Node node)
     {
         if (node.ReferenceTarget != null)
@@ -268,7 +278,9 @@ public sealed partial class KingdomUIRoot
             productionGesture.RestoreView(productionContent.anchoredPosition + (Vector2)(before - after), scale);
             SaveProductionView();
         }
-
+        Color normalColor = resourceTreeRowPrefab.GetComponent<Image>().color;
+        foreach (var entry in productionStatuses)
+            RefreshProductionNode(entry.Key, entry.Value, productionSurfaces[entry.Key], normalColor);
     }
 
     private void RefreshProductionVisibility()
@@ -314,24 +326,13 @@ public sealed partial class KingdomUIRoot
     private void ClearProductionGraph()
     {
         productionStatuses.Clear();
+        productionSurfaces.Clear();
         for (int i = productionContent.childCount - 1; i >= 0; i--)
         {
             GameObject old = productionContent.GetChild(i).gameObject;
             old.SetActive(false);
             Destroy(old);
         }
-    }
-
-    private void RefreshProductionViewportGeometry()
-    {
-        if (populatedPage != "Production" || productionTree == null || productionViewport == null) return;
-        Vector2 size = productionViewport.rect.size;
-        if (size.x <= 1f || size.y <= 1f || Vector2.Distance(size, productionMeasuredViewport) < .5f) return;
-        // Bottom-left content must follow the viewport top when its height changes.
-        Vector2 delta = size - productionMeasuredViewport;
-        productionGesture.RestoreView(productionContent.anchoredPosition + new Vector2(delta.x * .5f, delta.y), productionContent.localScale.x);
-        productionMeasuredViewport = size;
-        SaveProductionView();
     }
 
     private void CenterProductionRoot()

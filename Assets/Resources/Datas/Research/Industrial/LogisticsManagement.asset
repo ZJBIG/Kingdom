@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: LogisticsManagement
   Label: "工业物流管理"
-  Description: "整合仓储、铁路转运、标准货运单元和工厂供应计划，提升全局物流吞吐，使多工厂生产链能够稳定协同。"
+  Description: "把货站、铁路、标准货箱与供应计划编成一张网络，让物资在需要它的时刻抵达。"
   BaseCost: "1200000"
   prerequisites:
   - {fileID: 11400000, guid: e6640522d09d7c54f8a8d20eab954d97, type: 2}

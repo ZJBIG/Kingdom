@@ -15,7 +15,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 6a19ea895e794d7fba669a6f0a45604d, type: 3}
   id: OrbitalMachiningComplex
   Label: "\u8F68\u9053\u673A\u68B0\u52A0\u5DE5\u7EFC\u5408\u4F53"
-  Description: "在轨道洁净环境中承接机器制造厂的机械、内燃机与复合材料生产，本身持续消耗钛合金与电子元件。"
+  Description: "在轨道洁净舱中装配机械、发动机与复合构件，把地面工匠的技艺延伸到太空。"
   TechLevel: 4
   upgradeTo: {fileID: 11400000, guid: e2f3a4b5c67890d1e2f3a4b5c67890d1, type: 2}
   costGrowth: "1.24"

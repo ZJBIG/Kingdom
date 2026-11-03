@@ -216,7 +216,11 @@ public sealed partial class KingdomUIRoot
         if (useCompactBuildingDetails) state = BuildingManager.Instance?.GetState(building);
         StringBuilder text = new();
         if (BuildingManager.IsMegastructure(building)) AppendBuildingIdentity(text, building, state);
-        else text.AppendLine(building.Label);
+        else
+        {
+            text.AppendLine(building.Label);
+            text.AppendLine(building.Description);
+        }
         AppendBuildingCapacityRequirements(text, building);
         AppendBuildingBasicAttributes(text, building);
         if (state != null && state.Amount > ExpantaNum.Zero)
@@ -233,10 +237,16 @@ public sealed partial class KingdomUIRoot
         if (state != null && state.IsEnabled && state.Amount > ExpantaNum.Zero && state.Efficiency <= ExpantaNum.Zero)
             text.AppendLine("停工原因：" + GetStoppedBuildingReason(building));
         text.AppendLine();
-        text.AppendLine("研究前置");
-        AppendResearchPrerequisites(text, building.RequiredResearch);
-        text.AppendLine("工坊前置");
-        AppendWorkshopPrerequisites(text, building.RequiredWorkshopUpgrades);
+        if (building.RequiredResearch.Count > 0)
+        {
+            text.AppendLine("研究前置");
+            AppendResearchPrerequisites(text, building.RequiredResearch);
+        }
+        if (building.RequiredWorkshopUpgrades.Count > 0)
+        {
+            text.AppendLine("工坊前置");
+            AppendWorkshopPrerequisites(text, building.RequiredWorkshopUpgrades);
+        }
         text.AppendLine();
         text.AppendLine();
         detailBody.text = text.ToString();
@@ -720,16 +730,21 @@ public sealed partial class KingdomUIRoot
         text.AppendLine();
         text.AppendLine(research.Description);
         text.AppendLine();
-        text.AppendLine("研究前置");
-        AppendResearchPrerequisites(text, research.Prerequisites);
-        text.AppendLine();
-        text.AppendLine("效果");
+        if (research.Prerequisites.Count > 0)
+        {
+            text.AppendLine("研究前置");
+            AppendResearchPrerequisites(text, research.Prerequisites);
+            text.AppendLine();
+        }
+        string systemUse = GetResearchSystemUse(research);
+        if (research.AdvancesTechLevel || research.Effects.Count > 0 || systemUse.Length > 0)
+            text.AppendLine("效果");
+        if (systemUse.Length > 0) text.AppendLine("  " + systemUse);
         if (research.AdvancesTechLevel)
             text.AppendLine("进入" + research.TechLevel.GetDescription() + "，开放该时代的研究与生产内容。");
-        if (!research.AdvancesTechLevel || research.Effects.Count > 0)
+        if (research.Effects.Count > 0)
             AppendResearchEffects(text, research.Effects);
         text.AppendLine();
-        text.AppendLine("文明复兴连接");
         AppendResearchConnections(text, research);
         detailBody.text = text.ToString();
         HideBuildingRequirements();
@@ -744,6 +759,14 @@ public sealed partial class KingdomUIRoot
         CaptureResearchRefreshSignatures();
         RefreshReviewControls();
     }
+    private static string GetResearchSystemUse(ResearchDef research) => research.Id switch
+    {
+        ProgressionVisibilityRules.EraResearchId => "开放时代页：查看时代跃迁目标与所需条件。",
+        ProgressionVisibilityRules.ProductionResearchId => "开放生产页：查看原料来源、持续投入与上下游生产链。",
+        "Calendar" => "显示聚落历法日期，记录文明发展的岁月。",
+        _ => string.Empty
+    };
+
     private static void AppendResearchEffects(
         StringBuilder builder,
         IReadOnlyList<ResearchEffectDefinition> effects)
@@ -758,10 +781,24 @@ public sealed partial class KingdomUIRoot
             ResearchEffectDefinition effect = effects[i];
             if (effect == null)
                 continue;
-            string target = effect.Building != null ? effect.Building.Label :
-                effect.Resource != null ? effect.Resource.Label : "全局";
-            builder.AppendLine("  " + effect.Type.GetDescription() + " / " +
-                target + ": " + effect.Value);
+            if (effect.Type is ResearchEffectType.UnlockIndustrialWorkshop or ResearchEffectType.UnlockHomeSystemSurvey or
+                ResearchEffectType.UnlockDeepSpaceFleet or ResearchEffectType.UnlockInterstellarNavigation)
+            {
+                builder.AppendLine("  " + effect.Type.GetDescription());
+                continue;
+            }
+            string target = effect.Building == null ? string.Empty : effect.Building.Label;
+            if (effect.Resource != null)
+                target += (target.Length == 0 ? string.Empty : " · ") + effect.Resource.Label;
+            string value = effect.Type switch
+            {
+                ResearchEffectType.ProductivityGranted or ResearchEffectType.TerritoryGranted => effect.NumericValue.ToGameString(showPositiveSign: true),
+                ResearchEffectType.DeconstructionReturnRate => (effect.NumericValue * 100).ToGameString() + "%",
+                ResearchEffectType.HappinessBonus => (effect.NumericValue * 100).ToGameString(showPositiveSign: true) + "%",
+                _ => "×" + effect.NumericValue.ToGameString()
+            };
+            builder.AppendLine("  " + (target.Length == 0 ? string.Empty : target + " · ") +
+                effect.Type.GetDescription() + " " + value);
         }
     }
 
@@ -782,7 +819,7 @@ public sealed partial class KingdomUIRoot
                 continue;
             }
             builder.AppendLine("  " + (IsResearchCompleted(prerequisite) ? "✓ " : "○ ") +
-                prerequisite.Label);
+                ReviewLink("research", prerequisite.Id, prerequisite.Label));
         }
     }
 
@@ -803,7 +840,7 @@ public sealed partial class KingdomUIRoot
                 continue;
             }
             builder.AppendLine("  " + (IsWorkshopPurchased(prerequisite) ? "✓ " : "○ ") +
-                prerequisite.Label);
+                ReviewLink("workshop", prerequisite.Id, prerequisite.Label));
         }
     }
 
@@ -825,32 +862,53 @@ public sealed partial class KingdomUIRoot
         if (research == null)
             return;
 
-        int buildingCount = 0;
+        bool hasConnections = false;
         IReadOnlyList<BuildingDef> buildings = DataBase<BuildingDef>.All;
-        for (int i = 0; i < buildings.Count && buildingCount < 3; i++)
+        for (int i = 0; i < buildings.Count; i++)
         {
             BuildingDef building = buildings[i];
-            if (building == null || building is SectorBuildingDef ||
+            if (building == null ||
                 !ContainsResearch(building.RequiredResearch, research))
                 continue;
-            builder.AppendLine("  关联建筑：" + building.Label);
-            buildingCount++;
+            if (!hasConnections) builder.AppendLine("后续用途");
+            hasConnections = true;
+            builder.AppendLine("  建筑：" + ReviewLink("building", building.Id, building.Label));
         }
 
-        int researchCount = 0;
+        IReadOnlyList<WorkshopUpgradeDef> upgrades = DataBase<WorkshopUpgradeDef>.All;
+        for (int i = 0; i < upgrades.Count; i++)
+        {
+            WorkshopUpgradeDef upgrade = upgrades[i];
+            if (upgrade == null || !ContainsResearch(upgrade.RequiredResearch, research))
+                continue;
+            if (!hasConnections) builder.AppendLine("后续用途");
+            hasConnections = true;
+            builder.AppendLine("  工坊：" + ReviewLink("workshop", upgrade.Id, upgrade.Label));
+        }
+
         IReadOnlyList<ResearchDef> researches = DataBase<ResearchDef>.All;
-        for (int i = 0; i < researches.Count && researchCount < 3; i++)
+        for (int i = 0; i < researches.Count; i++)
         {
             ResearchDef next = researches[i];
             if (next == null || next == research ||
                 !ContainsResearch(next.Prerequisites, research))
                 continue;
-            builder.AppendLine("  研究后续方向：" + next.Label);
-            researchCount++;
+            if (!hasConnections) builder.AppendLine("后续用途");
+            hasConnections = true;
+            builder.AppendLine("  研究：" + ReviewLink("research", next.Id, next.Label));
         }
 
-        if (buildingCount == 0 && researchCount == 0)
-            builder.AppendLine("  没有以本研究为直接前置的普通建筑或后续研究。");
+        IReadOnlyList<SectorDef> sectors = DataBase<SectorDef>.All;
+        for (int i = 0; i < sectors.Count; i++)
+        {
+            SectorDef sector = sectors[i];
+            SectorInteriorExplorationDefinition exploration = sector == null ? null : sector.InteriorExploration;
+            if (exploration == null || !ContainsResearch(exploration.RequiredResearch, research))
+                continue;
+            if (!hasConnections) builder.AppendLine("后续用途");
+            hasConnections = true;
+            builder.AppendLine("  内部勘探：" + ReviewLink("sector", sector.Id, sector.Label + " · " + exploration.Label));
+        }
     }
 
     private static bool ContainsResearch(
@@ -905,10 +963,16 @@ public sealed partial class KingdomUIRoot
         text.AppendLine();
         text.AppendLine(definition.Description);
         text.AppendLine();
-        text.AppendLine("研究前置");
-        AppendResearchPrerequisites(text, definition.RequiredResearch);
-        text.AppendLine("工坊前置");
-        AppendWorkshopPrerequisites(text, definition.RequiredUpgrades);
+        if (definition.RequiredResearch.Count > 0)
+        {
+            text.AppendLine("研究前置");
+            AppendResearchPrerequisites(text, definition.RequiredResearch);
+        }
+        if (definition.RequiredUpgrades.Count > 0)
+        {
+            text.AppendLine("工坊前置");
+            AppendWorkshopPrerequisites(text, definition.RequiredUpgrades);
+        }
         if (definition.RequiredBuilding != null)
             text.AppendLine("工程本体：" + definition.RequiredBuilding.Label);
         if (definition.RequiredSector != null)
@@ -996,8 +1060,9 @@ public sealed partial class KingdomUIRoot
             WorkshopEffectDefinition effect = effects[i];
             if (effect == null)
                 continue;
-            string target = effect.Building != null ? effect.Building.Label :
-                effect.Resource != null ? effect.Resource.Label : "全局";
+            string target = effect.Building == null ? string.Empty : effect.Building.Label;
+            if (effect.Resource != null)
+                target += (target.Length == 0 ? string.Empty : " · ") + effect.Resource.Label;
             string icon = effect.Type switch
             {
                 WorkshopEffectType.GlobalResearchMultiplier or WorkshopEffectType.BuildingResearchPowerMultiplier => "<sprite=\"HudResearchPower\" index=0> ",
@@ -1008,7 +1073,10 @@ public sealed partial class KingdomUIRoot
                 WorkshopEffectType.TerritoryGranted => LandIcon + " ",
                 _ => string.Empty
             };
-            builder.AppendLine("  " + icon + effect.Type.GetDescription() + " / " + target + ": " + effect.Value);
+            string value = effect.Type == WorkshopEffectType.TerritoryGranted
+                ? effect.NumericValue.ToGameString(showPositiveSign: true)
+                : "×" + effect.NumericValue.ToGameString();
+            builder.AppendLine("  " + icon + (target.Length == 0 ? string.Empty : target + " · ") + effect.Type.GetDescription() + " " + value);
         }
     }
 
@@ -1132,7 +1200,9 @@ public sealed partial class KingdomUIRoot
             return;
         StringBuilder rows = new();
         AppendResearchPrerequisites(rows, research.Prerequisites);
-        ReplaceDetailSection("研究前置\n", "\n效果\n", rows.ToString());
+        string nextHeading = research.AdvancesTechLevel || research.Effects.Count > 0 || GetResearchSystemUse(research).Length > 0
+            ? "\n效果\n" : detailBody.text.Contains("\n后续用途\n") ? "\n后续用途\n" : null;
+        ReplaceDetailSection("研究前置\n", nextHeading, rows.ToString());
     }
 
     private void RefreshBuildingPrerequisiteText(BuildingDef building)
@@ -1141,7 +1211,7 @@ public sealed partial class KingdomUIRoot
             return;
         StringBuilder researchRows = new();
         AppendResearchPrerequisites(researchRows, building.RequiredResearch);
-        ReplaceDetailSection("研究前置\n", "工坊前置\n", researchRows.ToString());
+        ReplaceDetailSection("研究前置\n", building.RequiredWorkshopUpgrades.Count > 0 ? "工坊前置\n" : null, researchRows.ToString());
 
         StringBuilder workshopRows = new();
         AppendWorkshopPrerequisites(workshopRows, building.RequiredWorkshopUpgrades);
@@ -1802,7 +1872,7 @@ public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
             // Screen coordinates use a bottom-left origin, so a finger
             // moving up produces a positive deltaY. The top-anchored
             // content follows that delta toward its positive scroll range.
-            content.anchoredPosition += new Vector2(0f, deltaY);
+            content.anchoredPosition += new Vector2(0f, deltaY * KingdomScrollRect.DragSpeedMultiplier);
             ClampContent();
             movementSamples++;
             movementPathLength += Mathf.Abs(deltaY);

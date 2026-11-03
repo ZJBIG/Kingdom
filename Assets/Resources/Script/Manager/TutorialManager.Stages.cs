@@ -18,7 +18,7 @@ public sealed class TutorialStageSnapshot
 public sealed partial class TutorialManager
 {
     private static readonly string[] StageIds =
-        { "resources", "building", "population", "farm-goal", "research", "stone-chain", "first-transition", "production-chain", "era-goal", "workshop", "sectors" };
+        { "orientation", "resources", "building", "population", "farm-goal", "research", "stone-chain", "first-transition", "production-chain", "era-goal", "workshop", "sectors" };
     private readonly HashSet<string> completedStageIds = new HashSet<string>(StringComparer.Ordinal);
     private readonly HashSet<string> skippedStageIds = new HashSet<string>(StringComparer.Ordinal);
     private readonly HashSet<string> baselineStageIds = new HashSet<string>(StringComparer.Ordinal);
@@ -190,6 +190,12 @@ public sealed partial class TutorialManager
     public void AcknowledgeCurrentStage()
     {
         TutorialStageSnapshot snapshot = EvaluateStage();
+        if (snapshot?.StageId == "orientation" && stagePhase < 7)
+        {
+            stagePhase++;
+            version++;
+            return;
+        }
         if (snapshot != null && snapshot.StageId != "building" && snapshot.StageId != "research" &&
             snapshot.StageId != "farm-goal" && snapshot.StageId != "stone-chain" && snapshot.StageId != "first-transition" &&
             snapshot.Action == TutorialStageAction.Inspect && snapshot.CanInteract)
@@ -363,6 +369,7 @@ public sealed partial class TutorialManager
     private void EstablishStageBaseline(GameManager game, ResourceManager resources,
         BuildingManager buildings, ResearchManager research)
     {
+        baselineStageIds.Add("orientation");
         for (int i = 0; i < StageIds.Length; i++)
             if (TryGetStage(StageIds[i], game, resources, buildings, research, out _, true))
                 baselineStageIds.Add(StageIds[i]);
@@ -417,6 +424,9 @@ public sealed partial class TutorialManager
         RestoreStageSet(data.CompletedStageIds, completedStageIds);
         RestoreStageSet(data.SkippedStageIds, skippedStageIds);
         RestoreStageSet(data.BaselineStageIds, baselineStageIds);
+        if (data.ActiveStageId != "orientation" && !completedStageIds.Contains("orientation") &&
+            !skippedStageIds.Contains("orientation"))
+            baselineStageIds.Add("orientation");
         bool researchStageResolved = completedStageIds.Contains("research") || skippedStageIds.Contains("research") ||
             baselineStageIds.Contains("research") || Array.IndexOf(StageIds, data.ActiveStageId) > Array.IndexOf(StageIds, "research");
         ResearchManager researchManager = FindObjectOfType<ResearchManager>();
@@ -432,7 +442,7 @@ public sealed partial class TutorialManager
         activeStageId = data.ActiveStageId;
         stageTargetId = data.StageTargetId ?? string.Empty;
         // Navigation is re-established after load; never retain a stale UI selection.
-        stagePhase = 0;
+        stagePhase = activeStageId == "orientation" ? Math.Max(0, Math.Min(7, data.StagePhase)) : 0;
         if (data.StagePhase >= 2 && activeStageId == "building" && !string.IsNullOrEmpty(data.StageBuildingAmount))
         {
             try { stageBuildingAmount = new ExpantaNum(data.StageBuildingAmount); restoreBuildingBaseline = stageBuildingAmount.IsFinite && stageBuildingAmount >= ExpantaNum.Zero; }

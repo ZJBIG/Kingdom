@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: OrbitalStructuralDynamicsTheory
   Label: "\u8f68\u9053\u7ed3\u6784\u52a8\u529b\u5b66\u7406\u8bba"
-  Description: "校核轨道结构的振动、载荷与疲劳，减少返工，降低全局建造材料需求。"
+  Description: "校核轨道结构的振动、载荷与疲劳，让庞大的设施在无声运动中保持完整。"
   BaseCost: "144000000"
   prerequisites:
   - {fileID: 11400000, guid: b3e1a7c94d2f6081ab35c7e9d4f26018, type: 2}

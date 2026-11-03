@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: CivilizationPlanning
   Label: "文明规划"
-  Description: "定居之后，族人开始共同规划文明的未来。解锁时代页面，查看下一时代的跃迁条件与准备进度。"
+  Description: "族人围坐在火塘旁，把眼前的温饱与远方的家园画在同一张蓝图上。鼠族的复兴从共同的方向开始。"
   BaseCost: "200"
   prerequisites:
   - {fileID: 11400000, guid: cd344edfb133f8249aad441aaa4c5002, type: 2}

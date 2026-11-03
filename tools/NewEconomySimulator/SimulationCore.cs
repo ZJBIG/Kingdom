@@ -491,7 +491,7 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
         var powerConsumption = ExpantaNum.Zero;
         var logisticsProduction = ExpantaNum.Zero;
         var logisticsConsumption = ExpantaNum.Zero;
-        var researchPower = new ExpantaNum(4d);
+        var researchPower = new ExpantaNum(10d);
         var foodCapacity = new ExpantaNum(500d);
         var populationCapacity = ExpantaNum.Zero;
 

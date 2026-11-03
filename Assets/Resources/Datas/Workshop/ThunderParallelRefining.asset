@@ -15,7 +15,7 @@ MonoBehaviour:
   id: ThunderParallelRefining
   icon: {fileID: 21300000, guid: 37b90a383f56ab545b4ecfce3b308567, type: 3}
   Label: "雷门推进剂基地：并联精馏阵列"
-  Description: "增设并联精馏与热交换阵列，回收原有流程中未利用的组分，继续提高燃料产出效率；维护配方由基地统一承担。"
+  Description: "增设并联精馏与热交换阵列，回收原有流程中未能利用的组分，让大气原料得到充分加工。"
   SortOrder: 551
   TechLevel: 4
   requiredResearch:

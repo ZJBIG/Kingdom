@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: PermanentLaborOrganization
   Label: "常备劳动组织"
-  Description: "以长期编制、轮班与纪律化组织，提升人口参与生产的效率。"
+  Description: "以长期编制和明确轮班协调公共事务，让族人的劳动有分工，也有接续。"
   BaseCost: "150000"
   prerequisites:
   - {fileID: 11400000, guid: 3e79da25cf72909418a6ba8c25b100a0, type: 2}

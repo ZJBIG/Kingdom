@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: MatterTransmutationTheory
   Label: "高能材料重构理论"
-  Description: "改进高能场约束、材料筛选与微观重组工艺，提高所有建筑的生产倍率。"
+  Description: "研究高能场约束与微观重组，尝试在物质结构的深处寻找新的制造方法。"
   BaseCost: "2100000000"
   prerequisites:
   - {fileID: 11400000, guid: 12ca71b0c14f45ed83642482565c0cdd, type: 2}

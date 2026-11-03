@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: CropRotation
   Label: "\u8F6E\u4F5C\u5236\u5EA6"
-  Description: "轮换谷物、豆类与休耕地，改善定居生活，提高人口增长速度，并降低建造材料需求。"
+  Description: "让谷物、豆类与休耕地轮流照料土壤，为世代定居留下可以延续的田野。"
   BaseCost: "13000"
   prerequisites:
   - {fileID: 11400000, guid: bf4d8f1e0f33bc341a6012810cfda653, type: 2}

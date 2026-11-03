@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: OrbitalVacuumMetallurgy
   Label: "\u8F68\u9053\u771F\u7A7A\u51B6\u91D1"
-  Description: "改进真空熔炼、无重力凝固与轨道精炼，提高轨道综合资源工厂各条产线的产出。"
+  Description: "研究真空熔炼与失重凝固，让金属在离开地面后仍有可控的品质。"
   BaseCost: "336000000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}

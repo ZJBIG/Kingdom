@@ -339,6 +339,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (SaveManager.Instance.IsLoading && !SaveManager.Instance.IsOfflineProgressRunning) return;
         TickOnboarding();
         if (populatedPage == "Story")
             KeepStoryTextGeometryDrawable();
@@ -383,6 +384,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
 
     private void RebuildCurrentPage()
     {
+        if (SaveManager.Instance.IsLoading && !SaveManager.Instance.IsOfflineProgressRunning) return;
         if (!string.IsNullOrEmpty(populatedPage))
         {
             if (populatedPage == "Research" && researchTreePageBuilt)
@@ -432,6 +434,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         // Let the initial overview render first. Build the research page while
         // it is hidden so activating the tab only reuses existing UI objects.
         yield return null;
+        while (SaveManager.Instance.IsLoading) yield return null;
         if (researchTreePageBuilt || !pages.TryGetValue("Research", out RectTransform page))
         {
             researchTreeWarmupCoroutine = null;
@@ -455,6 +458,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         // Build the narrative archive after the first Overview frame so its
         // TMP/card creation is not paid by the first Story tab click.
         yield return null;
+        while (SaveManager.Instance.IsLoading) yield return null;
         if (researchTreeWarmupCoroutine != null)
             yield return researchTreeWarmupCoroutine;
         if (storyPageBuilt || !pages.TryGetValue("Story", out RectTransform page))

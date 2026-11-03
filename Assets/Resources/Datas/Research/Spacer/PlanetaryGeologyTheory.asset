@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: PlanetaryGeologyTheory
   Label: "\u884c\u661f\u5730\u8d28\u5b66\u7406\u8bba"
-  Description: "以轨道遥测、重力扫描与矿芯分析指导采掘，提高轨道综合资源工厂各条产线的产出。"
+  Description: "结合轨道遥测、重力扫描与矿芯分析，读懂陌生行星深藏在岩层里的历史。"
   BaseCost: "352000000"
   prerequisites:
   - {fileID: 11400000, guid: 8e5d3c2b1a09876543210fedcba98765, type: 2}

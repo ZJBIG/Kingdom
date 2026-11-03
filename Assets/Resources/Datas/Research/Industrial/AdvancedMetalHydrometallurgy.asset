@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: AdvancedMetalHydrometallurgy
   Label: "高级金属湿法冶金"
-  Description: "研究加压浸出、溶液萃取和电解精炼，提升高级金属矿的加工能力，开启集中供应高级金属锭的精炼厂。"
+  Description: "用加压浸出、溶液萃取与电解精炼分离杂质，寻找从顽固矿料中取得纯净金属的方法。"
   BaseCost: "1650000"
   prerequisites:
   - {fileID: 11400000, guid: ca4d5c54b40ea1a499e3283e174da7e3, type: 2}

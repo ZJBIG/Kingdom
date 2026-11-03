@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: VillageCrafts
   Label: "\u6751\u843D\u624B\u5DE5\u4E1A"
-  Description: "\u628A\u9676\u5668\u3001\u6728\u4F5C\u3001\u7EBA\u7EC7\u548C\u91D1\u5C5E\u52A0\u5DE5\u7EC4\u7EC7\u4E3A\u4E13\u4E1A\u5DE5\u79CD\uFF0C\u901A\u8FC7\u56FA\u5B9A\u4F5C\u574A\u548C\u5206\u5DE5\u63D0\u9AD8\u5236\u54C1\u8D28\u91CF\u4E0E\u4EA7\u91CF\u3002"
+  Description: "把陶器、木作、纺织与金属加工组织为专业工种，让每一门手艺都有专注钻研和传授经验的地方。"
   BaseCost: "12000"
   prerequisites:
   - {fileID: 11400000, guid: 355a852a35c1db04790b914df48a8ab1, type: 2}

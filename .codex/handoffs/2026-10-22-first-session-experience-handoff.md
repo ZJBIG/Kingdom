@@ -241,3 +241,16 @@
 - expansion-font.backup 此前删除被执行策略拒绝，继续保留，未绕过重试；个人笔记和其余验证证据保留。
 - 使用 tools/codex/build-android.ps1 构建，Android 设置、UI 合约及 YAML 引用前置检查通过；Unity 正常退出 0，日志 Logs/codex-android-build-20261102.log。APK Builds/Android/Kingdom.apk，212178071 字节，SHA256 BFA74C7CA4421682AFB158901118269856AB31B83306EE2683C25C1A16FC07F6。apksigner 校验 v1/v2 通过，Android Debug 证书；报告两个 META-INF 条目未受 JAR 签名保护的警告。
 - 此次构建使用当前首局改动；最终定向 EditMode 70/70、GPU PlayMode 33/33 为此前同主题验证，详细记录见本交接和 data/experience-20261102/verification.md。本次未重复测试。
+
+## 2026-11-02 续接：复兴目标、指标教学、文案与研究定位
+- 新局在木屋操作前增加八页复兴鼠族/HUD/材料教学，复用orientation阶段和既有存档字段；已有进度基线不补弹，阅读页码读档续接，跳过仅影响本阶段。总览隐藏空的当前条件；引导Prefab面板260→276、正文108→124。
+- 基础原木产速1/s→2.5/s，初始化/重算/加载与parity导出同步，既有幸福度等增益照常计算。361个定义审查并改160个叙事Description，其他定义字段保持；具体作用放结构化效果/用途区。
+- 顶栏解释、完整研究用途与具体研究跳转、全部单指滚动/拖动1.5x随本轮交付；详细文件与证据见data/player-clarity-20261102/verification.md，以及玩家体验QA同日交接。
+- GPU81/81退出0，最终单独生产力教学及八页截图回归1/1退出0；最终EditMode35/35写出但退出卡住，结束自建进程，退出-1。较广EditMode85/87，两个HEAD已有CivilizationPlanning无数值效果校验失败；离线诊断修改前后均有同一既有幸福度失败，静态闭包前后全可达。字体自动改写已恢复。未运行完整项目套件；下一步若处理上述既有校验，应按真实系统用途修复校验口径，不为通过而编造数值效果。
+- 收尾发现并保留并行科研基线4→10及对应测试/模拟器差异，非本轮改动。最终重新构建当前模拟器退出0、0警告/错误；simulator-current.json仍只有同一既有幸福度诊断失败。当前输入细节见verification.md“并行工作边界”。
+
+### 2026-11-02 当前修改 APK 交付（23:31）
+- 按用户“生成apk”执行现有 tools/codex/build-android.ps1，当前工作树内容打入 Builds/Android/Kingdom.apk；前置 Android 设置、UI 合约和脚本 GUID 检查通过。Unity 正常退出0，BuildReport 0错误/13警告，日志 Logs/codex-android-build-20261102-232808.log。
+- 新包212185394字节（202.36 MiB），com.ZJ.Kingdom，0.5/versionCode 1，ARM64，minSdk22/targetSdk35。SHA256：81BB7EFA2A9CC97B1AC0DC63F3EADF2F71E26D562884E4C21B88366884D0F509。
+- apksigner 校验退出0，v1/v2签名通过，既有Android Debug证书；两个META-INF元数据条目有JAR签名警告，APK v2整包校验通过。完整摘要 data/player-clarity-20261102/apk-verification.txt。
+- 旧APK可恢复保留于 .codex/archive/apk-before-20261102-232808/Kingdom.apk。没有重复功能测试或执行设备安装试玩；本次打包请求已完成，无新增工程、提交或发布。

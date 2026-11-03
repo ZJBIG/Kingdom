@@ -15,7 +15,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 5398308fe7c748029886068fd592b145, type: 3}
   id: TownHouse
   Label: "\u57CE\u9547\u4F4F\u5B85"
-  Description: "\u91C7\u7528\u591A\u5C42\u7ED3\u6784\u548C\u7D27\u51D1\u8857\u533A\u5E03\u5C40\uFF0C\u5728\u6709\u9650\u7A7A\u95F4\u5185\u63D0\u4F9B\u66F4\u9AD8\u7684\u4EBA\u53E3\u5BB9\u91CF\u3002"
+  Description: "多层住宅与紧凑街区相互依偎，让有限的土地容纳更多家庭，也让邻里相隔不过一扇窗。"
   TechLevel: 2
   upgradeTo: {fileID: 11400000, guid: 5f4a8c2e1d7b49f6a0c5e8b2d4f7a913, type: 2}
   costGrowth: 1.2

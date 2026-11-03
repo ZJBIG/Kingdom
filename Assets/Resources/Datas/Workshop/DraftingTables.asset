@@ -15,7 +15,7 @@ MonoBehaviour:
   id: DraftingTables
   icon: {fileID: 21300000, guid: 7d0cbbf93ae6ce7488c7bac8cdaf6160, type: 3}
   Label: "\u5236\u56FE\u53F0"
-  Description: "统一工程图纸与尺寸校核，提高全局建造效率，降低建造材料需求。"
+  Description: "在制图台上校核尺寸、连接与施工次序，减少现场返工和材料浪费。"
   SortOrder: 10
   TechLevel: 3
   requiredResearch:

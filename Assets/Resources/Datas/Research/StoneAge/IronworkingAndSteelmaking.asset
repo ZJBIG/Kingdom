@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: IronworkingAndSteelmaking
   Label: "\u94C1\u5668\u4E0E\u70BC\u94A2\u57FA\u7840"
-  Description: "标准化铁器与炼钢工艺，提高所有建筑的生产倍率；加工建筑也会随之消耗更多原料。"
+  Description: "统一铁器锻造与炼钢工艺，让坚韧金属走进工具、机械和聚落的日常劳作。"
   BaseCost: "19000"
   prerequisites:
   - {fileID: 11400000, guid: 64e84dc9f0464d944a8b69cf50c14c21, type: 2}

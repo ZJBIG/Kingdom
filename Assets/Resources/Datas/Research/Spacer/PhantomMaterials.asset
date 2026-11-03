@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: PhantomMaterials
   Label: "幽影材料工程"
-  Description: "以钛合金、复合材料和高级金属锭发展幽影合金与幽影纤维工艺，提高幽影材料制造厂的产出。"
+  Description: "探索钛合金与复合材料在相位条件下的结合，让轻而坚韧的深空结构成为现实。"
   BaseCost: "320000000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}

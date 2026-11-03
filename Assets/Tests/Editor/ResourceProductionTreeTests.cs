@@ -285,42 +285,37 @@ public sealed class ResourceProductionTreeTests
     }
 
     [Test]
-    public void ProducerVisibilityHidesSupersededSources_ButKeepsUpgradesAndCachedNodes()
+    public void UnlockedLowerSourcesRemainAlongsideHigherTiers_AndKeepCachedExpansion()
     {
         ResourceDef output = Make<ResourceDef>();
         BuildingDef lower = Producer(output), higher = Producer(output);
         lower.SetUpgradeToForEditor(higher);
-        HashSet<BuildingDef> displayed = new() { lower };
+        HashSet<BuildingDef> unlocked = new() { lower };
         ResourceProductionTree tree = new(output, new[] { lower, higher }, null,
-            buildingVisible: _ => true, producerVisible: displayed.Contains);
+            buildingVisible: unlocked.Contains);
         var originalLower = tree.GetChildren(tree.Root)[0];
         originalLower.Expanded = true;
-        var originalUpgrade = tree.GetChildren(originalLower)[0];
-        Assert.That(originalUpgrade.Building, Is.SameAs(higher));
-        Assert.That(originalUpgrade.Relationship, Is.EqualTo(ResourceProductionTree.Relation.Upgrade),
-            "A producer-list filter must not hide the unlocked upgrade destination of an owned lower tier.");
+        Assert.That(tree.GetChildren(originalLower), Is.Empty, "The upgrade must still satisfy its prerequisites.");
 
-        displayed.Add(higher);
+        unlocked.Add(higher);
         Assert.That(tree.RefreshVisibility(), Is.True);
         var sources = tree.GetChildren(tree.Root);
-        Assert.That(sources.Count, Is.EqualTo(2), "Owned lower tiers remain alongside the newly available higher tier.");
+        Assert.That(sources.Count, Is.EqualTo(2), "Unlocked lower sources remain even when a higher tier is available.");
         Assert.That(sources[0], Is.SameAs(originalLower));
         Assert.That(originalLower.Expanded, Is.True);
-        Assert.That(tree.GetChildren(originalLower)[0], Is.SameAs(originalUpgrade));
-
-        displayed.Remove(lower);
-        Assert.That(tree.RefreshVisibility(), Is.True);
-        Assert.That(tree.GetChildren(tree.Root).Count, Is.EqualTo(1));
-        Assert.That(tree.GetChildren(tree.Root)[0].Building, Is.SameAs(higher), "An empty superseded tier disappears.");
+        var originalUpgrade = tree.GetChildren(originalLower)[0];
+        Assert.That(originalUpgrade.Building, Is.SameAs(higher));
+        Assert.That(originalUpgrade.Relationship, Is.EqualTo(ResourceProductionTree.Relation.Upgrade));
         Assert.That(tree.RefreshVisibility(), Is.False);
+        Assert.That(tree.GetChildren(originalLower)[0], Is.SameAs(originalUpgrade));
 
         SectorDef sector = Make<SectorDef>();
         SectorBuildingDef facility = Make<SectorBuildingDef>();
         facility.SetSectorForEditor(sector);
         ResourceProductionTree sectorTree = new(sector, new BuildingDef[] { facility }, null,
-            buildingVisible: _ => true, producerVisible: displayed.Contains);
-        Assert.That(sectorTree.GetChildren(sectorTree.Root), Is.Empty, "The same producer filter governs local facilities.");
-        displayed.Add(facility);
+            buildingVisible: unlocked.Contains);
+        Assert.That(sectorTree.GetChildren(sectorTree.Root), Is.Empty);
+        unlocked.Add(facility);
         Assert.That(sectorTree.RefreshVisibility(), Is.True);
         Assert.That(sectorTree.GetChildren(sectorTree.Root)[0].Building, Is.SameAs(facility));
     }

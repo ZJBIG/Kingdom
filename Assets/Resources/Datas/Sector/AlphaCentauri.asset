@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: AlphaCentauri
   Label: "半人马座前沿区"
-  Description: "穿越恒星之间数光年的空旷，古老信标指向太阳系外的第一片前沿。这里仍只是银河系内的近邻；建立一座可补给的前哨，已需要母恒星系的长期准备。"
+  Description: "穿越恒星之间数光年的空旷，古老信标指向太阳系外的第一片前沿。银河近邻的微光里，一座可补给的前哨将接续家园与远方。"
   starSystemId: AlphaCentauri
   domain: 1
   enemyPower: "900"

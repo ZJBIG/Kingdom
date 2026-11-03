@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Agriculture
   Label: "\u519C\u4E1A"
-  Description: "以选种、播种和定期收获建立农业，提高全局食物产出与人口增长速度。"
+  Description: "从选种、播种到收获，族人开始把种子留给明年，让田野成为安稳生活的根基。"
   BaseCost: "300"
   prerequisites: []
   resourceRequirements:

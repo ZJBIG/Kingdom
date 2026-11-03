@@ -96,6 +96,7 @@ public sealed partial class KingdomUIRoot
 
     private void RefreshOnboarding()
     {
+        if (SaveManager.Instance.IsLoading) { HideOnboarding(); return; }
         if (!BindOnboarding()) return;
         onboardingShowingCompletion = false;
         if (storyIllustrationPreview != null && storyIllustrationPreview.IsOpen)
@@ -239,6 +240,20 @@ public sealed partial class KingdomUIRoot
     private RectTransform ResolveOnboardingTarget(TutorialStageSnapshot stage)
     {
         if (stage == null) return null;
+        if (stage.StageId == "orientation")
+        {
+            switch (stage.TargetId)
+            {
+                case "mission": return safeArea.Find("TopStatusBar/TopInfoShell/InfoGrid") as RectTransform;
+                case "food": return topFoodValue?.transform.parent as RectTransform;
+                case "population": return topPopulationValue?.transform.parent as RectTransform;
+                case "productivity": return topCurrentResearchValue?.transform.parent as RectTransform;
+                case "research": return topResearchPowerValue?.transform.parent as RectTransform;
+                case "territory": return topTerritoryValue?.transform.parent as RectTransform;
+                case "happiness": return topHappinessValue?.transform.parent as RectTransform;
+                case "materials": return FindNavigationButton("Resources")?.transform as RectTransform;
+            }
+        }
         if (stage.Action == TutorialStageAction.Navigate)
             return FindNavigationButton(stage.Page)?.transform as RectTransform;
         if (stage.Action == TutorialStageAction.Build && DataBase<BuildingDef>.TryFind(stage.TargetId, out BuildingDef buildTarget) &&
@@ -278,7 +293,7 @@ public sealed partial class KingdomUIRoot
                 if (!productionResources.Contains(chainResource)) return null;
                 productionTree = new ResourceProductionTree(chainResource, DataBase<BuildingDef>.All,
                     DataBase<SectorDef>.All, productionResources.Contains,
-                    productionBuildings.Contains, productionSectors.Contains, ShouldDisplayBuilding);
+                    productionBuildings.Contains, productionSectors.Contains);
                 RebuildProductionGraph();
                 CenterProductionRoot();
             }

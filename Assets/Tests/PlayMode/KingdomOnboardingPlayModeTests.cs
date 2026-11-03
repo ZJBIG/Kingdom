@@ -60,6 +60,7 @@ public sealed class KingdomOnboardingPlayModeTests
         yield return null;
         SimulationManager.Instance.SetRunning(false);
         TutorialManager.Current.ResetForNewGameForEditor();
+        for (int i = 0; i < 8; i++) TutorialManager.Current.AcknowledgeCurrentStage();
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
         root.SetPage("Overview");
         root.TickOnboardingForEditor();

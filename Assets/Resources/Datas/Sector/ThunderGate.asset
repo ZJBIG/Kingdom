@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ThunderGate
   Label: "雷门环"
-  Description: "母恒星系外缘气态巨行星的环带与轨道区。上层大气蕴含大量氢原料；采集、低温加工和运输设施都需要王国主动建设，驻留本身不产出材料。"
+  Description: "母恒星系外缘气态巨行星的环带与轨道区。上层大气蕴含丰富氢原料，等待采集平台、低温工场和运输舰队共同开辟。"
   starSystemId: Sol
   domain: 0
   enemyPower: "0"

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Masonry
   Label: "\u77F3\u9020\u5EFA\u7B51"
-  Description: "以砌筑和承重结构规范减少施工损耗，降低全局建造材料需求。"
+  Description: "辨明石料的受力与墙体的砌合，让一块块石头共同承起屋顶和家园。"
   BaseCost: "8500"
   prerequisites:
   - {fileID: 11400000, guid: 01237db29f0c5354db0129f54f07b9e7, type: 2}

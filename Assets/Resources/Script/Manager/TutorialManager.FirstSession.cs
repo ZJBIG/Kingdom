@@ -25,6 +25,14 @@ public sealed partial class TutorialManager
             return false;
         }
 
+        if (!game.State.HasBuiltHousing && !completedStepIds.Contains("orientation") &&
+            !completedStageIds.Contains("orientation") && !skippedStageIds.Contains("orientation") &&
+            !baselineStageIds.Contains("orientation"))
+        {
+            snapshot = BuildOrientationSnapshot();
+            return true;
+        }
+
         // Results follow the game state; skipping dismisses only the operation lesson.
         RecordFirstSessionResult("orientation", string.Empty);
         if (game.State.HasBuiltHousing)
@@ -350,6 +358,17 @@ public sealed partial class TutorialManager
     private TutorialStageSnapshot EvaluateFirstSessionStage(TutorialSnapshot action)
     {
         string id = action.StepId;
+        if (id == "orientation")
+        {
+            activeStageId = id;
+            stageTargetId = action.NavigationTargetId;
+            return new TutorialStageSnapshot
+            {
+                StageId = id, Page = action.NavigationPage, TargetId = stageTargetId,
+                Title = action.CurrentGoal, Instruction = action.Benefit,
+                Action = TutorialStageAction.Inspect, CanInteract = true
+            };
+        }
         if (skippedStageIds.Contains(id) || baselineStageIds.Contains(id) || completedStageIds.Contains(id))
         {
             if (!string.IsNullOrEmpty(activeStageId)) ClearActiveStage();
@@ -375,6 +394,54 @@ public sealed partial class TutorialManager
                 stagePhase == 0 ? action.Benefit + "\n点击“" + StagePageLabel(action.NavigationPage) + "”，开始下一步。" :
                 !action.CanAct ? WaitingInstruction(action) :
                 operation == TutorialStageAction.Build ? "建造 1 座，" + action.Benefit : "加入研究队列，完成后" + action.NextGoal
+        };
+    }
+
+    private TutorialSnapshot BuildOrientationSnapshot()
+    {
+        string title;
+        string target;
+        string instruction;
+        switch (stagePhase)
+        {
+            case 0:
+                title = "复兴鼠族"; target = "mission";
+                instruction = "带领流离的鼠族重建家园，复兴文明。先安顿族人、稳住供粮，再以研究和生产迈向新时代。";
+                break;
+            case 1:
+                title = "食物：族人的口粮"; target = "food";
+                instruction = "食物供居民和建筑消耗。净产出为正会积粮，为负会耗粮；缺粮拖慢发展。食物有储量上限。";
+                break;
+            case 2:
+                title = "人口与生产力"; target = "population";
+                instruction = "住房容纳族人，居民提供生产力。建筑人手不足时，先补住房与食物，等待居民陆续入住。";
+                break;
+            case 3:
+                title = "生产力：营地的人手"; target = "productivity";
+                instruction = "这里显示建筑总需求／可供生产力。需求高于供给时，建筑会减产；增加居民或停用闲置设施，可缓解短缺。";
+                break;
+            case 4:
+                title = "研究力：知识的积累"; target = "research";
+                instruction = "研究力决定研究速度。第一座木屋建成后可安排课题；队首先一次付清材料，再积累研究进度。";
+                break;
+            case 5:
+                title = "土地：家园的空间"; target = "territory";
+                instruction = "普通建筑需要空闲土地。空地不足时，可拆除闲置建筑腾出空间，或研究拓展家园。";
+                break;
+            case 6:
+                title = "幸福度：聚落的活力"; target = "happiness";
+                instruction = "幸福度影响人口、生产与研究。保持供粮，让族人安居；长按顶栏图标，可随时重看指标说明。";
+                break;
+            default:
+                title = "原木与材料"; target = "materials";
+                instruction = "原木用于建造和研究，营地会持续采集。资源页可看库存与每秒收支。接下来，建起第一座木屋。";
+                break;
+        }
+        return new TutorialSnapshot
+        {
+            StepId = "orientation", ActionId = "inspect:orientation", CurrentGoal = title,
+            NavigationPage = "Overview", NavigationTargetId = target, Benefit = instruction,
+            RecommendedAction = "阅读说明后继续。", CanAct = true, NextGoal = "建造木屋"
         };
     }
 

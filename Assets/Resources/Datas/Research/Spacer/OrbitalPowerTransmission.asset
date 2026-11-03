@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: OrbitalPowerTransmission
   Label: "轨道能量传输理论"
-  Description: "校准定向输电节点与轨道负载，提高轨道太阳能阵列的发电量。"
+  Description: "校准定向输电节点与接收端，让轨道上的阳光能够跨过距离，点亮需要它的设施。"
   BaseCost: "108800000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}

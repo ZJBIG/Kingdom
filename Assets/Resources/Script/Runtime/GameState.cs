@@ -13,6 +13,7 @@ public sealed class GameState
     public int CalendarDays { get; private set; }
     public TechLevel TechLevel { get; private set; }
     public bool HasBuiltHousing { get; private set; }
+    public bool HasCurrentFeudalTerritoryReward { get; private set; }
     public ExpantaNum FoodAmount { get; private set; }
     public ExpantaNum FoodCapacity { get; private set; }
     private ExpantaNum unscaledFoodProductionRate;
@@ -99,6 +100,7 @@ public sealed class GameState
         CalendarDays = 0;
         TechLevel = TechLevel.Animal;
         HasBuiltHousing = false;
+        HasCurrentFeudalTerritoryReward = false;
         FoodAmount = new ExpantaNum(300);
         FoodCapacity = BaseFoodCapacity;
         unscaledFoodProductionRate = BaseFoodProductionRate;
@@ -140,6 +142,13 @@ public sealed class GameState
     internal void RestoreHousingMilestone(bool hasBuiltHousing)
     {
         HasBuiltHousing = hasBuiltHousing;
+        Version++;
+    }
+
+    internal void RestoreFeudalTerritoryReward(bool granted)
+    {
+        if (HasCurrentFeudalTerritoryReward == granted) return;
+        HasCurrentFeudalTerritoryReward = granted;
         Version++;
     }
 

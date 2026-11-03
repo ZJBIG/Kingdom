@@ -218,11 +218,11 @@ public sealed partial class TutorialManager : MonoBehaviour
             steps.Clear();
             activeStepId = string.Empty;
         }
-        steps.Add(new TutorialStep("orientation", "第一处屋檐",
-            "荒野里的第一夜，从一座木屋开始。前往建筑页建起它——屋檐落成，族人才会留下，研究也将开放。",
+        steps.Add(new TutorialStep("orientation", "复兴鼠族",
+            "带领流离的鼠族重建家园。认识食物、人口、研究力与土地，再用原木建起第一座木屋，让族人从荒野走向繁荣文明。",
             TutorialStepKind.Orientation, "resources", string.Empty, "game-state",
             "building-owned", "Buildings",
-            "一处屋檐，是族群在这片土地上的第一个承诺。"));
+            "从一处屋檐开始，找回属于鼠族的未来。"));
         steps.Add(new TutorialStep("resources", "族人的生计账",
             "原木盖房，食物养人。库存是手里的余粮，净产出是每秒的收入减去消耗——正数在积累，负数要补来源。",
             TutorialStepKind.Resources, "building", string.Empty, "game-state",

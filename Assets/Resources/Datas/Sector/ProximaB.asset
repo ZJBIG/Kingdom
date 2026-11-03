@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ProximaB
   Label: "比邻星前哨"
-  Description: "比邻星的暗红微光照亮一座孤独哨站。它距母星约四光年，仍在银河系内。舰队必须把食物、燃料与先进材料送过漫长航道，才能让远方世界成为可靠的补给灯塔。"
+  Description: "比邻星的暗红微光照亮一座孤独哨站。它距母星约四光年，舰队必须把食物、燃料与先进材料送过漫长航道，才能让这里成为可靠的补给灯塔。"
   starSystemId: AlphaCentauri
   domain: 1
   enemyPower: "3000"

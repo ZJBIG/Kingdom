@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Calendar
   Label: "\u5386\u6CD5\u4E0E\u89C2\u661F"
-  Description: "以天象和季节记录安排播种与收获，提高全局食物产出。"
+  Description: "将天象与季节刻在木板上，让播种、收获和储粮都有可以遵循的时节。"
   BaseCost: "1900"
   prerequisites:
   - {fileID: 11400000, guid: 5e7a600ae8d297e45b3666f2b17cb5df, type: 2}

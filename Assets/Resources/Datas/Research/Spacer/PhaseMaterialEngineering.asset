@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: PhaseMaterialEngineering
   Label: "相位材料工程"
-  Description: "以幽影合金、幽影纤维和高级金属锭稳定高能相位结构，提高相位材料合成阵列的产出。"
+  Description: "以幽影材料与高能场约束相位结构，探索常规物质之外的工程可能。"
   BaseCost: "525000000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}

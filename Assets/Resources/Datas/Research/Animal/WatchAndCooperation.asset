@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: WatchAndCooperation
   Label: "警戒与协作"
-  Description: "建立警戒、集合与轮班制度，提升聚落公共设施的生产效率。"
+  Description: "用轮班值守、集合信号与彼此照应，让白昼的劳作和夜晚的安睡都有依靠。"
   BaseCost: "2400"
   prerequisites:
   - {fileID: 11400000, guid: 01237db29f0c5354db0129f54f07b9e7, type: 2}

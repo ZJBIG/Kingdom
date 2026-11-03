@@ -15,7 +15,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 55b3b5f4fde54bb093556cc59b0a6e36, type: 3}
   id: OrbitalBuildingMaterialsWorks
   Label: "\u8F68\u9053\u5EFA\u6750\u8054\u5408\u5382"
-  Description: "在轨道上整合玻璃、陶瓷与混凝土生产，以钛合金维持运转，服务深空巨构建设。"
+  Description: "轨道上的玻璃、陶瓷与混凝土联合工场，为远离地面的建筑和巨构准备可靠的结构材料。"
   TechLevel: 4
   upgradeTo: {fileID: 11400000, guid: e2f3a4b5c67890d1e2f3a4b5c67890d1, type: 2}
   costGrowth: "1.24"

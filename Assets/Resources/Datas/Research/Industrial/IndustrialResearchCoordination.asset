@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: IndustrialResearchCoordination
   Label: "\u5DE5\u4E1A\u79D1\u7814\u534F\u540C"
-  Description: "\u5C06\u5927\u5B66\u3001\u5B9E\u9A8C\u5BA4\u4E0E\u5DE5\u4E1A\u6D4B\u91CF\u4F53\u7CFB\u63A5\u5165\u7EDF\u4E00\u7684\u79D1\u7814\u534F\u540C\u7F51\u7EDC\uFF0C\u96C6\u4E2D\u8C03\u5EA6\u7814\u7A76\u8BBE\u5907\u4E0E\u6210\u679C\u590D\u6838\u6D41\u7A0B\uFF0C\u663E\u8457\u63D0\u9AD8\u5168\u5C40\u7814\u7A76\u6548\u7387\u3002"
+  Description: "建立实验记录、计量基准与成果复核，让大学和工厂能够听懂彼此的发现。"
   BaseCost: 1000000
   prerequisites:
   - {fileID: 11400000, guid: 01957e1170855414387b6d50f51748a6, type: 2}

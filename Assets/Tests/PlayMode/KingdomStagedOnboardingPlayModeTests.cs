@@ -50,6 +50,27 @@ public sealed class KingdomStagedOnboardingPlayModeTests
     }
 
     [UnityTest]
+    public IEnumerator Introduction_ExplainsMissionAndFramesEveryHudMetricBeforeHousing()
+    {
+        Screen.SetResolution(2640, 1200, false);
+        yield return LoadFreshGame(true);
+        foreach (string target in new[] { "mission", "food", "population", "productivity", "research", "territory", "happiness", "materials" })
+        {
+            Assert.That(root.OnboardingStageForEditor.StageId, Is.EqualTo("orientation"));
+            Assert.That(root.OnboardingStageForEditor.TargetId, Is.EqualTo(target));
+            Assert.That(root.OnboardingTargetForEditor, Is.Not.Null);
+            Assert.That(root.GetComponent<OnboardingInputGate>().IsActive, Is.True);
+            TMPro.TMP_Text body = root.transform.Find("SafeAreaRoot/OnboardingOverlay/Panel/Body").GetComponent<TMPro.TMP_Text>();
+            Assert.That(body.GetPreferredValues(body.text, body.rectTransform.rect.width, 0).y,
+                Is.LessThanOrEqualTo(body.rectTransform.rect.height + 1f), target + ": introduction must fit the authored panel.");
+            yield return CaptureReferenceFrame("intro-" + target + ".png");
+            ClickAt(OverlayButton("Next"));
+            yield return Settle();
+        }
+        Assert.That(root.OnboardingStageForEditor.StageId, Is.EqualTo("building"));
+    }
+
+    [UnityTest]
     public IEnumerator HousingStage_RealRaycastsBlockUnrelatedNavigationAndKeepUnaffordableGoal()
     {
         Screen.SetResolution(2640, 1200, false);
@@ -749,7 +770,7 @@ public sealed class KingdomStagedOnboardingPlayModeTests
         Assert.That(ProgressionVisibilityRules.IsResearchUnlocked(GameManager.Instance.State), Is.True);
     }
 
-    private IEnumerator LoadFreshGame()
+    private IEnumerator LoadFreshGame(bool showIntroduction = false)
     {
         yield return SceneManager.LoadSceneAsync("SampleScene", LoadSceneMode.Single);
         GameBootstrap bootstrap = null;
@@ -767,6 +788,8 @@ public sealed class KingdomStagedOnboardingPlayModeTests
         Assert.That(bootstrap != null && bootstrap.Completed, Is.True);
         SimulationManager.Instance.SetRunning(false);
         TutorialManager.Current.ResetForNewGameForEditor();
+        if (!showIntroduction)
+            for (int i = 0; i < 8; i++) TutorialManager.Current.AcknowledgeCurrentStage();
         root.SetPage("Overview");
         yield return Settle();
         Assert.That(root.OnboardingStageForEditor, Is.Not.Null);
@@ -917,7 +940,8 @@ public sealed class KingdomStagedOnboardingPlayModeTests
             capture = new Texture2D(target.width, target.height, TextureFormat.RGB24, false);
             capture.ReadPixels(new Rect(0, 0, target.width, target.height), 0, 0);
             capture.Apply();
-            string directory = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "data", "experience-20261102", "screenshots"));
+            string directory = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "data",
+                filename.StartsWith("intro-", StringComparison.Ordinal) ? "player-clarity-20261102" : "experience-20261102", "screenshots"));
             Directory.CreateDirectory(directory);
             File.WriteAllBytes(Path.Combine(directory, filename), capture.EncodeToPNG());
         }

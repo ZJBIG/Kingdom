@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: SpaceWeatherForecastingTheory
   Label: "\u7a7a\u95f4\u5929\u6c14\u9884\u6d4b\u7406\u8bba"
-  Description: "预测太阳风、磁暴与高能粒子变化，提高轨道太阳能阵列的发电量。"
+  Description: "观察太阳风、磁暴与高能粒子的变化，让轨道设施在风暴来临之前做好准备。"
   BaseCost: "420000000"
   prerequisites:
   - {fileID: 11400000, guid: 2f3e4d5c6b7a8091f2e3d4c5b6a79801, type: 2}

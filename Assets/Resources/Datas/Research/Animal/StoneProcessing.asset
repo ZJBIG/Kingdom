@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: StoneProcessing
   Label: "\u77F3\u6599\u52A0\u5DE5"
-  Description: "改进石料切割、打磨与装柄，提高采石场和切石工坊的产出，降低建造材料需求，并提高拆除返还比例。"
+  Description: "研究切削、打磨与装柄，让不规则的石头成为可靠的工具和相互契合的建材。"
   BaseCost: "700"
   prerequisites:
   - {fileID: 11400000, guid: 0f3d70375d0fdf14dabc4dfd617c19c8, type: 2}

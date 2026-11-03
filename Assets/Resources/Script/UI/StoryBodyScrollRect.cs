@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public sealed class StoryBodyScrollRect : ScrollRect
+public sealed class StoryBodyScrollRect : KingdomScrollRect
 {
     private static int activeDragCount;
     private static float lastDragEndTime = float.NegativeInfinity;

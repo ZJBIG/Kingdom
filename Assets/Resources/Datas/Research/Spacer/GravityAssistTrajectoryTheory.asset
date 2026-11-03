@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: GravityAssistTrajectoryTheory
   Label: "\u5f15\u529b\u8f85\u52a9\u8f68\u9053\u7406\u8bba"
-  Description: "计算引力辅助与轨道转移窗口，提高远征探索能力。"
+  Description: "计算引力辅助与轨道转移窗口，让行星的运动成为远航可以借用的力量。"
   BaseCost: "380000000"
   prerequisites:
   - {fileID: 11400000, guid: 8e5d3c2b1a09876543210fedcba98765, type: 2}

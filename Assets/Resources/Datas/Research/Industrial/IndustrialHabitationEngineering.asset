@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: IndustrialHabitationEngineering
   Label: "工业居住工程"
-  Description: "以高密度住宅、公共管网与隔热结构改善定居条件，提高人口增长速度。"
+  Description: "将住宅、公共管网和隔热结构一同设计，让密集的工业聚落也有适宜久居的家。"
   BaseCost: "520000"
   prerequisites:
   - {fileID: 11400000, guid: ea25df4d3b4dae645b0cec00cf53d779, type: 2}

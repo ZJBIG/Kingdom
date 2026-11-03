@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: DeepSpaceNavigationReliability
   Label: "深空导航可靠性"
-  Description: "建立深空时钟同步、航线冗余和远距离误差校正标准，提高深空远征在复杂航线中的战役推进效率。"
+  Description: "校准深空时钟，准备替代航路，修正远距离误差，让舰队在失去近旁参照时仍能辨明方向。"
   BaseCost: "399000000"
   prerequisites:
   - {fileID: 11400000, guid: 8e5d3c2b1a09876543210fedcba98765, type: 2}

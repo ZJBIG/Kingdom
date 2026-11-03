@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: CeramicFiring
   Label: "\u9676\u74F7\u70E7\u5236"
-  Description: "掌握高温烧制和陶瓷配方，为陶瓷窑奠定技术基础，并降低全局建造材料需求。"
+  Description: "辨认黏土与火候，研究烧结和配方，让脆弱泥坯在炉中成为耐用的器物。"
   BaseCost: "1800"
   prerequisites:
   - {fileID: 11400000, guid: 01237db29f0c5354db0129f54f07b9e7, type: 2}

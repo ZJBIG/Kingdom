@@ -15,7 +15,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 93529a629be745b2b8c1097f24a1e0e3, type: 3}
   id: AdvancedMetalRefinery
   Label: "高级金属精炼厂"
-  Description: "用加压浸出、溶液净化和电解精炼升级高级金属加工，以更高产能集中供应高级金属锭，减少重复建设。"
+  Description: "用加压浸出、溶液净化与电解精炼集中处理高级金属矿，为轻质结构和航天工程供应纯净金属。"
   TechLevel: 3
   upgradeTo: {fileID: 0}
   costGrowth: "1.2"

@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: StoneAgeSettlement
   Label: "\u5B9A\u5C45\u805A\u843D"
-  Description: "\u628A\u519C\u4E1A\u3001\u755C\u517B\u3001\u50A8\u85CF\u548C\u4F4F\u623F\u6574\u5408\u4E3A\u5E38\u5E74\u8FD0\u8F6C\u7684\u805A\u843D\u4F53\u7CFB\uFF0C\u4F7F\u4EBA\u53E3\u80FD\u591F\u5728\u56FA\u5B9A\u5730\u70B9\u6301\u7EED\u589E\u957F\u3002
-    \u4EBA\u53E3\u589E\u957F\u901F\u5EA6\u63D0\u9AD825%\uFF0C\u5E76\u63D0\u4F9B300\u70B9\u9886\u5730\u548C100\u70B9\u751F\u4EA7\u529B\u3002"
+  Description: "把农业、畜养、储粮与住房组织成常年运转的聚落，让鼠族从追逐季节的营地走向世代相守的家园。"
   BaseCost: "800"
   prerequisites:
   - {fileID: 11400000, guid: 748cc4d872b7300488f8cc565e5483b1, type: 2}

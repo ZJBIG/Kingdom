@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: OrbitalTextileFabrication
   Label: "\u8F68\u9053\u7EBA\u7EC7\u5236\u9020\u7406\u8BBA"
-  Description: "改进微重力张力控制、纤维耐辐照处理和密闭纺织工艺，提高轨道综合资源工厂各条产线的产出。"
+  Description: "研究微重力张力、耐辐照处理与密闭纺织，让纤维在太空环境中也能可靠成形。"
   BaseCost: "608000000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}

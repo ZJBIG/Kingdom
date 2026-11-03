@@ -15,7 +15,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 9d06ccdd399347e3b7d88b55da6a26e1, type: 3}
   id: InterstellarTheoryNexus
   Label: "星际理论中枢"
-  Description: "接替量子计算阵列，集中处理远方观测、引力通信与时钟同步课题，持续提供更高的研究力。"
+  Description: "接替量子计算阵列，汇集远方观测、引力通信与时钟校准，让相隔星区的发现能够相互印证。"
   TechLevel: 4
   upgradeTo: {fileID: 0}
   costGrowth: "1.2"

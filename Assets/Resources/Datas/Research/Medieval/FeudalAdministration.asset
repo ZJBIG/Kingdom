@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: FeudalAdministration
   Label: "\u5C01\u5EFA\u884C\u653F"
-  Description: "以封地登记和地方官署管理分散聚落，增加可供建设的领土。"
+  Description: "用土地登记和地方官署联络分散的聚落，让远处的田野也能得到持续照管。"
   BaseCost: "130000"
   prerequisites:
   - {fileID: 11400000, guid: 64e84dc9f0464d944a8b69cf50c14c21, type: 2}
@@ -29,6 +29,6 @@ MonoBehaviour:
   - Type: 8
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    value: "25"
+    value: "2200"
   TechLevel: 2
   AdvancesTechLevel: 1

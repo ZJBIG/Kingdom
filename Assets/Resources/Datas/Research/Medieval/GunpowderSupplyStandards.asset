@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: GunpowderSupplyStandards
   Label: "火药与军需标准"
-  Description: "以火药配制和军需标准化，提升道路、铁路与远征补给效率。"
+  Description: "统一火药配制、封装和军需交接，让危险物资能够沿漫长道路安全送达。"
   BaseCost: "270000"
   prerequisites:
   - {fileID: 11400000, guid: ad3c12afd50c37649a14b201b32fffa8, type: 2}

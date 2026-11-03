@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: OrbitalPropellantEngineering
   Label: "\u8F68\u9053\u63A8\u8FDB\u5242\u5DE5\u7A0B"
-  Description: "改进低温储存、精密调配与轨道加压，提高火箭燃料产出和轨道低温推进剂阵列的生产倍率。"
+  Description: "研究低温储存、精密调配与轨道加压，让推进剂在漫长等待和严苛环境中保持稳定。"
   BaseCost: "198000000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}

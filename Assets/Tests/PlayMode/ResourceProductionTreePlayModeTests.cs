@@ -41,6 +41,36 @@ public sealed class ResourceProductionTreePlayModeTests
         if (Directory.Exists(saveRoot)) Directory.Delete(saveRoot, true);
     }
     [UnityTest]
+    public IEnumerator ViewportResize_PreservesTheProductionTopBeforeClamping()
+    {
+        GameObject owner = new GameObject("ProductionResizeTest", typeof(RectTransform), typeof(UIResearchGraphGesture));
+        GameObject child = new GameObject("Content", typeof(RectTransform));
+        try
+        {
+            RectTransform viewport = owner.GetComponent<RectTransform>();
+            RectTransform content = child.GetComponent<RectTransform>();
+            content.SetParent(viewport, false);
+            content.anchorMin = content.anchorMax = content.pivot = Vector2.zero;
+            content.sizeDelta = new Vector2(500f, 1600f);
+            viewport.sizeDelta = new Vector2(500f, 800f);
+            UIResearchGraphGesture gesture = owner.GetComponent<UIResearchGraphGesture>();
+            gesture.Initialize(viewport, content, true);
+            gesture.RestoreView(new Vector2(0f, -800f), 1f);
+            for (int resize = 0; resize < 3; resize++)
+            {
+                viewport.sizeDelta = new Vector2(500f, 1600f);
+                gesture.RefreshLayoutBounds(false);
+                Assert.That(content.anchoredPosition.y + content.rect.height, Is.EqualTo(viewport.rect.height).Within(.01f));
+                viewport.sizeDelta = new Vector2(500f, 800f);
+                gesture.RefreshLayoutBounds(false);
+                Assert.That(content.anchoredPosition.y + content.rect.height, Is.EqualTo(viewport.rect.height).Within(.01f));
+            }
+            yield return null;
+        }
+        finally { Object.DestroyImmediate(owner); }
+    }
+
+    [UnityTest]
     public IEnumerator IndependentProductionPage_UsesRealEntriesAndPreservesGraphWhileInspectingNodes()
     {
         yield return LoadProductionScene();
@@ -431,9 +461,8 @@ public sealed class ResourceProductionTreePlayModeTests
         yield return null;
         Assert.That(graph.GetChild(0).Find("Icon").GetComponent<Button>().enabled, Is.False,
             "Resource icons retain their normal appearance without disabled-button tinting.");
-        Assert.That(FindProductionNode(graph, old.Label) != null,
-            Is.EqualTo(BuildingManager.Instance.CanConstructNew(old)),
-            "An empty earlier producer remains visible only when the manager permits building it, including material-free recovery sources.");
+        Assert.That(FindProductionNode(graph, old.Label), Is.Not.Null,
+            "An unlocked earlier producer remains visible even when a higher tier supersedes new construction.");
         BuildingManager.Instance.GetState(old).SetAmountForEditor(ExpantaNum.One);
         ui.RefreshProductionVisibilityForEditor();
         yield return null;
@@ -441,7 +470,8 @@ public sealed class ResourceProductionTreePlayModeTests
         foreach (BuildingDef building in DataBase<BuildingDef>.All)
         {
             Transform node = FindProductionNode(graph, building.Label);
-            if (node != null) Assert.That(BuildingManager.Instance.ShouldDisplay(building), Is.True);
+            if (node != null) Assert.That(BuildingManager.Instance.ArePrerequisitesMet(building, out _) ||
+                (BuildingManager.Instance.States.TryGetValue(building, out BuildingState owned) && owned.Amount > ExpantaNum.Zero), Is.True);
         }
         yield return CaptureTree(ui.GetComponent<Canvas>(), "resource-retained-building-chain", true);
         SectorState firstSector = GameManager.Instance.Sectors.GetState(DataBase<SectorDef>.Find("DawnRing"));
@@ -474,11 +504,14 @@ public sealed class ResourceProductionTreePlayModeTests
             }
         Assert.That(facilityCardIcon, Is.Not.Null, "Expanded sectors expose the actual facility cards.");
         RectTransform menu = sectorPreviewButton.transform.parent.Find("SectorBuildingMenu") as RectTransform;
-        Vector3[] headingCorners = new Vector3[4];
-        (menu.Find("Heading") as RectTransform).GetWorldCorners(headingCorners);
-        Assert.That(menu.InverseTransformPoint(headingCorners[0]).y,
-            Is.GreaterThan((facilityCardIcon.parent as RectTransform).anchoredPosition.y),
-            "The engineering heading stays above the facility cards.");
+        Assert.That(menu, Is.Not.Null);
+        RectTransform facilityCard = facilityCardIcon.parent as RectTransform;
+        Vector3[] cardCorners = new Vector3[4];
+        facilityCard.GetWorldCorners(cardCorners);
+        foreach (Vector3 corner in cardCorners)
+            Assert.That(menu.InverseTransformPoint(corner).y,
+                Is.InRange(menu.rect.yMin - .5f, menu.rect.yMax + .5f),
+                "Expanded facility cards stay inside their authored menu.");
         yield return CaptureTree(ui.GetComponent<Canvas>(), "sector-building-cards", true);
         ui.SetPage("Buildings");
         yield return null;
@@ -535,8 +568,75 @@ public sealed class ResourceProductionTreePlayModeTests
     private static Transform FindProductionNode(Transform graph, string label)
     {
         foreach (Transform node in graph)
-            if (node.Find("Label").GetComponent<TMP_Text>().text == label) return node;
+            if (node.gameObject.activeSelf && node.Find("Label").GetComponent<TMP_Text>().text == label) return node;
         return null;
+    }
+
+    [UnityTest]
+    public IEnumerator SupersededProducer_RemainsInspectable_AndRefreshesItsFrame()
+    {
+        yield return LoadProductionScene();
+        SimulationManager.Instance.SetRunning(false);
+        GameManager.Instance.AdvanceTechLevelForEditor(TechLevel.Ultra);
+        foreach (ResearchDef research in DataBase<ResearchDef>.All)
+            ResearchManager.Instance.GetState(research).SetStatusForEditor(ResearchStatus.Completed);
+        List<string> upgrades = new();
+        foreach (WorkshopUpgradeDef upgrade in DataBase<WorkshopUpgradeDef>.All) upgrades.Add(upgrade.Id);
+        Object.FindObjectOfType<WorkshopManager>().RestoreSaveDataForEditor(new SaveManager.WorkshopSaveData { PurchasedUpgradeIds = upgrades });
+
+        BuildingManager buildings = BuildingManager.Instance;
+        BuildingDef lower = null;
+        ResearchDef higherPrerequisite = null;
+        ResourceDef output = null;
+        foreach (BuildingDef candidate in DataBase<BuildingDef>.All)
+        {
+            if (candidate is SectorBuildingDef || candidate.UpgradeTo == null || candidate.UpgradeTo.UpgradeTo != null ||
+                !buildings.ArePrerequisitesMet(candidate, out _) || buildings.CanConstructNew(candidate)) continue;
+            foreach (ResearchDef research in candidate.UpgradeTo.RequiredResearch)
+            {
+                bool shared = false;
+                foreach (ResearchDef prerequisite in candidate.RequiredResearch) shared |= prerequisite == research;
+                if (!shared) { higherPrerequisite = research; break; }
+            }
+            if (higherPrerequisite == null) continue;
+            foreach (Pair<ResourceDef, ExpantaNum> rate in candidate.ResourceGenerationRates)
+                if (rate.First != null && rate.Second > ExpantaNum.Zero) { output = rate.First; break; }
+            if (output != null) { lower = candidate; break; }
+            higherPrerequisite = null;
+        }
+        Assert.That(lower, Is.Not.Null, "Real definitions provide a superseded producer with a distinct upgrade prerequisite.");
+        buildings.GetState(lower).SetAmountForEditor(ExpantaNum.Zero);
+        buildings.GetState(lower.UpgradeTo).SetAmountForEditor(ExpantaNum.One);
+        Assert.That(buildings.ShouldDisplay(lower), Is.False, "The ordinary building list still hides an empty superseded tier.");
+        loadedUi.ShowProductionTree(output);
+        yield return null;
+        Transform graph = loadedUi.transform.Find("SafeAreaRoot/Content/PageHost/Production/GraphViewport/GraphContent");
+        Transform lowerNode = FindProductionNode(graph, lower.Label);
+        Assert.That(lowerNode, Is.Not.Null, "Production keeps the unlocked old source despite its empty stock.");
+        Color supersededColor = lowerNode.GetComponent<Image>().color;
+        Assert.That(Mathf.Abs(supersededColor.r - supersededColor.g), Is.LessThan(.001f));
+        Assert.That(Mathf.Abs(supersededColor.g - supersededColor.b), Is.LessThan(.001f));
+        Button details = lowerNode.Find("Label").GetComponent<Button>();
+        Assert.That(details.interactable, Is.True);
+        int originalNode = lowerNode.GetInstanceID();
+        details.onClick.Invoke();
+        Assert.That(loadedUi.transform.Find("SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent/Body")
+            .GetComponent<TMP_Text>().text, Does.Contain(lower.Description));
+        Assert.That(lowerNode.Find("Expand").GetComponent<Button>().interactable, Is.True);
+
+        ResearchManager.Instance.GetState(higherPrerequisite).SetStatusForEditor(ResearchStatus.Available);
+        Assert.That(buildings.CanConstructNew(lower), Is.True, "The lower tier becomes available when its upgrade is locked.");
+        Assert.That(lowerNode.GetInstanceID(), Is.EqualTo(originalNode), "Inspecting the old source preserves the graph.");
+        loadedUi.RefreshProductionVisibilityForEditor();
+        lowerNode = FindProductionNode(graph, lower.Label);
+        Assert.That(lowerNode, Is.Not.Null);
+        Color normalColor = Resources.Load<GameObject>("UI/Kingdom/KingdomUIResourceTreeRow").GetComponent<Image>().color;
+        Assert.That(Vector4.Distance(lowerNode.GetComponent<Image>().color, normalColor), Is.LessThan(.001f));
+        ResearchManager.Instance.GetState(higherPrerequisite).SetStatusForEditor(ResearchStatus.Completed);
+        loadedUi.RefreshProductionVisibilityForEditor();
+        lowerNode = FindProductionNode(graph, lower.Label);
+        Assert.That(lowerNode, Is.Not.Null);
+        Assert.That(Vector4.Distance(lowerNode.GetComponent<Image>().color, supersededColor), Is.LessThan(.001f));
     }
 
     private IEnumerator LoadProductionScene()
@@ -640,6 +740,8 @@ public sealed class ResourceProductionTreePlayModeTests
         Assert.That(viewport.rect.height, Is.GreaterThan(0f), size + " actual screenshot viewport height");
         TMP_Text rootLabel = graph.GetChild(0).Find("Label").GetComponent<TMP_Text>();
         rootLabel.ForceMeshUpdate();
+        if (rootLabel.canvasRenderer.cull)
+            Debug.Log($"[ProductionClip] rootActive={graph.GetChild(0).gameObject.activeInHierarchy} root={graph.GetChild(0).GetInstanceID()} labelBounds={RectTransformUtility.CalculateRelativeRectTransformBounds(viewport, rootLabel.rectTransform)} viewport={viewport.rect} graph={((RectTransform)graph).anchoredPosition} scale={graph.localScale} preview={canvas.GetComponentInChildren<StoryIllustrationPreview>(true)?.IsOpen}");
         Assert.That(rootLabel.canvasRenderer.cull, Is.False, size + " root label must survive real Canvas clipping");
         bool visibleGlyph = false;
         foreach (TMP_CharacterInfo character in rootLabel.textInfo.characterInfo) visibleGlyph |= character.isVisible;

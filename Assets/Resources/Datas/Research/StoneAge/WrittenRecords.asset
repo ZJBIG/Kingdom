@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: WrittenRecords
   Label: "\u6587\u5B57\u4E0E\u6863\u6848"
-  Description: "统一符号、账目与档案保存方法，提高文书小屋和图书馆的研究力。"
+  Description: "统一符号、账目与档案，让族人的约定和发现越过口耳相传的界限。"
   BaseCost: "6500"
   prerequisites:
   - {fileID: 11400000, guid: e5459833b6f102d43a770cb06bb56ffa, type: 2}

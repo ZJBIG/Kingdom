@@ -5,6 +5,7 @@ using UnityEngine;
 public class ResourceManager : Singleton<ResourceManager>
 {
     public const string StartingResourceId = "WoodLog";
+    public static readonly ExpantaNum StartingProductionRate = new ExpantaNum(2.5d);
     private static readonly ExpantaNum DerivedRateCancellationTolerance =
         new ExpantaNum(0.000001d);
 
@@ -358,7 +359,7 @@ public class ResourceManager : Singleton<ResourceManager>
     {
         foreach (ResourceState state in orderedStates)
         {
-            state.SetProductionRate(IsStartingResource(state.Definition) ? ExpantaNum.One : ExpantaNum.Zero);
+            state.SetProductionRate(IsStartingResource(state.Definition) ? StartingProductionRate : ExpantaNum.Zero);
             state.SetConsumptionRate(ExpantaNum.Zero);
         }
     }
@@ -564,8 +565,8 @@ public class ResourceManager : Singleton<ResourceManager>
     {
         ResourceDef woodLog = DataBase<ResourceDef>.Find(StartingResourceId);
         ResourceState state = EnsureResource(woodLog);
-        if (state.ProductionRate < ExpantaNum.One)
-            state.SetProductionRate(ExpantaNum.One);
+        if (state.ProductionRate < StartingProductionRate)
+            state.SetProductionRate(StartingProductionRate);
         return state;
     }
 

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: UltraExpeditionDoctrine
   Label: "极致远征学说"
-  Description: "以跨星区协同导航与观测校准，提高远征探索能力。"
+  Description: "以跨星区导航与观测校准汇合远征经验，让舰队向未知迈进时仍有共同的参照。"
   BaseCost: "8.5e12"
   prerequisites:
   - {fileID: 11400000, guid: d6b2f8a4c0e73915ab6d1f9e2c5a7b30, type: 2}

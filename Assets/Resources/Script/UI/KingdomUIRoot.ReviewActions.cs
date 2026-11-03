@@ -203,6 +203,8 @@ public sealed partial class KingdomUIRoot
         { SetPage("Resources"); ShowResourceDetails(resource); }
         else if (id.StartsWith("sector:", StringComparison.Ordinal) && DataBase<SectorDef>.TryFind(id.Substring(7), out SectorDef sector))
         { SetPage("Sectors"); RefreshSectorDetails(sector); }
+        else if (id.StartsWith("workshop:", StringComparison.Ordinal) && DataBase<WorkshopUpgradeDef>.TryFind(id.Substring(9), out WorkshopUpgradeDef workshop))
+        { SetPage("Workshop"); ShowWorkshopDetails(workshop); }
     }
     private static string ReviewLink(string type, string id, string label) => "<link=\"" + type + ":" + id + "\"><u>" + label + "</u></link>";
 

@@ -6,6 +6,7 @@ public sealed class ResearchPowerTests
 {
     private readonly List<Object> createdObjects = new List<Object>();
 
+
     [TearDown]
     public void TearDown()
     {

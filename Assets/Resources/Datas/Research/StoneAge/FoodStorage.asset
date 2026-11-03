@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: FoodStorage
   Label: "\u98DF\u7269\u50A8\u85CF"
-  Description: "建造干燥、通风和防潮的储粮空间，提高食物储量上限。"
+  Description: "研究干燥、通风与防潮，把一次丰收妥善留到下一次播种。"
   BaseCost: "4200"
   prerequisites:
   - {fileID: 11400000, guid: f57101c91500a944591bf18155308c0f, type: 2}

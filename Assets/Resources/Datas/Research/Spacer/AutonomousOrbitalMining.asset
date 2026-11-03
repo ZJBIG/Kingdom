@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: AutonomousOrbitalMining
   Label: "轨道自主采矿"
-  Description: "将无人采掘、遥控分选和远程维护接入轨道综合资源工厂，提高该工厂产出及占领星区的持续资源产出。"
+  Description: "将无人采掘、遥控分选与远程维护编入轨道作业，让遥远矿场也能按计划运转。"
   BaseCost: "328000000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}

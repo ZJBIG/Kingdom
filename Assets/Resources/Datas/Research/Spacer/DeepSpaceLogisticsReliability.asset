@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: DeepSpaceLogisticsReliability
   Label: "深空物流可靠性"
-  Description: "以状态监测、备件轮换与远程检修减少停运，提高全局物流供给。"
+  Description: "研究设备状态、备件轮换与远程检修，让漫长航线上的停运可以被预见和修复。"
   BaseCost: "546000000"
   prerequisites:
   - {fileID: 11400000, guid: bc1d2e3f405162738495a6b7c8d9e0f1, type: 2}

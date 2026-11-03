@@ -98,7 +98,7 @@ public static class EconomyParitySnapshotExporter
     {
         Id = StableId(value), Guid = Guid(value), AssetPath = AssetDatabase.GetAssetPath(value),
         TechLevel = value.TechLevel.ToString(), Label = value.Label, Description = value.Description,
-        BaseProductionRate = Number(ResourceManager.IsStartingResource(value) ? ExpantaNum.One : ExpantaNum.Zero)
+        BaseProductionRate = Number(ResourceManager.IsStartingResource(value) ? ResourceManager.StartingProductionRate : ExpantaNum.Zero)
     };
 
     private static BuildingDto Building(BuildingDef value) => new BuildingDto

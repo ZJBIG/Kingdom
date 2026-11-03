@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ControlledFire
   Label: "\u63A7\u5236\u706B\u79CD"
-  Description: "学会保存火种与控制炉温，提高陶瓷窑的产出，并为石料加工、黏土采集与知识传承提供技术基础。"
+  Description: "保存火种，辨认炉色，让火焰从荒野中的威胁变成窑炉与工坊里的伙伴。"
   BaseCost: "60"
   prerequisites: []
   resourceRequirements:

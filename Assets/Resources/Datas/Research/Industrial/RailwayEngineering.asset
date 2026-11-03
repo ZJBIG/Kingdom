@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: RailwayEngineering
   Label: "\u94C1\u8DEF\u5DE5\u7A0B"
-  Description: "统一轨距、货站与车辆调度，提高全局物流供给和铁路枢纽的物流产出。"
+  Description: "统一轨距、货站与行车调度，让远方矿场和繁忙厂区由钢轨相连。"
   BaseCost: "560000"
   prerequisites:
   - {fileID: 11400000, guid: 71ebdc916ab8b85498698228066d1d55, type: 2}

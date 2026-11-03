@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: DistributedCognitionProtocol
   Label: "分布式认知协议"
-  Description: "让各星区量子阵列共享模型和观测结果，提高全局研究效率。"
+  Description: "让各星区的量子阵列交换模型与观测，在遥远距离之间共同推敲同一个问题。"
   BaseCost: "1.1e12"
   prerequisites:
   - {fileID: 11400000, guid: 7f9c2e4a6b8d4013a5c7e9f102b4d6e8, type: 2}

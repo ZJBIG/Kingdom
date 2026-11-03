@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: IndustrialWorkshop
   Label: "\u5DE5\u4E1A\u5DE5\u574A"
-  Description: "以动力机床和专用工位建立工业工坊，解锁可购买的工坊改良。"
+  Description: "让动力机床与专用工位汇集在同一屋檐下，把工匠的设想变成可以装配与检验的设备。"
   BaseCost: "900000"
   prerequisites:
   - {fileID: 11400000, guid: ea25df4d3b4dae645b0cec00cf53d779, type: 2}

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: AdaptiveFleetLogistics
   Label: "自适应舰队后勤"
-  Description: "在运输节点受损时重新安排补给路线，降低战役期间的食物与材料消耗。"
+  Description: "为受损运输节点准备替代路线，让一次意外不会切断远征的补给。"
   BaseCost: "1.5e13"
   prerequisites:
   - {fileID: 11400000, guid: 3e5a7c9f1b2d4f6081a3c5e7b9d0f2a4, type: 2}
