@@ -356,6 +356,7 @@ public class GameManager : Singleton<GameManager>
             CampaignCombatRatio = State.Campaign.CombatRatio.ToString(),
             CampaignDoctrine = State.Campaign.Doctrine,
             CalendarElapsedSeconds = calendarElapsedSeconds,
+            RemainingOfflineSeconds = State.RemainingOfflineSeconds,
             LastSaveUnixSeconds = State.LastSaveUnixSeconds
         };
     }
@@ -377,6 +378,7 @@ public class GameManager : Singleton<GameManager>
             data.TechLevel,
             Parse(data.FoodAmount, nameof(data.FoodAmount)),
             data.LastSaveUnixSeconds);
+        State.RestoreOfflineTime(data.RemainingOfflineSeconds);
         State.RestorePopulation(Parse(data.Population, nameof(data.Population)));
         State.RestoreHousingMilestone(data.HasBuiltHousing);
         State.RestoreFeudalTerritoryReward(data.HasCurrentFeudalTerritoryReward);
@@ -394,6 +396,9 @@ public class GameManager : Singleton<GameManager>
     private static void ValidateSaveData(SaveManager.GameSaveData data)
     {
         WorldEventState.Validate(data.Events);
+        if (double.IsNaN(data.RemainingOfflineSeconds) || double.IsInfinity(data.RemainingOfflineSeconds) ||
+            data.RemainingOfflineSeconds < 0d)
+            throw new System.IO.InvalidDataException("存档的离线时间无效。");
         if (data.CalendarDays < 0)
             throw new System.IO.InvalidDataException("存档的 CalendarDays 不能为负数。");
         if (double.IsNaN(data.CalendarElapsedSeconds) ||

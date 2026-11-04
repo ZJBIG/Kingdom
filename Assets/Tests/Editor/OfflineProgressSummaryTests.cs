@@ -237,6 +237,70 @@ public sealed class OfflineProgressSummaryTests
         }
     }
 
+    [TestCase(5, 5)]
+    [TestCase(20, 25)]
+    [TestCase(1000, 500)]
+    public void AllocatedOfflineTime_ConsumesOnlyCompletedProgressAtTheSelectedRate(int speed, int consumption)
+    {
+        SaveManager.GameSaveData data = game.CaptureSaveData();
+        data.RemainingOfflineSeconds = 1000d;
+        game.RestoreSaveDataForEditor(data);
+        SimulationManager simulation = host.GetComponent<SimulationManager>();
+        simulation.SetAccelerationMultiplier(speed);
+        simulation.Advance(.25d);
+        for (int frame = 0; frame < 1000 && simulation.AccumulatedAccelerationSecondsForEditor > 0d; frame++)
+            simulation.Advance(0d);
+        Assert.That(simulation.AccumulatedAccelerationSecondsForEditor, Is.LessThan(1e-6d));
+        Assert.That(save.RemainingOfflineSeconds, Is.EqualTo(1000d - consumption * .25d).Within(1e-6d));
+        SaveManager.GameSaveData snapshot = game.CaptureSaveData();
+        double bank = snapshot.RemainingOfflineSeconds;
+        double elapsed = snapshot.CalendarDays * 10d + snapshot.CalendarElapsedSeconds + simulation.AccumulatedSecondsForEditor;
+        Assert.That(elapsed, Is.EqualTo(speed * .25d).Within(1e-4d));
+        game.RestoreSaveDataForEditor(JsonUtility.FromJson<SaveManager.GameSaveData>(JsonUtility.ToJson(snapshot)));
+        Assert.That(game.State.RemainingOfflineSeconds, Is.EqualTo(bank).Within(1e-6d));
+        simulation.SetAccelerationMultiplier(1);
+        simulation.Advance(.25d);
+        Assert.That(save.RemainingOfflineSeconds, Is.EqualTo(bank).Within(1e-6d));
+    }
+
+    [Test]
+    public void AllocatedOfflineTime_ExhaustsProportionallyAndReturnsToNormalSpeed()
+    {
+        SaveManager.GameSaveData data = game.CaptureSaveData();
+        data.RemainingOfflineSeconds = 5d;
+        game.RestoreSaveDataForEditor(data);
+        SimulationManager simulation = host.GetComponent<SimulationManager>();
+        simulation.SetAccelerationMultiplier(20);
+        simulation.Advance(.5d);
+        for (int frame = 0; frame < 100 && simulation.AccumulatedAccelerationSecondsForEditor > 0d; frame++) simulation.Advance(0d);
+        Assert.That(save.RemainingOfflineSeconds, Is.LessThan(1e-6d));
+        Assert.That(simulation.AccelerationMultiplier, Is.EqualTo(1), "Normal speed is an exact discrete mode.");
+        SaveManager.GameSaveData result = game.CaptureSaveData();
+        double elapsed = result.CalendarDays * 10d + result.CalendarElapsedSeconds + simulation.AccumulatedSecondsForEditor;
+        Assert.That(elapsed, Is.EqualTo(.5d + (5d / 25d) * 19d).Within(1e-4d));
+        Assert.Throws<ArgumentOutOfRangeException>(() => simulation.SetAccelerationMultiplier(7));
+        result.RemainingOfflineSeconds = double.NaN;
+        Assert.Throws<System.IO.InvalidDataException>(() => game.RestoreSaveDataForEditor(result));
+    }
+
+    [Test]
+    public void AllocatedOfflineTime_NormalSpeedDiscardsUnpaidBacklogImmediately()
+    {
+        SaveManager.GameSaveData data = game.CaptureSaveData();
+        data.RemainingOfflineSeconds = 86400d;
+        game.RestoreSaveDataForEditor(data);
+        SimulationManager simulation = host.GetComponent<SimulationManager>();
+        simulation.SetAccelerationMultiplier(1000);
+        simulation.Advance(1d);
+        simulation.SetAccelerationMultiplier(1);
+        Assert.That(simulation.AccumulatedAccelerationSecondsForEditor, Is.LessThan(1e-9d));
+        double bank = save.RemainingOfflineSeconds;
+        double calendar = game.CaptureSaveData().CalendarElapsedSeconds;
+        simulation.Advance(0d);
+        Assert.That(save.RemainingOfflineSeconds, Is.EqualTo(bank).Within(1e-9d));
+        Assert.That(game.CaptureSaveData().CalendarElapsedSeconds, Is.EqualTo(calendar).Within(1e-9d));
+    }
+
     private static OfflineResourceChange Find(OfflineProgressSummary summary, ResourceDef resource)
     {
         foreach (OfflineResourceChange change in summary.Resources)

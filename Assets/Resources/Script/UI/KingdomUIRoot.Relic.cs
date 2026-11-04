@@ -51,7 +51,7 @@ public sealed partial class KingdomUIRoot
             Debug.LogError("[王国界面] Missing authored relic actions prefab.");
             return false;
         }
-        relicActions = Instantiate(prefab, detailScrollContent, false).transform as RectTransform;
+        relicActions = KingdomUIPrefabLibrary.Instantiate(prefab, detailScrollContent).transform as RectTransform;
         relicStatusText = relicActions.Find("Status")?.GetComponent<TMP_Text>();
         relicCostsText = relicActions.Find("Costs")?.GetComponent<TMP_Text>();
         relicResultText = relicActions.Find("Result")?.GetComponent<TMP_Text>();

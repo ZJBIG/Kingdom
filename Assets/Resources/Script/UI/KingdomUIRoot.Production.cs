@@ -160,7 +160,7 @@ public sealed partial class KingdomUIRoot
 
     private RectTransform CreateProductionNode(ResourceProductionTree.Node node)
     {
-        GameObject row = Instantiate(resourceTreeRowPrefab, productionContent, false);
+        GameObject row = KingdomUIPrefabLibrary.Instantiate(resourceTreeRowPrefab, productionContent);
         row.name = "ProductionNode";
         TMP_Text label = row.transform.Find("Label").GetComponent<TMP_Text>();
         TMP_Text status = row.transform.Find("Status").GetComponent<TMP_Text>();

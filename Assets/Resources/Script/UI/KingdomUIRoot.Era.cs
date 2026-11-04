@@ -92,7 +92,7 @@ public sealed partial class KingdomUIRoot
 
     private RectTransform BeginEraSection(RectTransform parent, string name, string title, float width, float y, out float contentY)
     {
-        RectTransform section = Instantiate(KingdomUIPrefabLibrary.Load(KingdomUIPrefabLibrary.EraSection), parent, false).GetComponent<RectTransform>();
+        RectTransform section = KingdomUIPrefabLibrary.Instantiate(KingdomUIPrefabLibrary.EraSection, parent).GetComponent<RectTransform>();
         section.name = name;
         // EraRows is the outer page's authored data surface. Forward drags from
         // the section shell itself so a gesture starting in its header/background
@@ -123,7 +123,7 @@ public sealed partial class KingdomUIRoot
     private float CreateEraCard(RectTransform parent, string name, string title, string body, Color color,
         Action action, ResearchDef queueResearch, float width = 1200f, float y = 0f, float minimumHeight = 140f)
     {
-        RectTransform card = Instantiate(KingdomUIPrefabLibrary.Load(KingdomUIPrefabLibrary.EraCard), parent, false).GetComponent<RectTransform>();
+        RectTransform card = KingdomUIPrefabLibrary.Instantiate(KingdomUIPrefabLibrary.EraCard, parent).GetComponent<RectTransform>();
         card.name = name;
         card.GetComponent<Image>().color = color == PanelRaised || color == ListRowOdd
             ? new Color(.17f, .20f, .17f, .94f) : new Color(.12f, .16f, .14f, .94f);

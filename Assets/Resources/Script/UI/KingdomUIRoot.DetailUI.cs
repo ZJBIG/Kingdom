@@ -53,7 +53,7 @@ public sealed partial class KingdomUIRoot
         viewportImage.raycastTarget = true;
         detailScrollViewport.gameObject.AddComponent<RectMask2D>();
         EnsureNestedCanvas(detailScrollViewport);
-        detailScroll = detailScrollViewport.gameObject.AddComponent<KingdomScrollRect>();
+        detailScroll = detailScrollViewport.gameObject.AddComponent<ScrollRect>();
         detailScroll.horizontal = false;
         detailScroll.vertical = true;
         detailScroll.movementType = ScrollRect.MovementType.Clamped;
@@ -133,7 +133,7 @@ public sealed partial class KingdomUIRoot
             Debug.LogError("[王国界面] Missing authored DetailActionFooter prefab.");
             return false;
         }
-        GameObject footerObject = Instantiate(footerPrefab, shell, false);
+        GameObject footerObject = KingdomUIPrefabLibrary.Instantiate(footerPrefab, shell);
         footerObject.name = "Footer";
         Transform actionTransform = footerObject.transform.Find("Action");
         Transform doctrineTransform = footerObject.transform.Find("Doctrine");
@@ -158,7 +158,7 @@ public sealed partial class KingdomUIRoot
             Debug.LogError("Missing authored KingdomUIScrollFrame prefab.");
             return false;
         }
-        Instantiate(scrollFrame, detailScrollViewport, false).name = "ScrollFrame";
+        KingdomUIPrefabLibrary.Instantiate(scrollFrame, detailScrollViewport).name = "ScrollFrame";
 
         Canvas.ForceUpdateCanvases();
         Debug.Log($"[王国界面] Detail UI rebuilt: legacyChildren=discarded, viewport={detailScrollViewport.rect.size}, content={detailScrollContent.rect.size}, footer={DetailFooterHeight:0}");

@@ -67,9 +67,13 @@ public static class KingdomUIPrefabLibrary
 
     public static int PreloadAll() => Preload(AllReusablePrefabs);
 
-    public static GameObject Instantiate(string prefabName, Transform parent)
+    public static GameObject Instantiate(string prefabName, Transform parent) =>
+        Instantiate(Load(prefabName), parent);
+
+    public static GameObject Instantiate(GameObject prefab, Transform parent)
     {
-        GameObject prefab = Load(prefabName);
-        return UnityEngine.Object.Instantiate(prefab, parent, false);
+        GameObject instance = UnityEngine.Object.Instantiate(prefab, parent, false);
+        OnboardingInputGate.PrepareControls(instance);
+        return instance;
     }
 }

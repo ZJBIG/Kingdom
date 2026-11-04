@@ -304,13 +304,8 @@ public sealed partial class SectorManager
             1d,
             ProgressionModifierManager.Current.CampaignCasualtyMultiplier *
             GetCampaignDoctrineCasualtyMultiplier(runtimeState, doctrine));
-        ExpantaNum supplyCostMultiplier =
-            ProgressionModifierManager.Current.CampaignSupplyCostMultiplier *
-            GetCampaignDoctrineSupplyMultiplier(runtimeState, doctrine) *
-            GetRelicCampaignSupplyMultiplier(definition, runtimeState);
-        ExpantaNum foodCostPerSecond = ExpantaNum.Max(
-            ExpantaNum.Zero,
-            definition.CampaignFoodPerSecond * supplyCostMultiplier);
+        ExpantaNum supplyCostMultiplier = GetCampaignSupplyCostMultiplier(definition, runtimeState, doctrine);
+        ExpantaNum foodCostPerSecond = CalculateCampaignFoodRate(definition, supplyCostMultiplier);
         IReadOnlyList<Pair<ResourceDef, ExpantaNum>> resourceCosts =
             ScaleCampaignResourceRates(
                 definition.CampaignResourceRatesPerSecond,
@@ -394,9 +389,7 @@ public sealed partial class SectorManager
         ExpantaNum explorationPower = ExpantaNum.Zero;
         ExpantaNum explorationSpeedMultiplier =
             ProgressionModifierManager.Current.ExplorationPowerMultiplier;
-        ExpantaNum foodCostPerSecond = ExpantaNum.Max(
-            ExpantaNum.Zero,
-            definition.ColonizationFoodPerSecond);
+        ExpantaNum foodCostPerSecond = GetExplorationFoodConsumptionRate(definition);
         IReadOnlyList<Pair<ResourceDef, ExpantaNum>> resourceCosts =
             definition.ColonizationResourceRatesPerSecond ?? Array.Empty<Pair<ResourceDef, ExpantaNum>>();
         bool hasSupply = runtimeState.FoodAmount >= foodCostPerSecond;
@@ -1709,6 +1702,24 @@ public sealed partial class SectorManager
         }
         return scaledRates;
     }
+
+    internal static ExpantaNum GetCampaignFoodConsumptionRate(SectorDef definition, GameState runtimeState) =>
+        CalculateCampaignFoodRate(definition,
+            GetCampaignSupplyCostMultiplier(definition, runtimeState, runtimeState.Campaign.Doctrine));
+
+    internal static ExpantaNum GetExplorationFoodConsumptionRate(SectorDef definition) =>
+        definition.IsHomeSystem
+            ? ExpantaNum.Max(ExpantaNum.Zero, definition.ColonizationFoodPerSecond)
+            : ExpantaNum.Zero;
+
+    private static ExpantaNum CalculateCampaignFoodRate(SectorDef definition, ExpantaNum supplyCostMultiplier) =>
+        ExpantaNum.Max(ExpantaNum.Zero, definition.CampaignFoodPerSecond * supplyCostMultiplier);
+
+    private static ExpantaNum GetCampaignSupplyCostMultiplier(
+        SectorDef definition, GameState runtimeState, CampaignDoctrine doctrine) =>
+        ProgressionModifierManager.Current.CampaignSupplyCostMultiplier *
+        GetCampaignDoctrineSupplyMultiplier(runtimeState, doctrine) *
+        GetRelicCampaignSupplyMultiplier(definition, runtimeState);
 
     private static ExpantaNum GetCampaignDoctrineProgressMultiplier(GameState runtimeState, CampaignDoctrine? doctrine = null)
     {

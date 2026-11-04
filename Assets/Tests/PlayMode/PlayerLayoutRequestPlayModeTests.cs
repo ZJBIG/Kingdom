@@ -92,6 +92,12 @@ public sealed class PlayerLayoutRequestPlayModeTests
         PrepareControlledState();
         for (int i = 0; i < 3; i++) yield return null;
 
+        SaveManager.KingdomSaveData snapshot = SaveManager.Instance.CaptureSaveData();
+        snapshot.General.RemainingOfflineSeconds = 34800d;
+        GameManager.Instance.RestoreSaveDataForEditor(snapshot.General);
+        yield return Page("Overview");
+        Capture("00-overview-offline");
+
         yield return Page("Buildings");
         yield return Click(FindCard("Buildings", DataBase<BuildingDef>.Find("Farm").Label));
         string farm = Capture("01-building-farm");
@@ -165,6 +171,19 @@ public sealed class PlayerLayoutRequestPlayModeTests
         string research = Capture("03-research-industrialization");
         Assert.That(research, Does.Not.Contain("当前研究速度"));
         Assert.That(research, Does.Contain(DataBase<ResearchDef>.Find("Industrialization").Label));
+        ResearchDef payment = DataBase<ResearchDef>.All.First(x => x.ResourceRequirements.Count > 0 && x.ResourceRequirements[0].Second > ExpantaNum.Zero);
+        ResearchState paymentState = ResearchManager.Instance.GetState(payment);
+        ExpantaNum previousInventory = ResourceManager.Instance.GetAmount(payment.ResourceRequirements[0].First);
+        var previousPayments = new Dictionary<ResourceDef, ExpantaNum>();
+        foreach (var cost in payment.ResourceRequirements) previousPayments[cost.First] = paymentState.GetPaidResourceCost(cost.First);
+        paymentState.RestoreForEditor(ExpantaNum.Zero, false, false, new Dictionary<ResourceDef, ExpantaNum>());
+        paymentState.SetStatusForEditor(ResearchStatus.Available);
+        ResourceManager.Instance.SetAmount(payment.ResourceRequirements[0].First, ExpantaNum.Zero);
+        ui.ShowResearchDetailsForEditor(payment);
+        yield return null;
+        Capture("03-research-payment");
+        paymentState.RestoreForEditor(paymentState.BaseCost, true, true, previousPayments);
+        ResourceManager.Instance.SetAmount(payment.ResourceRequirements[0].First, previousInventory);
 
         yield return Page("Sectors");
         Transform sector = Rows("Sectors").Find("SectorRow_AzurePool");
@@ -278,7 +297,8 @@ public sealed class PlayerLayoutRequestPlayModeTests
                 if (candidate.name == "Value" && candidate.transform.parent.name == "Happiness") { value = candidate; break; }
         Assert.That(value, Is.Not.Null);
         GameState game = GameManager.Instance.State;
-        Assert.That(value.text, Is.EqualTo((game.HappinessMultiplier * 100).ToDouble().ToString("F3", System.Globalization.CultureInfo.InvariantCulture) + "%"));
+        value.ForceMeshUpdate(true, true);
+        Assert.That(value.GetParsedText(), Is.EqualTo((game.HappinessMultiplier * 100).ToDouble().ToString("F3", System.Globalization.CultureInfo.InvariantCulture) + "%"));
         Assert.That(value.text, Does.Not.Contain("HudProductionEfficiency").And.Not.Contain("("));
         value.ForceMeshUpdate(true, true);
         Assert.That(value.textInfo.lineCount, Is.EqualTo(1), "HUD happiness stays on one line.");

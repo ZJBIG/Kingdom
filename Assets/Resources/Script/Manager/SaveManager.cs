@@ -18,26 +18,13 @@ public sealed class SaveManager : Singleton<SaveManager>
     private bool dirty = true;
     private long lastSavedStateSignature;
     private long applicationPausedAtUnixSeconds;
-    private bool applicationPaused;
-    private SimulationManager.OfflineProgressSession offlineSession;
-    private OfflineProgressSummary.Snapshot offlineBefore;
-    private long offlineSavedAt;
-    private long offlineNow;
-    private double offlineSeconds;
-    private bool finishLoadingAfterOffline;
-    private long loadingPausedAtUnixSeconds;
-
     public bool IsLoading { get; private set; }
-    public string LoadingStage { get; private set; } = string.Empty;
-    public float LoadingProgress { get; private set; }
     public string LoadingError { get; private set; } = string.Empty;
-    public bool IsOfflineProgressRunning => offlineSession != null;
+    public double RemainingOfflineSeconds => GameManager.Instance.State.RemainingOfflineSeconds;
 
-    internal void BeginLoading(string stage)
+    internal void BeginLoading()
     {
         IsLoading = true;
-        LoadingStage = stage;
-        LoadingProgress = 0f;
         LoadingError = string.Empty;
         SimulationManager.Instance.SetRunning(false);
     }
@@ -45,7 +32,6 @@ public sealed class SaveManager : Singleton<SaveManager>
     internal void FinishLoading()
     {
         IsLoading = false;
-        LoadingProgress = 1f;
     }
 
     internal void FailLoading(Exception exception)
@@ -58,60 +44,19 @@ public sealed class SaveManager : Singleton<SaveManager>
         Debug.LogError($"Kingdom 初始化或离线结算失败：{exception}");
     }
 
-    internal bool BeginStartupOfflineProgress()
-    {
-        return BeginOfflineProgress(GameManager.Instance.State.LastSaveUnixSeconds,
-            DateTimeOffset.UtcNow.ToUnixTimeSeconds(), false);
-    }
+    internal bool CollectStartupOfflineTime() => CollectOfflineTime(
+        GameManager.Instance.State.LastSaveUnixSeconds, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
 
-    private bool BeginOfflineProgress(long savedAt, long now, bool finishLoading)
+    private bool CollectOfflineTime(long savedAt, long now)
     {
-        if (offlineSession != null) return true;
-        LastOfflineProgressSeconds = 0d;
-        LastOfflineSummary = null;
-        double seconds = CalculateOfflineElapsedSeconds(savedAt, now, Math.Max(0d, maximumOfflineHours) * 3600d);
-        if (seconds <= 0d) return false;
-        BeginLoading("正在结算离线进度");
-        offlineBefore = OfflineProgressSummary.Capture();
-        offlineSavedAt = savedAt;
-        offlineNow = now;
-        offlineSeconds = seconds;
-        finishLoadingAfterOffline = finishLoading;
-        offlineSession = SimulationManager.Instance.BeginOfflineProgress(seconds);
+        double maximum = Math.Max(0d, maximumOfflineHours) * 3600d;
+        double elapsed = CalculateOfflineElapsedSeconds(savedAt, now, maximum);
+        if (elapsed <= 0d) return false;
+        GameState state = GameManager.Instance.State;
+        state.RestoreOfflineTime(Math.Min(maximum, state.RemainingOfflineSeconds + elapsed));
+        GameManager.Instance.MarkSaveTimestamp(now);
+        dirty = true;
         return true;
-    }
-
-    private void Update()
-    {
-        if (offlineSession == null || applicationPaused) return;
-        try
-        {
-            offlineSession.Advance(4d);
-            LoadingProgress = offlineSession.Progress;
-            if (!offlineSession.Completed) return;
-            offlineSeconds = offlineSession.TotalSeconds;
-            offlineSession = null;
-            LastOfflineProgressSeconds = offlineSeconds;
-            LastOfflineSummary = new OfflineProgressSummary(offlineBefore,
-                OfflineProgressSummary.Capture(), offlineNow - offlineSavedAt, offlineSeconds);
-            GameManager.Instance.MarkSaveTimestamp(offlineNow);
-            dirty = true;
-            if (finishLoadingAfterOffline)
-            {
-                FinishLoading();
-                if (!SaveNow(true))
-                {
-                    FailLoading(new IOException(LastSaveError));
-                    return;
-                }
-                SimulationManager.Instance.SetRunning(true);
-            }
-        }
-        catch (Exception exception)
-        {
-            offlineSession = null;
-            FailLoading(exception);
-        }
     }
 
 #if UNITY_EDITOR || UNITY_INCLUDE_TESTS
@@ -164,8 +109,10 @@ public sealed class SaveManager : Singleton<SaveManager>
         ValidateStorySection(data);
     }
 
+#if UNITY_EDITOR
     public double LastOfflineProgressSeconds { get; private set; }
     public OfflineProgressSummary LastOfflineSummary { get; private set; }
+#endif
 
     public void SetReady(bool value)
     {
@@ -175,11 +122,12 @@ public sealed class SaveManager : Singleton<SaveManager>
         dirty = value && !HasSave;
     }
 
+#if UNITY_EDITOR
     public bool ApplyOfflineProgress()
     {
         long savedAt = GameManager.Instance.State.LastSaveUnixSeconds;
         long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        return ApplyOfflineProgress(savedAt, now);
+        return CollectOfflineTime(savedAt, now);
     }
 
     private bool ApplyOfflineProgress(long savedAt, long now)
@@ -205,6 +153,8 @@ public sealed class SaveManager : Singleton<SaveManager>
         return LastOfflineProgressSeconds > 0d;
     }
 
+#endif
+
     public static double CalculateOfflineElapsedSeconds(
         long savedAt,
         long currentTime,
@@ -219,8 +169,10 @@ public sealed class SaveManager : Singleton<SaveManager>
 
     public bool LoadOrCreateGame()
     {
+#if UNITY_EDITOR
         LastOfflineProgressSeconds = 0d;
         LastOfflineSummary = null;
+#endif
         LastLoadCreatedNewGame = false;
         LastLoadFailed = false;
         bool hadSave = HasSave;
@@ -260,7 +212,8 @@ public sealed class SaveManager : Singleton<SaveManager>
         try
         {
             KingdomSaveData data = CaptureSaveData();
-            long saveTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            long saveTimestamp = applicationPausedAtUnixSeconds > 0L
+                ? applicationPausedAtUnixSeconds : DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             // Stamp the serialized payload before writing, but commit the
             // runtime timestamp only after the file replacement succeeds.
             // This prevents active play time from being counted as offline
@@ -311,31 +264,10 @@ public sealed class SaveManager : Singleton<SaveManager>
         if (unixSeconds < 0L)
             throw new ArgumentOutOfRangeException(nameof(unixSeconds));
 
-        applicationPaused = paused;
-        if (IsLoading)
-        {
-            if (paused)
-            {
-                if (loadingPausedAtUnixSeconds == 0L) loadingPausedAtUnixSeconds = unixSeconds;
-            }
-            else
-            {
-                long pausedAtDuringLoading = loadingPausedAtUnixSeconds;
-                loadingPausedAtUnixSeconds = 0L;
-                if (offlineSession != null && pausedAtDuringLoading > 0L && unixSeconds > pausedAtDuringLoading)
-                {
-                    long extraSeconds = unixSeconds - pausedAtDuringLoading;
-                    double maximumSeconds = Math.Max(0d, maximumOfflineHours) * 3600d;
-                    offlineSession.Extend(Math.Min(extraSeconds,
-                        Math.Max(0d, maximumSeconds - offlineSession.TotalSeconds)));
-                    LoadingProgress = offlineSession.Progress;
-                    offlineNow += extraSeconds;
-                }
-            }
-            return;
-        }
+        if (IsLoading) return;
         if (paused)
         {
+            if (applicationPausedAtUnixSeconds > 0L) return;
             applicationPausedAtUnixSeconds = unixSeconds;
             SaveNow(true);
             return;
@@ -343,18 +275,8 @@ public sealed class SaveManager : Singleton<SaveManager>
 
         long pausedAt = applicationPausedAtUnixSeconds;
         applicationPausedAtUnixSeconds = 0L;
-        LastOfflineProgressSeconds = 0d;
-        LastOfflineSummary = null;
-        if (ready && pausedAt > 0L)
-        {
-            if (Application.isPlaying)
-            {
-                try { BeginOfflineProgress(pausedAt, unixSeconds, true); }
-                catch (Exception exception) { FailLoading(exception); }
-            }
-            else if (ApplyOfflineProgress(pausedAt, unixSeconds))
-                SaveNow(true);
-        }
+        if (ready && pausedAt > 0L && CollectOfflineTime(pausedAt, unixSeconds))
+            SaveNow(true);
     }
 
 #if UNITY_EDITOR || UNITY_INCLUDE_TESTS
@@ -404,8 +326,10 @@ public sealed class SaveManager : Singleton<SaveManager>
             throw new InvalidDataException("存档结构不是当前版本。");
         ValidateRequiredSections(data);
 
+#if UNITY_EDITOR
         LastOfflineProgressSeconds = 0d;
         LastOfflineSummary = null;
+#endif
         ResetRuntimeStateForLoad();
         GameManager.Instance.InitializeNewGame();
         BuildingManager.Instance.InitializeStartingBuildings();
@@ -929,6 +853,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         // Preserve the sub-day calendar accumulator so save/load does not
         // silently discard up to one simulation day of calendar progress.
         public double CalendarElapsedSeconds;
+        public double RemainingOfflineSeconds;
         public long LastSaveUnixSeconds;
     }
 

@@ -180,7 +180,21 @@ public sealed partial class KingdomUIRoot
     }
 
     private ExpantaNum GetSelectedBuildingQuantity(BuildingDef building, bool upgrade, bool deconstruct)
+        => GetSelectedBuildingQuantity(building, upgrade, deconstruct, out _);
+
+    private ExpantaNum GetSelectedBuildingActionQuantity(BuildingDef building, bool upgrade, out bool available)
     {
+        ExpantaNum selected = GetSelectedBuildingQuantity(building, upgrade, false, out ExpantaNum maximum);
+        available = buildingQuantityMode == BuildingQuantityMode.Max || buildingQuantityMode == BuildingQuantityMode.Custom
+            ? maximum >= selected
+            : CanPerformBuildingAction(building, upgrade, selected);
+        return selected;
+    }
+
+    private ExpantaNum GetSelectedBuildingQuantity(BuildingDef building, bool upgrade, bool deconstruct,
+        out ExpantaNum maximum)
+    {
+        maximum = ExpantaNum.Zero;
         switch (buildingQuantityMode)
         {
             case BuildingQuantityMode.Ten:
@@ -189,7 +203,6 @@ public sealed partial class KingdomUIRoot
                     : new ExpantaNum(10);
             case BuildingQuantityMode.Max:
             case BuildingQuantityMode.Custom:
-                ExpantaNum maximum;
                 if (deconstruct)
                 {
                     maximum = BuildingManager.Instance.States.TryGetValue(building, out BuildingState customState)

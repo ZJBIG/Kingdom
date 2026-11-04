@@ -106,12 +106,17 @@ public sealed partial class KingdomUIRoot
             buildingActionButtonOutlines[button] = outline;
         }
         outline.enabled = true;
-        outline.useGraphicAlpha = false;
-        outline.effectDistance = new Vector2(1.5f, 1.5f);
+        if (outline.useGraphicAlpha)
+            outline.useGraphicAlpha = false;
+        Vector2 borderDistance = new(1.5f, 1.5f);
+        if (outline.effectDistance != borderDistance)
+            outline.effectDistance = borderDistance;
         Color activeBorder = isDeconstruct
             ? new Color(1f, .62f, .55f, 1f)
             : BuildableActionColor;
-        outline.effectColor = available ? activeBorder : new Color(.72f, .76f, .74f, .95f);
+        Color borderColor = available ? activeBorder : new Color(.72f, .76f, .74f, .95f);
+        if (outline.effectColor != borderColor)
+            outline.effectColor = borderColor;
         TMP_Text text = GetBuildingActionButtonText(button);
         if (text == null)
         {

@@ -348,7 +348,7 @@ public sealed partial class KingdomUIRoot
                 "UI/Kingdom/StoryChapterCard");
         if (storyChapterCardPrefab == null)
             throw new InvalidOperationException("剧情章节卡片 Prefab 缺失。");
-        StoryChapterCard card = Instantiate(storyChapterCardPrefab, surface, false);
+        StoryChapterCard card = KingdomUIPrefabLibrary.Instantiate(storyChapterCardPrefab.gameObject, surface).GetComponent<StoryChapterCard>();
         card.name = "StoryChapter_" + chapter.Id;
         // Preserve the existing page's outer positioning; the authored card owns
         // its internal layout and preferred height, including the optional frame.

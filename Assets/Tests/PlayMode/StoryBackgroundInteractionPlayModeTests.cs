@@ -102,8 +102,8 @@ public sealed class StoryBackgroundInteractionPlayModeTests
         MovePointer(pointer, new Vector2(40, 20));
         RectTransformUtility.ScreenPointToLocalPointInRectangle(viewport, pointer.position, null, out Vector2 dragEnd);
         preview.OnDrag(pointer);
-        Assert.That(Vector2.Distance(preview.ViewPosition, (dragEnd - dragStart) * 1.5f), Is.LessThan(.1f),
-            "Illustration dragging uses the same faster movement as page and graph dragging.");
+        Assert.That(Vector2.Distance(preview.ViewPosition, (dragEnd - dragStart)), Is.LessThan(.1f),
+            "Illustration dragging follows pointer movement, like page and graph dragging.");
         preview.OnEndDrag(pointer);
         preview.transform.Find("Header/Reset").GetComponent<Button>().onClick.Invoke();
         Assert.That(preview.Zoom, Is.GreaterThan(0f).And.LessThanOrEqualTo(fittedZoom), "Reset restores the fitted view.");
@@ -189,7 +189,7 @@ public sealed class StoryBackgroundInteractionPlayModeTests
         inner.OnDrag(pointer);
         Assert.That(inner.IsDraggingOuter, Is.False);
         Assert.That(inner.content.anchoredPosition.y - innerBefore.y,
-            Is.EqualTo((dragEnd.y - dragStart.y) * 1.5f).Within(.1f));
+            Is.EqualTo((dragEnd.y - dragStart.y)).Within(.1f));
         Assert.That(Vector2.Distance(outerBefore, outer.content.anchoredPosition), Is.LessThan(.1f));
         inner.verticalNormalizedPosition = 0;
         innerBefore = inner.content.anchoredPosition;

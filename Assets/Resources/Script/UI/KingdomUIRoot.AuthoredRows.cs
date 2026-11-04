@@ -82,7 +82,7 @@ public sealed partial class KingdomUIRoot
             string amount = state == null ? "0" : state.Amount.ToGameString();
             ExpantaNum net = state == null
                 ? ExpantaNum.Zero
-                : ResourceManager.ApplyCurrentProductionReward(state.ProductionRate) - state.ConsumptionRate;
+                : resourceManager.GetNetRate(state);
             string change = (net >= ExpantaNum.Zero ? "+" : string.Empty) + net.ToGameString() + "/s";
             GameObject row = InstantiateAuthoredRow(GetEraCollectionPrefabName(KingdomUIPrefabLibrary.ResourceCard,
                 resource.TechLevel), parent, visible++);
@@ -91,8 +91,8 @@ public sealed partial class KingdomUIRoot
             ApplyEraRowStyle(row, resource.TechLevel, visible - 1);
             BindRowPin(row, UIPinPreferences.Resource, resource.Id);
             if (!SetRowText(row, "Label", resource.Label) ||
-                !SetRowText(row, "Amount", amount) ||
-                !SetRowText(row, "ChangeRate", change, net >= ExpantaNum.Zero ? Positive : Error))
+                !SetRowText(row, "Amount", StableNumber(amount)) ||
+                !SetRowText(row, "ChangeRate", StableNumber(change), net >= ExpantaNum.Zero ? Positive : Error))
                 continue;
             Transform iconTransform = row.transform.Find("Icon");
             Image icon = iconTransform == null ? null : iconTransform.GetComponent<Image>();
@@ -179,10 +179,13 @@ public sealed partial class KingdomUIRoot
             BindRowPin(row, UIPinPreferences.Building, building.Id);
             Image buildingIcon = row.transform.Find("BuildingIcon")?.GetComponent<Image>();
             BindArtworkIcon(buildingIcon, building.Icon, building.Label);
+            bool canUpgrade = buildingManager != null &&
+                buildingManager.TryGetUnlockedUpgradeTarget(building, out _);
+            ExpantaNum buildQuantity = GetSelectedBuildingActionQuantity(building, canUpgrade, out bool actionAvailable);
             if (!SetRowText(row, "Label", building.Label) ||
                 !SetRowText(row, "TechLevel", building.TechLevel.GetDescription()) ||
-                !SetRowText(row, "Amount", amount) ||
-                !SetRowText(row, "Effect", FormatBuildingAvailability(state), TextSecondary))
+                !SetRowText(row, "Amount", StableNumber(amount)) ||
+                !SetRowText(row, "Effect", FormatBuildingAvailability(state, canUpgrade, buildQuantity), TextSecondary))
                 continue;
             Button cardButton = RequireRowButton(row);
             if (cardButton == null)
@@ -192,13 +195,10 @@ public sealed partial class KingdomUIRoot
                 ShowBuildingDetails(building);
             });
 
-            bool canUpgrade = buildingManager != null &&
-                buildingManager.TryGetUnlockedUpgradeTarget(building, out _);
             Button buildButton = RequireChildButton(row, "BuildButton");
             Button deconstructButton = RequireChildButton(row, "DeconstructButton");
             if (buildButton == null || deconstructButton == null)
                 continue;
-            ExpantaNum buildQuantity = GetSelectedBuildingQuantity(building, canUpgrade, false);
             buildingActionIconUpgradeModes[buildButton] = canUpgrade;
             SetBuildingActionQuantity(buildButton, buildQuantity, canUpgrade ? "升级" : "建造");
             buildButton.onClick.RemoveAllListeners();
@@ -206,7 +206,7 @@ public sealed partial class KingdomUIRoot
             {
                 PerformBuildingAction(building, canUpgrade);
             });
-            buildButton.interactable = CanPerformBuildingAction(building, canUpgrade, buildQuantity);
+            buildButton.interactable = actionAvailable;
             SetBuildingActionButtonState(buildButton, buildButton.interactable);
             buildingActionButtons[building] = buildButton;
             buildingActionUpgradeModes[building] = canUpgrade;
@@ -237,12 +237,10 @@ public sealed partial class KingdomUIRoot
 
     private readonly List<BuildFailure> buildingAvailabilityFailures = new List<BuildFailure>();
 
-    private string FormatBuildingAvailability(BuildingState state)
+    private string FormatBuildingAvailability(BuildingState state, bool upgrade, ExpantaNum amount)
     {
         if (state == null) return string.Empty;
         BuildingDef building = state.Definition;
-        bool upgrade = BuildingManager.Instance.TryGetUnlockedUpgradeTarget(building, out _);
-        ExpantaNum amount = GetSelectedBuildingQuantity(building, upgrade, false);
         BuildingManager.Instance.GetConstructionFailures(building, amount, upgrade, buildingAvailabilityFailures);
         if (buildingAvailabilityFailures.Contains(BuildFailure.SpaceInsufficient))
             return LandShortageIcon;

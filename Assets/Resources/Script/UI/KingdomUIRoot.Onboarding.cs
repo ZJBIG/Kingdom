@@ -109,7 +109,12 @@ public sealed partial class KingdomUIRoot
             (gameManagerCache.State.TechLevel == TechLevel.Animal || !string.IsNullOrEmpty(tutorialSnapshot?.ActionId));
         TutorialManager manager = RefreshTutorialSnapshot(firstSession);
         onboardingStage = manager == null ? null : manager.EvaluateStage();
-        if (manager != null && firstSession && populatedPage == "Overview") RefreshDevelopmentGuidance();
+        if (manager != null && firstSession && populatedPage == "Overview" &&
+            (!developmentGuidanceInitialized || developmentGuidanceRefreshTimer >= 2f))
+        {
+            RefreshDevelopmentGuidance();
+            developmentGuidanceRefreshTimer = 0f;
+        }
         if (manager != null && Time.unscaledTime < onboardingCompletionUntil)
         {
             ShowOnboardingMessage("新进展", onboardingCompletionFeedback +

@@ -60,6 +60,129 @@ public sealed class ReviewInteractionPlayModeTests
     }
 
     [UnityTest, Category("Performance")]
+    public IEnumerator UiHotPaths_RecordMaxCardsAndResourceDetails()
+    {
+        yield return Load();
+        GameManager.Instance.State.AdvanceTechLevelForEditor(TechLevel.Archotech);
+        GameManager.Instance.State.AdjustTerritoryTotalForEditor(new ExpantaNum(1e9));
+        foreach (ResearchState research in ResearchManager.Instance.States.Values)
+            research.SetStatusForEditor(ResearchStatus.Completed);
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
+            ResourceManager.Instance.SetAmount(resource, new ExpantaNum(1e9));
+        foreach (BuildingState building in BuildingManager.Instance.States.Values)
+            BuildingManager.Instance.SetAmountAndRatesForEditor(building, ExpantaNum.One);
+        ui.SetPage("Buildings");
+        Transform controls = ui.transform.Find("SafeAreaRoot/Content/PageTool/BuildingControls");
+        controls.Find("Quantity_Max").GetComponent<Button>().onClick.Invoke();
+        yield return null;
+        RecordUiMedian("building-max-cards", ui.RefreshLiveCardValuesForEditor, 10);
+        ui.SetPage("Resources");
+        ui.ShowResourceDetailsForEditor(DataBase<ResourceDef>.Find("WoodLog"));
+        yield return null;
+        RecordUiMedian("resource-detail-sources", ui.RefreshSelectedResourceDetailsForEditor, 20);
+    }
+
+    private static void RecordUiMedian(string name, Action refresh, int iterations)
+    {
+        for (int i = 0; i < 5; i++) refresh();
+        double[] samples = new double[7];
+        for (int batch = 0; batch < samples.Length; batch++)
+        {
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            for (int i = 0; i < iterations; i++) refresh();
+            samples[batch] = watch.Elapsed.TotalMilliseconds / iterations;
+        }
+        Array.Sort(samples);
+        Debug.Log($"[HotPathPerf2] {name} medianMs={samples[3]:F6} iterations={iterations} batches={samples.Length} controlledFixture=true");
+    }
+
+    [UnityTest]
+    public IEnumerator ResourceDetails_RefreshLiveQuantitiesEfficiencyAndSourceAffordability()
+    {
+        yield return Load();
+        GameManager.Instance.State.AdvanceTechLevelForEditor(TechLevel.Archotech);
+        GameManager.Instance.State.AdjustTerritoryTotalForEditor(new ExpantaNum(1e9));
+        foreach (ResearchState research in ResearchManager.Instance.States.Values)
+            research.SetStatusForEditor(ResearchStatus.Completed);
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
+            ResourceManager.Instance.SetAmount(resource, new ExpantaNum(1e9));
+        BuildingDef building = DataBase<BuildingDef>.Find("Lumberyard");
+        BuildingManager manager = BuildingManager.Instance;
+        BuildingState state = manager.GetState(building);
+        manager.SetAmountAndRatesForEditor(state, ExpantaNum.One);
+        state.SetEfficiencyForEditor(ExpantaNum.One);
+        ui.SetPage("Resources");
+        ui.ShowResourceDetailsForEditor(DataBase<ResourceDef>.Find("WoodLog"));
+        TMP_Text body = ui.transform.Find("SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent/Body").GetComponent<TMP_Text>();
+        string first = body.text;
+        manager.SetAmountAndRatesForEditor(state, new ExpantaNum(2));
+        ui.RefreshSelectedResourceDetailsForEditor();
+        Assert.That(body.text, Is.Not.EqualTo(first), "Cached relationships must still read current quantities.");
+        string producing = body.text;
+        state.SetEfficiencyForEditor(ExpantaNum.Zero);
+        ui.RefreshSelectedResourceDetailsForEditor();
+        Assert.That(body.text, Is.Not.EqualTo(producing), "A stopped source must replace its live production breakdown.");
+        manager.SetAmountAndRatesForEditor(state, ExpantaNum.Zero);
+        ui.RefreshSelectedResourceDetailsForEditor();
+        Assert.That(manager.GetBuildFailure(building, ExpantaNum.One), Is.EqualTo(BuildFailure.None));
+        string affordable = body.text;
+        foreach (var cost in building.ResourceRequirements)
+            ResourceManager.Instance.SetAmount(cost.First, ExpantaNum.Zero);
+        Assert.That(manager.GetBuildFailure(building, ExpantaNum.One), Is.Not.EqualTo(BuildFailure.None));
+        ui.RefreshSelectedResourceDetailsForEditor();
+        Assert.That(body.text, Is.Not.EqualTo(affordable), "Unbuilt source affordability must not be cached.");
+        body.ForceMeshUpdate(true);
+        bool linked = false;
+        for (int i = 0; i < body.textInfo.linkCount; i++)
+            linked |= body.textInfo.linkInfo[i].GetLinkID() == "building:" + building.Id;
+        Assert.That(linked, Is.True);
+        float wideWidth = body.rectTransform.rect.width;
+        float wideHeight = body.rectTransform.rect.height;
+        RectTransform viewport = ui.transform.Find("SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport") as RectTransform;
+        viewport.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, wideWidth * .5f + 68f);
+        Canvas.ForceUpdateCanvases();
+        ui.RefreshSelectedResourceDetailsForEditor();
+        Assert.That(body.rectTransform.rect.width, Is.LessThan(wideWidth));
+        float expectedHeight = Mathf.Max(96f, body.GetPreferredValues(body.text,
+            Mathf.Max(320f, body.rectTransform.rect.width), 1000f).y + 20f);
+        Assert.That(body.rectTransform.rect.height, Is.EqualTo(expectedHeight).Within(1f),
+            "The same resource text must be measured again when its available width changes.");
+        Assert.That(body.rectTransform.rect.height, Is.GreaterThan(wideHeight),
+            "The narrower fixture must wrap the resource text onto more lines.");
+    }
+
+    [UnityTest]
+    public IEnumerator StableBuildingButtons_DoNotDirtyTheirGraphicVertices()
+    {
+        yield return Load();
+        ui.SetPage("Buildings");
+        ui.transform.Find("SafeAreaRoot/Content/PageTool/BuildingControls/Quantity_One")
+            .GetComponent<Button>().onClick.Invoke();
+        ui.RefreshLiveCardValuesForEditor();
+        Canvas.ForceUpdateCanvases();
+        yield return null;
+        var graphics = new List<Graphic>();
+        foreach (Outline outline in ui.GetComponentsInChildren<Outline>())
+            if (outline.name == "BuildButton" || outline.name == "DeconstructButton")
+                graphics.Add(outline.GetComponent<Graphic>());
+        Assert.That(graphics, Is.Not.Empty, "The fixture must observe actual active building action graphics.");
+        int dirties = 0;
+        UnityEngine.Events.UnityAction observed = () => dirties++;
+        foreach (Graphic graphic in graphics) graphic.RegisterDirtyVerticesCallback(observed);
+        try
+        {
+            ui.RefreshLiveCardValuesForEditor();
+            ui.RefreshLiveCardValuesForEditor();
+        }
+        finally
+        {
+            foreach (Graphic graphic in graphics) graphic.UnregisterDirtyVerticesCallback(observed);
+        }
+        Debug.Log($"[HotPathPerf2] stable-action-outline dirtyCallbacks={dirties} graphics={graphics.Count} refreshes=2");
+        Assert.That(dirties, Is.Zero, "Unchanged button outlines must not request mesh rebuilds.");
+    }
+
+    [UnityTest, Category("Performance")]
     public IEnumerator MobileCadence_RecordsBoundedSixtyThirtyFrameComparison()
     {
         int previousFrameRate = Application.targetFrameRate;
@@ -172,6 +295,24 @@ public sealed class ReviewInteractionPlayModeTests
         Assert.That(ui.GetDeconstructButtonForEditor(building).transform.parent.Find("BuildButton").GetComponent<Button>().interactable, Is.False);
         controls.Find("Quantity_One").GetComponent<Button>().onClick.Invoke();
         Assert.That(body.text, Is.EqualTo(singleStatus));
+
+        Button action = ui.GetDeconstructButtonForEditor(building).transform.parent.Find("BuildButton").GetComponent<Button>();
+        controls.Find("Quantity_Max").GetComponent<Button>().onClick.Invoke();
+        ExpantaNum maximum = buildings.GetMaxBuildable(building, ExpantaNum.PositiveInfinity);
+        Assert.That(maximum >= ExpantaNum.One, Is.True);
+        Assert.That(action.interactable, Is.True);
+        Assert.That(action.GetComponentInChildren<TMP_Text>().text, Is.EqualTo("×" + maximum.ToGameString()));
+        controls.Find("Quantity_Custom").GetComponent<Button>().onClick.Invoke();
+        TMP_InputField custom = controls.Find("CustomQuantityInput").GetComponent<TMP_InputField>();
+        custom.text = "100";
+        Assert.That(action.interactable, Is.True);
+        Assert.That(action.GetComponentInChildren<TMP_Text>().text, Is.EqualTo("×" + maximum.ToGameString()));
+        foreach (var cost in building.ResourceRequirements)
+            ResourceManager.Instance.SetAmount(cost.First, ExpantaNum.Zero);
+        ui.RefreshLiveCardValuesForEditor();
+        Assert.That(action.interactable, Is.False, "Custom quantity keeps the minimum label without enabling an unaffordable action.");
+        controls.Find("Quantity_Max").GetComponent<Button>().onClick.Invoke();
+        Assert.That(action.interactable, Is.False, "Max with no affordable building must remain unavailable.");
 
         TMP_InputField input = controls.Find("CustomQuantityInput").GetComponent<TMP_InputField>();
         AssertTextVisuallyCentered((TMP_Text)input.placeholder);
@@ -320,10 +461,12 @@ public sealed class ReviewInteractionPlayModeTests
             }
             Assert.That(amount, Is.Not.Null, cost.First.Id);
             ExpantaNum owned = ResourceManager.Instance.GetAmount(cost.First);
-            Assert.That(amount.text, Does.EndWith(" (" + owned.ToGameString() + ")"),
+            amount.ForceMeshUpdate();
+            string parsed = amount.GetParsedText();
+            Assert.That(parsed, Does.EndWith(" (" + owned.ToGameString() + ")"),
                 "The material row must show the current inventory beside its demand.");
-            int inventoryStart = amount.text.IndexOf(" (", StringComparison.Ordinal);
-            ExpantaNum demand = amount.text.Substring(0, inventoryStart);
+            int inventoryStart = parsed.IndexOf(" (", StringComparison.Ordinal);
+            ExpantaNum demand = parsed.Substring(0, inventoryStart);
             Assert.That(demand, Is.GreaterThan(owned), "The displayed material requirement must expose the actual shortage.");
         }
     }
@@ -668,6 +811,60 @@ public sealed class ReviewInteractionPlayModeTests
     }
 
     [UnityTest]
+    public IEnumerator ResearchRequirements_ColorInventoryAndKeepColumnsStable()
+    {
+        yield return Load();
+        GameManager.Instance.State.AdvanceTechLevelForEditor(TechLevel.Archotech);
+        BuildingDef house = DataBase<BuildingDef>.Find("WoodHouse");
+        BuildingManager.Instance.SetAmountAndRatesForEditor(BuildingManager.Instance.EnsureBuilding(house), ExpantaNum.One);
+        ResearchDef research = null;
+        foreach (ResearchDef candidate in DataBase<ResearchDef>.All)
+            if (candidate.ResourceRequirements.Count > 0 && candidate.ResourceRequirements[0].Second > ExpantaNum.Zero)
+            { research = candidate; break; }
+        Assert.That(research, Is.Not.Null);
+        var cost = research.ResourceRequirements[0];
+        ResourceManager.Instance.SetAmount(cost.First, ExpantaNum.Zero);
+        ui.SetPage("Research");
+        UIResearchGraphGesture graph = null;
+        for (int frame = 0; frame < 480; frame++)
+        {
+            graph = ui.transform.Find("SafeAreaRoot/Content/PageHost/Research/DataRows/ResearchGraphViewport")?.GetComponent<UIResearchGraphGesture>();
+            if (graph != null && graph.IsInitialized) break;
+            yield return null;
+        }
+        Assert.That(graph != null && graph.IsInitialized, Is.True, "Measure the detail only after the real research graph has initialized.");
+        yield return null;
+        yield return null;
+        ui.ShowResearchDetailsForEditor(research);
+        yield return null;
+        const string amountPath = "SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent/BuildingRequirements/RequirementContent/Requirement_0/Amount";
+        TMP_Text amount = ui.transform.Find(amountPath).GetComponent<TMP_Text>();
+        amount.ForceMeshUpdate();
+        Assert.That(amount.enableAutoSizing, Is.False);
+        Assert.That(amount.isTextOverflowing, Is.False);
+        float demandX = amount.textInfo.characterInfo[0].origin;
+        int inventoryStart = amount.GetParsedText().IndexOf('(');
+        Assert.That(inventoryStart, Is.GreaterThan(0));
+        float inventoryX = amount.textInfo.characterInfo[inventoryStart].origin;
+        Color32 shortage = amount.textInfo.characterInfo[inventoryStart + 1].color;
+        Assert.That(shortage.r, Is.GreaterThan(shortage.g), "Insufficient inventory must use the shortage tint.");
+        ResourceManager.Instance.SetAmount(cost.First, cost.Second * new ExpantaNum(123.45));
+        ui.RefreshAutomaticUIForEditor();
+        yield return new WaitForSecondsRealtime(.9f);
+        ui.RefreshAutomaticUIForEditor();
+        yield return null;
+        amount = ui.transform.Find(amountPath).GetComponent<TMP_Text>();
+        amount.ForceMeshUpdate();
+        int updatedInventoryStart = amount.GetParsedText().IndexOf('(');
+        Assert.That(amount.textInfo.characterInfo[0].origin, Is.EqualTo(demandX).Within(.1f));
+        Assert.That(amount.textInfo.characterInfo[updatedInventoryStart].origin, Is.EqualTo(inventoryX).Within(.1f),
+            "Changing inventory length must not move either numeric column.");
+        Color32 enough = amount.textInfo.characterInfo[updatedInventoryStart + 1].color;
+        Assert.That(enough.g, Is.GreaterThan(enough.r), "Affordable inventory must use the positive tint.");
+        Assert.That(amount.isTextOverflowing, Is.False);
+    }
+
+    [UnityTest]
     public IEnumerator ResearchDetails_ShowAllDirectUsesAndHideEmptySections()
     {
         yield return Load();
@@ -839,21 +1036,16 @@ public sealed class ReviewInteractionPlayModeTests
     }
 
     [UnityTest]
-    public IEnumerator AuthoredOverviewTools_SaveAndExpandActualOfflineChanges()
+    public IEnumerator AuthoredOverviewTools_SaveAndResetResearch()
     {
         yield return Load();
         SaveManager save = SaveManager.Instance;
-        save.ApplyOfflineProgressForEditor(1000, 1010);
         ui.SetPage("Overview");
         Button saveButton = ui.transform.Find("SafeAreaRoot/Content/PageTool/PageTools/Save").GetComponent<Button>();
-        Button offlineButton = ui.transform.Find("SafeAreaRoot/Content/PageTool/PageTools/Offline").GetComponent<Button>();
         Assert.That(saveButton.gameObject.activeInHierarchy, Is.True);
-        Assert.That(offlineButton.gameObject.activeInHierarchy, Is.True);
         saveButton.onClick.Invoke();
         Assert.That(save.LastSuccessfulSaveUnixSeconds, Is.GreaterThan(0));
         Assert.That(save.LastSaveFailed, Is.False);
-        offlineButton.onClick.Invoke();
-        Assert.That(save.LastOfflineSummary, Is.Not.Null, "Expanding changes presentation, not the actual settlement evidence.");
         BuildingManager.Instance.SetAmountAndRatesForEditor(BuildingManager.Instance.EnsureBuilding(DataBase<BuildingDef>.Find("WoodHouse")), ExpantaNum.One);
         ui.SetPage("Research");
         Assert.That(saveButton.gameObject.activeInHierarchy, Is.False);

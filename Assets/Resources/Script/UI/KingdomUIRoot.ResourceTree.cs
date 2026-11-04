@@ -20,7 +20,7 @@ public sealed partial class KingdomUIRoot
             Debug.LogError("Missing authored resource production tree prefabs.");
             return;
         }
-        resourceTreeSurface = Instantiate(prefab, detailScrollContent, false).GetComponent<RectTransform>();
+        resourceTreeSurface = KingdomUIPrefabLibrary.Instantiate(prefab, detailScrollContent).GetComponent<RectTransform>();
         resourceTreeSurface.name = "ResourceProductionTree";
         resourceTreeModeButton = resourceTreeSurface.Find("Mode").GetComponent<Button>();
         resourceTreeModeLabel = resourceTreeModeButton.transform.Find("Label").GetComponent<TMP_Text>();
@@ -57,7 +57,7 @@ public sealed partial class KingdomUIRoot
 
     private void AddResourceTreeLink(RectTransform parent, Vector2 start, Vector2 end)
     {
-        RectTransform link = Instantiate(resourceTreeLinkPrefab, parent, false).GetComponent<RectTransform>();
+        RectTransform link = KingdomUIPrefabLibrary.Instantiate(resourceTreeLinkPrefab, parent).GetComponent<RectTransform>();
         link.name = "Connection";
         Vector2 middle = (start + end) * .5f;
         link.anchoredPosition = new Vector2(middle.x, -middle.y);

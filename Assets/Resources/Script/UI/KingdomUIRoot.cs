@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -339,7 +339,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (SaveManager.Instance.IsLoading && !SaveManager.Instance.IsOfflineProgressRunning) return;
+        if (SaveManager.Instance.IsLoading) return;
         TickOnboarding();
         if (populatedPage == "Story")
             KeepStoryTextGeometryDrawable();
@@ -384,7 +384,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
 
     private void RebuildCurrentPage()
     {
-        if (SaveManager.Instance.IsLoading && !SaveManager.Instance.IsOfflineProgressRunning) return;
+        if (SaveManager.Instance.IsLoading) return;
         if (!string.IsNullOrEmpty(populatedPage))
         {
             if (populatedPage == "Research" && researchTreePageBuilt)
@@ -615,6 +615,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
                 titleRect.SetAsLastSibling();
         }
         populatedPage = name;
+        RefreshOfflineAccelerationToolbar();
         CancelReviewConfirmation();
         RefreshReviewControls();
         RefreshNavigationSelection(name);

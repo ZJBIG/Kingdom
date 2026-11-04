@@ -36,6 +36,7 @@ public sealed partial class KingdomUIRoot
     private readonly List<SectorRowView> sectorRowViews = new();
     private readonly Dictionary<string, bool> sectorBuildingExpanded = new(StringComparer.Ordinal);
     private RectTransform sectorRowsParent;
+    private Vector2 sectorLayoutViewportSize;
 
     private void BuildSectorRows(RectTransform parent)
     {
@@ -323,6 +324,7 @@ public sealed partial class KingdomUIRoot
 
     private void RefreshSectorRowsAndLayout()
     {
+        bool layoutChanged = false;
         sectorRowViews.Sort((left, right) =>
         {
             int pin = UIPinPreferences.Compare(UIPinPreferences.Sector, left.Definition.Id, right.Definition.Id);
@@ -332,9 +334,17 @@ public sealed partial class KingdomUIRoot
         for (int i = 0; i < sectorRowViews.Count; i++)
         {
             SectorRowView view = sectorRowViews[i];
-            if (view.Row.GetSiblingIndex() != i) view.Row.SetSiblingIndex(i);
+            if (view.Row.GetSiblingIndex() != i)
+            {
+                view.Row.SetSiblingIndex(i);
+                layoutChanged = true;
+            }
             bool eligible = CanDisplaySector(view.Definition, gameManagerCache?.Sectors);
-            view.Row.gameObject.SetActive(eligible);
+            if (view.Row.gameObject.activeSelf != eligible)
+            {
+                view.Row.gameObject.SetActive(eligible);
+                layoutChanged = true;
+            }
             if (!eligible)
                 continue;
             bool occupied = gameManagerCache != null && gameManagerCache.Sectors.GetState(view.Definition).Occupied;
@@ -362,14 +372,22 @@ public sealed partial class KingdomUIRoot
             if (view.Menu != null)
             {
                 view.Menu.gameObject.SetActive(view.Expanded && occupied);
-                RefreshSectorBuildingMenu(view);
+                if (view.Expanded && occupied)
+                    RefreshSectorBuildingMenu(view);
             }
             float menuHeight = view.Menu == null ? 0f : view.Menu.sizeDelta.y;
             float height = view.CollapsedHeight +
                 (view.Expanded && occupied ? menuHeight : 0f);
-            view.Layout.preferredHeight = height;
-            view.Row.sizeDelta = new Vector2(0f, height);
-            view.Row.anchoredPosition = new Vector2(0f, -top);
+            Vector2 size = new Vector2(0f, height);
+            Vector2 position = new Vector2(0f, -top);
+            if (view.Layout.preferredHeight != height || view.Row.sizeDelta != size ||
+                view.Row.anchoredPosition != position)
+            {
+                view.Layout.preferredHeight = height;
+                view.Row.sizeDelta = size;
+                view.Row.anchoredPosition = position;
+                layoutChanged = true;
+            }
             top += height;
         }
         nextRowTop = top;
@@ -378,14 +396,33 @@ public sealed partial class KingdomUIRoot
         float minimumHeight = sectorRowViews.Count == 0
             ? 1f
             : sectorRowViews[0].CollapsedHeight;
-        sectorRowsParent.sizeDelta = new Vector2(0f, Mathf.Max(minimumHeight, top));
+        Vector2 rowsSize = new Vector2(0f, Mathf.Max(minimumHeight, top));
+        if (sectorRowsParent.sizeDelta != rowsSize)
+        {
+            sectorRowsParent.sizeDelta = rowsSize;
+            layoutChanged = true;
+        }
         RectTransform page = sectorRowsParent.parent as RectTransform;
-        if (page != null)
-            page.sizeDelta = new Vector2(0f, sectorRowsParent.rect.height);
+        Vector2 pageSize = new Vector2(0f, sectorRowsParent.rect.height);
+        if (page != null && page.sizeDelta != pageSize)
+        {
+            page.sizeDelta = pageSize;
+            layoutChanged = true;
+        }
+        Vector2 viewportSize = pageScroll?.viewport == null
+            ? Vector2.zero
+            : pageScroll.viewport.rect.size;
+        if (viewportSize != sectorLayoutViewportSize)
+        {
+            sectorLayoutViewportSize = viewportSize;
+            layoutChanged = true;
+        }
+        if (!layoutChanged)
+            return;
         Canvas.ForceUpdateCanvases();
         if (pageScroll != null)
             ConfigureOuterPageScroll("Sectors", false, true);
-        Vector2 viewportSize = pageScroll?.viewport == null
+        viewportSize = pageScroll?.viewport == null
             ? Vector2.zero
             : pageScroll.viewport.rect.size;
         Vector2 contentSize = pageScroll?.content == null

@@ -18,31 +18,29 @@ public sealed class GameBootstrap : Singleton<GameBootstrap>
     {
         if (started || completed) return;
         started = true;
-        SaveManager.Instance.BeginLoading("正在读取存档");
+        SaveManager.Instance.BeginLoading();
         StartCoroutine(BootstrapRoutine());
     }
 
     private IEnumerator BootstrapRoutine()
     {
         yield return null;
-        bool settling = false;
+        bool collectedOfflineTime = false;
         try
         {
             bool loadedExistingGame = InitializeGame();
-            settling = loadedExistingGame && SaveManager.Instance.BeginStartupOfflineProgress();
+            collectedOfflineTime = loadedExistingGame && SaveManager.Instance.CollectStartupOfflineTime();
         }
         catch (Exception exception)
         {
             SaveManager.Instance.FailLoading(exception);
         }
         if (!string.IsNullOrEmpty(SaveManager.Instance.LoadingError)) yield break;
-        while (SaveManager.Instance.IsOfflineProgressRunning) yield return null;
-        if (!string.IsNullOrEmpty(SaveManager.Instance.LoadingError)) yield break;
         try
         {
             SaveManager.Instance.FinishLoading();
             SaveManager.Instance.SetReady(true);
-            if (settling && !SaveManager.Instance.SaveNow(true))
+            if (collectedOfflineTime && !SaveManager.Instance.SaveNow(true))
                 throw new System.IO.IOException(SaveManager.Instance.LastSaveError);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             ProgressionMilestoneRecorder.Attach(gameObject, SaveManager.Instance.LastLoadCreatedNewGame);

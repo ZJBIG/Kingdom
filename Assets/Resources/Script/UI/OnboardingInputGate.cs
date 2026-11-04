@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -15,7 +14,7 @@ public sealed class OnboardingInputGate : MonoBehaviour, ICanvasRaycastFilter
     private EventSystem navigationOwner;
     private bool previousNavigationEvents;
     private RectMask2D[] targetMasks;
-    private readonly List<Selectable> controls = new List<Selectable>();
+    private bool controlsPrepared;
 
     public bool IsActive { get; private set; }
     public static bool BlocksNavigation => activeGate != null && activeGate.IsActive;
@@ -37,13 +36,20 @@ public sealed class OnboardingInputGate : MonoBehaviour, ICanvasRaycastFilter
         skip = skipButton;
         IsActive = true;
         activeGate = this;
-        // Filter the actual control as well as its screen rectangle; overlapping
-        // pins/actions must not inherit permission from the highlighted row.
-        GetComponentsInChildren(true, controls);
-        for (int i = 0; i < controls.Count; i++)
-            if (!controls[i].TryGetComponent<OnboardingControlFilter>(out _))
-                controls[i].gameObject.AddComponent<OnboardingControlFilter>();
+        if (!controlsPrepared)
+        {
+            PrepareControls(gameObject);
+            controlsPrepared = true;
+        }
         CaptureNavigation();
+    }
+
+    public static void PrepareControls(GameObject root)
+    {
+        // Include inactive controls so their first activation is already gated.
+        foreach (Selectable control in root.GetComponentsInChildren<Selectable>(true))
+            if (!control.TryGetComponent<OnboardingControlFilter>(out _))
+                control.gameObject.AddComponent<OnboardingControlFilter>();
     }
 
     public void Clear()

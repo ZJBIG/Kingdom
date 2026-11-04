@@ -4,6 +4,98 @@ using UnityEngine;
 
 public sealed class ResourceProductionTreeTests
 {
+    [Test, Category("Performance")]
+    public void RealDefinitionsCollapsedHistory_RecordsVisibilityPollingCost()
+    {
+        int checks = 0;
+        ResourceProductionTree tree = new(DataBase<ResourceDef>.Find("RocketFuel"),
+            DataBase<BuildingDef>.All, DataBase<SectorDef>.All,
+            _ => { checks++; return true; }, _ => { checks++; return true; },
+            _ => { checks++; return true; });
+        Queue<ResourceProductionTree.Node> pending = new();
+        pending.Enqueue(tree.Root);
+        int visited = 0;
+        while (pending.Count > 0 && visited < 100)
+        {
+            ResourceProductionTree.Node node = pending.Dequeue();
+            node.Expanded = true;
+            foreach (ResourceProductionTree.Node child in tree.GetChildren(node)) pending.Enqueue(child);
+            visited++;
+        }
+        Assert.That(visited, Is.GreaterThan(1), "Actual RocketFuel definitions must exercise a dependency graph.");
+        tree.Root.Expanded = false;
+        for (int i = 0; i < 5; i++) tree.RefreshVisibility();
+        double[] samples = new double[7];
+        checks = 0;
+        for (int batch = 0; batch < samples.Length; batch++)
+        {
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            for (int i = 0; i < 100; i++) tree.RefreshVisibility();
+            samples[batch] = watch.Elapsed.TotalMilliseconds / 100d;
+        }
+        System.Array.Sort(samples);
+        TestContext.WriteLine($"[HotPathPerf2] production-real-collapsed medianMs={samples[3]:F6} predicateChecksPerRefresh={checks / 700d:F2} visited={visited} pendingLeaves={pending.Count} root=RocketFuel controlledAllVisible=true");
+    }
+
+    [Test, Category("Performance")]
+    public void CollapsedHistory_RecordsVisibilityPollingCost()
+    {
+        ResourceDef[] resources = new ResourceDef[81];
+        BuildingDef[] buildings = new BuildingDef[80];
+        for (int i = 0; i < resources.Length; i++) resources[i] = Make<ResourceDef>();
+        for (int i = 0; i < buildings.Length; i++) buildings[i] = Producer(resources[i], resources[i + 1]);
+        int checks = 0;
+        ResourceProductionTree tree = new(resources[0], buildings, null,
+            resourceVisible: _ => { checks++; return true; },
+            buildingVisible: _ => { checks++; return true; });
+        ResourceProductionTree.Node node = tree.Root;
+        for (int i = 0; i < buildings.Length * 2; i++)
+        {
+            node.Expanded = true;
+            node = tree.GetChildren(node)[0];
+        }
+        tree.GetChildren(node);
+        tree.Root.Expanded = false;
+        for (int i = 0; i < 5; i++) tree.RefreshVisibility();
+        double[] samples = new double[7];
+        checks = 0;
+        for (int batch = 0; batch < samples.Length; batch++)
+        {
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            for (int i = 0; i < 100; i++) tree.RefreshVisibility();
+            samples[batch] = watch.Elapsed.TotalMilliseconds / 100d;
+        }
+        System.Array.Sort(samples);
+        TestContext.WriteLine($"[HotPathPerf2] production-collapsed medianMs={samples[3]:F6} predicateChecksPerRefresh={checks / 700d:F2} cachedDepth=160");
+    }
+
+    [Test]
+    public void CollapsedHiddenUnlock_DoesNotInvalidateVisibleGraph_AndReopensCurrentChildren()
+    {
+        ResourceDef output = Make<ResourceDef>(), input = Make<ResourceDef>();
+        BuildingDef source = Producer(output, input), supplier = Producer(input), hidden = Producer(input);
+        HashSet<BuildingDef> visible = new() { source, supplier };
+        ResourceProductionTree tree = new(output, new[] { source, supplier, hidden }, null,
+            buildingVisible: visible.Contains);
+        ResourceProductionTree.Node original = tree.GetChildren(tree.Root)[0];
+        original.Expanded = true;
+        ResourceProductionTree.Node dependency = tree.GetChildren(original)[0];
+        dependency.Expanded = true;
+        Assert.That(tree.GetChildren(dependency).Count, Is.EqualTo(1), "One initially visible producer.");
+        original.Expanded = false;
+        ResourceProductionTreeLayout before = new(tree, new Vector2(205, 50), new Vector2(16, 24));
+        visible.Add(hidden);
+        Assert.That(tree.RefreshVisibility(), Is.False, "An unlock below a collapsed branch must not rebuild the displayed graph.");
+        ResourceProductionTreeLayout after = new(tree, new Vector2(205, 50), new Vector2(16, 24));
+        Assert.That(after.Nodes.Count, Is.EqualTo(before.Nodes.Count));
+        for (int i = 0; i < before.Nodes.Count; i++)
+            Assert.That(after.Nodes[i].Node, Is.SameAs(before.Nodes[i].Node));
+        original.Expanded = true;
+        ResourceProductionTreeLayout reopened = new(tree, new Vector2(205, 50), new Vector2(16, 24));
+        Assert.That(tree.GetChildren(dependency).Count, Is.EqualTo(2), "Reopening discovers the newly visible producer.");
+        Assert.That(reopened.Nodes.Count, Is.GreaterThan(after.Nodes.Count));
+    }
+
     private readonly List<Object> created = new();
     private T Make<T>() where T : ScriptableObject
     {
@@ -43,6 +135,7 @@ public sealed class ResourceProductionTreeTests
         Assert.That(sources.Count, Is.EqualTo(2), "Only the unlocked building and accessible sector remain.");
         Assert.That(sources[0].Building, Is.SameAs(source));
         Assert.That(sources[1].Sector, Is.SameAs(visibleSector));
+        sources[0].Expanded = true;
         Assert.That(tree.GetChildren(sources[0]).Count, Is.EqualTo(1), "The locked upgrade stays hidden.");
         resources.Remove(input);
         Assert.That(tree.RefreshVisibility(), Is.True);

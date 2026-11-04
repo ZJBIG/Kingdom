@@ -166,9 +166,8 @@ public class BuildingManager : Singleton<BuildingManager>
         get
         {
             ExpantaNum used = ExpantaNum.Zero;
-            for (int i = 0; i < orderedStates.Count; i++)
-                if (orderedStates[i].IsEnabled)
-                    used += orderedStates[i].Amount * orderedStates[i].ProductivityConsumption;
+            for (int i = 0; i < activeBuildingStates.Count; i++)
+                used += activeBuildingStates[i].Amount * activeBuildingStates[i].ProductivityConsumption;
             return ExpantaNum.Max(ExpantaNum.Zero, used);
         }
     }
@@ -215,9 +214,8 @@ public class BuildingManager : Singleton<BuildingManager>
             PopulationState.ProductivityGrantedPerPerson *
             modifiers.PopulationProductivityMultiplier +
             modifiers.ProductivityGranted;
-        for (int i = 0; i < orderedStates.Count; i++)
-            if (orderedStates[i].IsEnabled)
-                total += orderedStates[i].Amount * orderedStates[i].ProductivityGranted;
+        for (int i = 0; i < activeBuildingStates.Count; i++)
+            total += activeBuildingStates[i].Amount * activeBuildingStates[i].ProductivityGranted;
         return total;
     }
 
@@ -915,11 +913,10 @@ public class BuildingManager : Singleton<BuildingManager>
     private ExpantaNum GetBuildingFlowDemand(bool power, ExpantaNum laborRatio)
     {
         ExpantaNum demand = ExpantaNum.Zero;
-        for (int i = 0; i < orderedStates.Count; i++)
-            if (orderedStates[i].IsEnabled)
-                demand += orderedStates[i].Amount * GetPotentialEfficiency(orderedStates[i].Definition, laborRatio) * (power
-                ? ExpantaNum.Max(ExpantaNum.Zero, -orderedStates[i].Definition.PowerContribution)
-                : ExpantaNum.Max(ExpantaNum.Zero, -orderedStates[i].Definition.LogisticsContribution));
+        for (int i = 0; i < activeBuildingStates.Count; i++)
+            demand += activeBuildingStates[i].Amount * GetPotentialEfficiency(activeBuildingStates[i].Definition, laborRatio) * (power
+                ? ExpantaNum.Max(ExpantaNum.Zero, -activeBuildingStates[i].Definition.PowerContribution)
+                : ExpantaNum.Max(ExpantaNum.Zero, -activeBuildingStates[i].Definition.LogisticsContribution));
         return demand;
     }
 
@@ -935,11 +932,9 @@ public class BuildingManager : Singleton<BuildingManager>
             foreach (SectorState sector in game.Sectors.OrderedStates)
             {
                 if (sector.ColonizationActive)
-                    rate += game.Sectors.GetExplorationPreview(sector.Definition, game.State,
-                        ResourceManager.Instance).FoodCostPerSecond;
+                    rate += SectorManager.GetExplorationFoodConsumptionRate(sector.Definition);
                 if (sector.CampaignActive)
-                    rate += game.Sectors.GetCampaignPreview(sector.Definition, game.State,
-                        ResourceManager.Instance).FoodCostPerSecond;
+                    rate += SectorManager.GetCampaignFoodConsumptionRate(sector.Definition, game.State);
             }
             return rate;
         }

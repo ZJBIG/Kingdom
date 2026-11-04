@@ -364,7 +364,8 @@ public sealed class KingdomLogicTests
 
             Assert.That(saveManager.ApplyOfflineProgress(), Is.True);
             ExpantaNum afterFirstSettlement = ResourceManager.Instance.GetAmount(wood);
-            Assert.That(afterFirstSettlement, Is.GreaterThan(beforeSettlement));
+            Assert.That(afterFirstSettlement, Is.EqualTo(beforeSettlement));
+            Assert.That(saveManager.RemainingOfflineSeconds, Is.InRange(3600d, 3610d));
             Assert.That(saveManager.SaveNow(false), Is.True);
 
             long settledAt = GameManager.Instance.State.LastSaveUnixSeconds;
@@ -406,11 +407,10 @@ public sealed class KingdomLogicTests
             LogAssert.Expect(LogType.Error, new Regex(".*Kingdom.*", RegexOptions.Singleline));
             saveManager.HandleApplicationPauseForTests(false, 1060L);
 
-            Assert.That(saveManager.LastOfflineProgressSeconds, Is.GreaterThan(59d));
-            Assert.That(saveManager.LastOfflineProgressSeconds, Is.LessThanOrEqualTo(60d));
+            Assert.That(saveManager.RemainingOfflineSeconds, Is.EqualTo(60d).Within(1e-6d));
 
             saveManager.HandleApplicationPauseForTests(false, 1120L);
-            Assert.That(saveManager.LastOfflineProgressSeconds, Is.EqualTo(0d));
+            Assert.That(saveManager.RemainingOfflineSeconds, Is.EqualTo(60d).Within(1e-6d));
         }
         finally
         {
@@ -484,12 +484,8 @@ public sealed class KingdomLogicTests
                 "重启后应仍从磁盘旧时间戳结算，复现重复结算条件。");
 
             ExpantaNum afterRestart = ResourceManager.Instance.GetAmount(wood);
-            // The restart settles strictly MORE than the on-disk primary held,
-            // because the failed pause-time save never advanced its timestamp.
-            // Requiring afterRestart > loadedAmount (with loadedAmount pinned
-            // to the save's own 25 above, not to the 60 new-game baseline)
-            // means the gain is real off-line progress rather than a re-grant.
-            Assert.That(afterRestart, Is.GreaterThan(loadedAmount));
+            Assert.That(afterRestart, Is.EqualTo(loadedAmount));
+            Assert.That(restartedSaveManager.RemainingOfflineSeconds, Is.GreaterThanOrEqualTo(3600d));
         }
         finally
         {
@@ -838,6 +834,55 @@ public sealed class KingdomLogicTests
             resourceManager.GetState(wood).ConsumptionRate,
             Is.EqualTo(new ExpantaNum(-0.5d)),
             "A real negative net rate must remain visible.");
+    }
+
+    [TestCase(-0.000001d)]
+    [TestCase(0.000001d)]
+    public void ResourceTick_ExhaustedInputDoesNotAccumulateRoundingResidue(double rateResidue)
+    {
+        GameManager game = CreateManager<GameManager>("ResourceResidue-Game");
+        ResourceManager resources = CreateManager<ResourceManager>("ResourceResidue-Resources");
+        ResourceDef input = DataBase<ResourceDef>.Find("StoneChunk");
+        resources.SetProductionRate(input, 1);
+        resources.SetConsumptionRate(input, game.State.HappinessRewardMultiplier - rateResidue);
+        resources.SetAmount(input, 0.000001d);
+        ResourceState state = resources.GetState(input);
+
+        for (int tick = 0; tick < 20; tick++)
+        {
+            resources.BeginTickForEditor();
+            resources.AdjustTickPotentialConsumptionForEditor(input, 10);
+            resources.CalculateTickSatisfactionForEditor(1);
+            Assert.That(resources.GetNetRate(state).ToDouble(), Is.EqualTo(0d).Within(1e-9d));
+            ExpantaNum before = state.Amount;
+            resources.Tick(0);
+            Assert.That(state.Amount.ToDouble(), Is.EqualTo(before.ToDouble()).Within(1e-12d));
+            resources.Tick(1);
+            Assert.That(state.Amount.ToDouble(), Is.EqualTo(0d).Within(1e-9d));
+        }
+    }
+
+    [Test]
+    public void ResourceTick_PreservesSmallRealProductionAndStockedBalances()
+    {
+        GameManager game = CreateManager<GameManager>("ResourceTinyFlow-Game");
+        ResourceManager resources = CreateManager<ResourceManager>("ResourceTinyFlow-Resources");
+        ResourceDef input = DataBase<ResourceDef>.Find("StoneChunk");
+        resources.SetAmount(input, 0);
+        resources.SetProductionRate(input, 0.000001d);
+        resources.SetConsumptionRate(input, 0);
+        resources.Tick(1);
+        Assert.That(resources.GetAmount(input), Is.GreaterThan(ExpantaNum.Zero));
+
+        resources.SetAmount(input, 1);
+        resources.SetProductionRate(input, 1);
+        resources.SetConsumptionRate(input, game.State.HappinessRewardMultiplier);
+        resources.BeginTickForEditor();
+        resources.AdjustTickPotentialConsumptionForEditor(input, 10);
+        resources.CalculateTickSatisfactionForEditor(1);
+        resources.Tick(1);
+        Assert.That(resources.GetAmount(input).ToDouble(), Is.EqualTo(1d).Within(1e-9d),
+            "A balanced resource must retain real inventory even when potential demand is higher.");
     }
 
     [Test]
@@ -1286,7 +1331,7 @@ public sealed class KingdomLogicTests
             productivityGranted: 0,
             populationCapacity: 0);
         BuildingState existingState = buildingManager.EnsureBuilding(existing);
-        existingState.SetAmountForEditor(ExpantaNum.One);
+        buildingManager.SetAmountAndRatesForEditor(existingState, ExpantaNum.One);
         BuildingDef candidate = CreateEconomyBuilding(
             "BlockedByOvercommit",
             productivityConsumption: 1,

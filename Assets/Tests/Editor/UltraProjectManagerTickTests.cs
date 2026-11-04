@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using NUnit.Framework;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 public sealed class UltraProjectManagerTickTests
 {
@@ -242,6 +245,62 @@ public sealed class UltraProjectManagerTickTests
             Assert.That(spent, Is.GreaterThanOrEqualTo(expectedSpend - tolerance), cost.First.Id);
             Assert.That(spent, Is.LessThanOrEqualTo(expectedSpend + tolerance), cost.First.Id);
         }
+    }
+
+    [Test]
+    public void StageNumbersPreserveDefaultsAndObserveSerializedSourceChanges()
+    {
+        var stage = new UltraProjectStageDefinition();
+        Assert.That(stage.BaseDurationSeconds.ToDouble(), Is.EqualTo(0d).Within(1e-9));
+        Assert.That(stage.StablePostureMultiplier.ToDouble(), Is.EqualTo(1d).Within(1e-9));
+        JsonUtility.FromJsonOverwrite("{\"baseDurationSeconds\":\"120\",\"stablePostureMultiplier\":\"0.9\",\"rushPostureMultiplier\":\"1.2\",\"foodConsumptionRate\":\"3\",\"powerConsumptionRate\":\"4\",\"logisticsConsumptionRate\":\"5\"}", stage);
+        AssertStageNumbers(stage, new[] { 120d, .9d, 1.2d, 3d, 4d, 5d });
+        JsonUtility.FromJsonOverwrite("{\"baseDurationSeconds\":\"60\",\"stablePostureMultiplier\":\"1\",\"rushPostureMultiplier\":\"1.5\",\"foodConsumptionRate\":\"6\",\"powerConsumptionRate\":\"7\",\"logisticsConsumptionRate\":\"8\"}", stage);
+        AssertStageNumbers(stage, new[] { 60d, 1d, 1.5d, 6d, 7d, 8d });
+        JsonUtility.FromJsonOverwrite("{\"baseDurationSeconds\":\" \",\"stablePostureMultiplier\":\"\",\"rushPostureMultiplier\":null,\"foodConsumptionRate\":\"\",\"powerConsumptionRate\":\" \",\"logisticsConsumptionRate\":null}", stage);
+        AssertStageNumbers(stage, new[] { 0d, 1d, 1d, 0d, 0d, 0d });
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public void MeasureCompleteUltraTickBranches(bool completion)
+    {
+        Action prepare = () =>
+        {
+            RestoreRunningProject(completion ? new ExpantaNum(.99d) : ExpantaNum.Zero);
+            SetAllContinuousResources(new ExpantaNum(1e12d));
+            gameManager.State.RestoreCoreForEditor(0, TechLevel.Ultra, new ExpantaNum(1e12d), 0L);
+        };
+        double seconds = completion ? firstStage.BaseDurationSeconds.ToDouble() * 20d : .1d;
+        for (int i = 0; i < 10; i++) { prepare(); projectManager.Tick(seconds); }
+        var times = new double[7];
+        var allocations = new double[times.Length];
+        bool counterAvailable = GC.GetAllocatedBytesForCurrentThread() > 0;
+        const int iterations = 100;
+        for (int sample = 0; sample < times.Length; sample++)
+            for (int i = 0; i < iterations; i++)
+            {
+                prepare();
+                long before = GC.GetAllocatedBytesForCurrentThread();
+                long start = Stopwatch.GetTimestamp();
+                projectManager.Tick(seconds);
+                times[sample] += (Stopwatch.GetTimestamp() - start) * 1000d / Stopwatch.Frequency / iterations;
+                allocations[sample] += (GC.GetAllocatedBytesForCurrentThread() - before) / (double)iterations;
+            }
+        Array.Sort(times);
+        Array.Sort(allocations);
+        string allocated = counterAvailable ? allocations[allocations.Length / 2].ToString("F2", System.Globalization.CultureInfo.InvariantCulture) : "NA";
+        TestContext.WriteLine($"[HotPathPerf] ultra-{(completion ? "completion-48-search" : "running")}-tick median_ms={times[times.Length / 2]:F6} median_alloc_bytes={allocated} iterations={iterations} batches={times.Length}");
+        Assert.That(projectManager.State.StageProgress, Is.GreaterThan(ExpantaNum.Zero));
+        if (completion) Assert.That(projectManager.State.Status, Is.EqualTo(UltraProjectStatus.ReadyToCommit));
+    }
+
+    private static void AssertStageNumbers(UltraProjectStageDefinition stage, double[] expected)
+    {
+        ExpantaNum[] actual = { stage.BaseDurationSeconds, stage.StablePostureMultiplier,
+            stage.RushPostureMultiplier, stage.FoodConsumptionRate, stage.PowerConsumptionRate, stage.LogisticsConsumptionRate };
+        for (int i = 0; i < actual.Length; i++)
+            Assert.That(actual[i].ToDouble(), Is.EqualTo(expected[i]).Within(1e-8), $"Stage number {i}");
     }
 
     private void CompleteResearch(ResearchDef research)

@@ -23,7 +23,10 @@ public sealed class InteractionFrameRateController : MonoBehaviour
         if (ownsFrameRate)
         {
             QualitySettings.vSyncCount = 0;
-            Application.targetFrameRate = 30;
+            double refreshRate = Screen.currentResolution.refreshRateRatio.value;
+            foreach (Resolution resolution in Screen.resolutions)
+                refreshRate = System.Math.Max(refreshRate, resolution.refreshRateRatio.value);
+            Application.targetFrameRate = Mathf.Max(60, Mathf.RoundToInt((float)refreshRate));
         }
     }
 

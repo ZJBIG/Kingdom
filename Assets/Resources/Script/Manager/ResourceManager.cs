@@ -397,6 +397,28 @@ public class ResourceManager : Singleton<ResourceManager>
             current + (productionRate - consumptionRate) * deltaSeconds);
     }
 
+    public ExpantaNum GetNetRate(ResourceState state) =>
+        GetNetRate(state, GetHappinessRewardMultiplier(), out _);
+
+    private static ExpantaNum GetNetRate(
+        ResourceState state, ExpantaNum productionMultiplier, out bool exhausted)
+    {
+        exhausted = false;
+        ExpantaNum production = state.ProductionRate * productionMultiplier;
+        ExpantaNum consumption = state.ConsumptionRate;
+        ExpantaNum net = production - consumption;
+        if (production <= DerivedRateCancellationTolerance ||
+            consumption <= DerivedRateCancellationTolerance ||
+            state.GetTickSatisfactionOrFallback() >= ExpantaNum.One)
+            return net;
+
+        // Six-decimal efficiency rounding can leave a starved, balanced input oscillating around zero.
+        ExpantaNum tolerance = DerivedRateCancellationTolerance *
+            ExpantaNum.Max(ExpantaNum.One, ExpantaNum.Min(production, consumption));
+        exhausted = state.Amount <= tolerance && net.Abs() <= tolerance;
+        return exhausted ? ExpantaNum.Zero : net;
+    }
+
     public static ExpantaNum CalculateSatisfaction(
         ExpantaNum currentInventory,
         ExpantaNum potentialProductionRate,
@@ -454,16 +476,16 @@ public class ResourceManager : Singleton<ResourceManager>
     {
         if (double.IsNaN(deltaSeconds) || double.IsInfinity(deltaSeconds) || deltaSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
-        if (orderedStates.Count == 0)
+        if (deltaSeconds == 0d || orderedStates.Count == 0)
             return;
         for (int i = 0; i < orderedStates.Count; i++)
         {
             ResourceState state = orderedStates[i];
-            state.SetAmount(AdvanceAmount(
-                state.Amount,
-                state.ProductionRate * happinessMultiplier,
-                state.ConsumptionRate,
-                deltaSeconds));
+            if (state.ProductionRate == ExpantaNum.Zero && state.ConsumptionRate == ExpantaNum.Zero)
+                continue;
+            ExpantaNum net = GetNetRate(state, happinessMultiplier, out bool exhausted);
+            ExpantaNum current = exhausted ? ExpantaNum.Zero : state.Amount;
+            state.SetAmount(ExpantaNum.Max(ExpantaNum.Zero, current + net * deltaSeconds));
         }
 
     }

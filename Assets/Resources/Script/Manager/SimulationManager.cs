@@ -18,6 +18,7 @@ public sealed class SimulationManager : Singleton<SimulationManager>
     [SerializeField] private int maximumTicksPerFrame = 20;
 
     private double accumulatedSeconds;
+    private double accumulatedAccelerationSeconds;
     private double offlineCampaignPendingCalendarSeconds;
     private double offlineCampaignPendingSimulationSeconds;
     private bool running;
@@ -48,6 +49,52 @@ public sealed class SimulationManager : Singleton<SimulationManager>
 #endif
 
     public bool IsRunning => running;
+    public int AccelerationMultiplier { get; private set; } = 1;
+
+    public void SetAccelerationMultiplier(int multiplier)
+    {
+        GetOfflineConsumptionMultiplier(multiplier);
+        AccelerationMultiplier = GameManager.Instance.State.RemainingOfflineSeconds > 0d ? multiplier : 1;
+        accumulatedAccelerationSeconds = 0d;
+    }
+
+    public static int GetOfflineConsumptionMultiplier(int multiplier)
+    {
+        switch (multiplier)
+        {
+            case 1: return 0;
+            case 5: return 5;
+            case 20: return 25;
+            case 1000: return 500;
+            default: throw new ArgumentOutOfRangeException(nameof(multiplier));
+        }
+    }
+
+    private void AdvanceAcceleration(double elapsedSeconds)
+    {
+        if (AccelerationMultiplier == 1) return;
+        GameState state = GameManager.Instance.State;
+        double costPerSecond = (double)GetOfflineConsumptionMultiplier(AccelerationMultiplier) / (AccelerationMultiplier - 1);
+        accumulatedAccelerationSeconds = Math.Min(
+            accumulatedAccelerationSeconds + elapsedSeconds * (AccelerationMultiplier - 1),
+            state.RemainingOfflineSeconds / costPerSecond);
+        long started = System.Diagnostics.Stopwatch.GetTimestamp();
+        while (accumulatedAccelerationSeconds > 0d)
+        {
+            double step = Math.Min(tickIntervalSeconds, accumulatedAccelerationSeconds);
+            ManualTick(step);
+            state.RestoreOfflineTime(Math.Max(0d, state.RemainingOfflineSeconds - step * costPerSecond));
+            accumulatedAccelerationSeconds = Math.Max(0d, accumulatedAccelerationSeconds - step);
+            if (state.RemainingOfflineSeconds <= 1e-9d)
+            {
+                state.RestoreOfflineTime(0d);
+                SetAccelerationMultiplier(1);
+                return;
+            }
+            if ((System.Diagnostics.Stopwatch.GetTimestamp() - started) * 1000d /
+                System.Diagnostics.Stopwatch.Frequency >= 4d) return;
+        }
+    }
 
 #if UNITY_EDITOR
     private void OnEnable()
@@ -63,6 +110,7 @@ public sealed class SimulationManager : Singleton<SimulationManager>
     }
 
     public double AccumulatedSecondsForEditor => accumulatedSeconds;
+    public double AccumulatedAccelerationSecondsForEditor => accumulatedAccelerationSeconds;
     public long PreparedSegmentCountForEditor { get; private set; }
     public double OfflinePendingCalendarSecondsForEditor => offlineCampaignPendingCalendarSeconds;
     public double OfflinePendingSimulationSecondsForEditor => offlineCampaignPendingSimulationSeconds;
@@ -120,11 +168,15 @@ public sealed class SimulationManager : Singleton<SimulationManager>
         running = value && !applicationPaused && offlineSession == null &&
             (!SaveManager.TryGetInstance(out SaveManager saves) || !saves.IsLoading);
         if (!running)
+        {
             accumulatedSeconds = 0d;
+            accumulatedAccelerationSeconds = 0d;
+        }
     }
 
     private void OnApplicationPause(bool pauseStatus)
     {
+        if (applicationPaused == pauseStatus) return;
         applicationPaused = pauseStatus;
         if (pauseStatus)
         {
@@ -159,6 +211,8 @@ public sealed class SimulationManager : Singleton<SimulationManager>
             accumulatedSeconds -= tickInterval;
             tickCount++;
         }
+
+        AdvanceAcceleration(elapsedSeconds);
 
         double maximumBacklog = tickInterval * maximumTicksPerFrame;
         if (accumulatedSeconds > maximumBacklog)

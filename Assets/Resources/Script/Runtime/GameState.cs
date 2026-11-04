@@ -36,12 +36,31 @@ public sealed class GameState
     public ExpantaNum HappinessScore =>
         HappinessFormula.CalculateScore(FoodSurplusPerPerson);
     public ExpantaNum FoodAvailability { get; private set; }
-    public ExpantaNum HappinessMultiplier =>
-        HappinessFormula.CalculateMultiplier(
-            FoodNetRate,
-            Population?.Population ?? ExpantaNum.Zero,
-            FoodAvailability,
-            ProgressionModifierManager.Current.HappinessBonus);
+    private bool happinessCached;
+    private ExpantaNum cachedFoodNetRate, cachedPopulation, cachedFoodAvailability, cachedHappinessBonus;
+    private ExpantaNum cachedHappinessMultiplier;
+    public ExpantaNum HappinessMultiplier
+    {
+        get
+        {
+            ExpantaNum foodNetRate = FoodNetRate;
+            ExpantaNum population = Population?.Population ?? ExpantaNum.Zero;
+            ExpantaNum bonus = ProgressionModifierManager.Current.HappinessBonus;
+            // Population and modifiers can change independently of GameState.Version.
+            if (!happinessCached || cachedFoodNetRate != foodNetRate || cachedPopulation != population ||
+                cachedFoodAvailability != FoodAvailability || cachedHappinessBonus != bonus)
+            {
+                cachedHappinessMultiplier = HappinessFormula.CalculateMultiplier(
+                    foodNetRate, population, FoodAvailability, bonus);
+                cachedFoodNetRate = foodNetRate;
+                cachedPopulation = population;
+                cachedFoodAvailability = FoodAvailability;
+                cachedHappinessBonus = bonus;
+                happinessCached = true;
+            }
+            return cachedHappinessMultiplier;
+        }
+    }
     public ExpantaNum HappinessConstraintMultiplier =>
         HappinessFormula.CalculateConstraintMultiplier(HappinessMultiplier);
     public ExpantaNum HappinessRewardMultiplier =>
@@ -66,6 +85,7 @@ public sealed class GameState
     public PopulationState Population { get; private set; }
     public StoryProgressState StoryProgress { get; private set; }
     public WorldEventState Events { get; private set; }
+    public double RemainingOfflineSeconds { get; private set; }
     public long LastSaveUnixSeconds { get; private set; }
     public int Version { get; private set; }
 
@@ -119,6 +139,7 @@ public sealed class GameState
         StoryProgress = new StoryProgressState();
         Events = new WorldEventState();
         LastSaveUnixSeconds = 0;
+        RemainingOfflineSeconds = 0d;
         Version++;
     }
 
@@ -633,6 +654,15 @@ public sealed class GameState
         ExpantaNum restoredProgress)
     {
         Population.RestoreCapacityExact(restoredCapacity, restoredProgress);
+        Version++;
+    }
+
+    internal void RestoreOfflineTime(double remaining)
+    {
+        if (double.IsNaN(remaining) || double.IsInfinity(remaining) || remaining < 0d)
+            throw new ArgumentOutOfRangeException(nameof(remaining));
+        if (RemainingOfflineSeconds == remaining) return;
+        RemainingOfflineSeconds = remaining;
         Version++;
     }
 

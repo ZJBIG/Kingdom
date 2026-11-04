@@ -12,7 +12,7 @@ public sealed partial class KingdomUIRoot
     private Transform reviewDetailTools;
     private Transform reviewPageTools;
     private Button reviewLocate, reviewEarlier, reviewLater, reviewRepair;
-    private Button reviewCurrentResearch, reviewResetResearch, reviewOffline, reviewSave;
+    private Button reviewCurrentResearch, reviewResetResearch, reviewSave;
     private GameObject reviewDetailHeading;
     private CanvasGroup reviewInputGroup;
     private bool reviewPreviousInteractable, reviewPreviousRaycasts;
@@ -36,7 +36,7 @@ public sealed partial class KingdomUIRoot
     {
         GameObject prefab = Resources.Load<GameObject>("UI/Kingdom/KingdomUIReviewControls");
         if (prefab == null) { Debug.LogError("Missing authored KingdomUIReviewControls prefab."); return; }
-        Transform root = Instantiate(prefab, safeArea, false).transform;
+        Transform root = KingdomUIPrefabLibrary.Instantiate(prefab, safeArea).transform;
         root.name = "ReviewControls";
         reviewInputGroup = safeArea.GetComponent<CanvasGroup>();
         if (reviewInputGroup == null) reviewInputGroup = safeArea.gameObject.AddComponent<CanvasGroup>();
@@ -57,10 +57,6 @@ public sealed partial class KingdomUIRoot
         reviewPageTools = root.Find("PageTools"); reviewPageTools.SetParent(content.Find("PageTool"), false);
         reviewCurrentResearch = ReviewButton(reviewPageTools, "CurrentResearch", () => NavigateToOverviewResearch(GetCurrentResearchTarget()));
         reviewResetResearch = ReviewButton(reviewPageTools, "ResetResearch", () => researchGraphGesture?.ResetView(DefaultResearchScale));
-        reviewOffline = ReviewButton(reviewPageTools, "Offline", () =>
-        {
-            offlineSummaryExpanded = !offlineSummaryExpanded; renderedOfflineSummary = null; RefreshUI();
-        });
         reviewSave = ReviewButton(reviewPageTools, "Save", () =>
         {
             if (SaveManager.TryGetInstance(out SaveManager save))
@@ -129,9 +125,6 @@ public sealed partial class KingdomUIRoot
         reviewCurrentResearch.gameObject.SetActive(graph); reviewResetResearch.gameObject.SetActive(graph);
         reviewCurrentResearch.interactable = CanInspectResearch(GetCurrentResearchTarget());
         reviewSave.gameObject.SetActive(overview);
-        bool summary = SaveManager.TryGetInstance(out SaveManager save) && save.LastOfflineSummary != null;
-        reviewOffline.gameObject.SetActive(overview && summary);
-        SetTextIfChanged(reviewOffline.GetComponentInChildren<TMP_Text>(), offlineSummaryExpanded ? "收起离线变化" : "展开全部离线变化");
         if (developmentGuidanceText != null && developmentGuidanceText.GetComponent<UIReviewTextLinks>() == null)
         {
             developmentGuidanceText.raycastTarget = true;
@@ -243,31 +236,27 @@ public sealed partial class KingdomUIRoot
     {
         BuildingManager manager = BuildingManager.Instance;
         if (manager == null) return;
+        RefreshResourceBuildingDefinitions(resource);
         bool stoppedHeading = false, availableHeading = false;
-        foreach (var entry in manager.States)
+        foreach (ResourceBuildingDefinitionFlow definition in resourceBuildingDefinitions)
         {
-            BuildingDef building = entry.Key; BuildingState state = entry.Value;
-            bool source = false;
-            foreach (var flow in building.ResourceGenerationRates) if (flow.First == resource && flow.Second > ExpantaNum.Zero) { source = true; break; }
-            if (!source) continue;
+            if (!definition.Source) continue;
+            BuildingDef building = definition.Building;
+            if (!manager.States.TryGetValue(building, out BuildingState state)) continue;
             if (state.Amount > ExpantaNum.Zero && state.Efficiency <= ExpantaNum.Zero)
             {
                 if (!stoppedHeading) { text.AppendLine("已停工来源（点击定位）："); stoppedHeading = true; }
                 text.AppendLine(ReviewLink("building", building.Id, building.Label) + "：" + GetStoppedBuildingReason(building));
             }
         }
-        foreach (var entry in manager.States)
+        foreach (ResourceBuildingDefinitionFlow definition in resourceBuildingDefinitions)
         {
-            BuildingDef building = entry.Key;
-            if (entry.Value.Amount > ExpantaNum.Zero || !manager.ShouldDisplay(building)) continue;
-            foreach (var flow in building.ResourceGenerationRates)
-                if (flow.First == resource && flow.Second > ExpantaNum.Zero)
-                {
-                    if (!availableHeading) { text.AppendLine("未建生产来源（点击定位）："); availableHeading = true; }
-                    BuildFailure failure = manager.GetBuildFailure(building, ExpantaNum.One);
-                    text.AppendLine(ReviewLink("building", building.Id, building.Label) + "：" + (failure == BuildFailure.None ? "可建" : GetBuildFailureDescription(failure)));
-                    break;
-                }
+            BuildingDef building = definition.Building;
+            if (!definition.Source || !manager.States.TryGetValue(building, out BuildingState state) ||
+                state.Amount > ExpantaNum.Zero || !manager.ShouldDisplay(building)) continue;
+            if (!availableHeading) { text.AppendLine("未建生产来源（点击定位）："); availableHeading = true; }
+            BuildFailure failure = manager.GetBuildFailure(building, ExpantaNum.One);
+            text.AppendLine(ReviewLink("building", building.Id, building.Label) + "：" + (failure == BuildFailure.None ? "可建" : GetBuildFailureDescription(failure)));
         }
     }
 

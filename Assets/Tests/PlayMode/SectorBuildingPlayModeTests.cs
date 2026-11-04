@@ -15,6 +15,32 @@ public sealed class SectorBuildingPlayModeTests
     private TutorialManager initialTutorial;
     private MusicManager initialMusic;
     private UIButtonSoundManager initialSound;
+
+    [UnityTest, Category("Performance")]
+    public IEnumerator SectorIdleRefresh_RecordsCollapsedMenuCost()
+    {
+        SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
+        for (int i = 0; i < 160 && Object.FindObjectOfType<GameBootstrap>()?.Completed != true; i++)
+            yield return null;
+        Assert.That(Object.FindObjectOfType<GameBootstrap>()?.Completed, Is.True);
+        SimulationManager.Instance.SetRunning(false);
+        GameManager game = GameManager.Instance;
+        foreach (SectorDef sector in DataBase<SectorDef>.All)
+            game.Sectors.GetState(sector).SetOccupiedForEditor(true);
+        KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
+        root.SetPage("Sectors");
+        yield return null;
+        for (int i = 0; i < 5; i++) root.RefreshSectorRowSummariesForEditor();
+        double[] samples = new double[5];
+        for (int batch = 0; batch < samples.Length; batch++)
+        {
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            for (int i = 0; i < 20; i++) root.RefreshSectorRowSummariesForEditor();
+            samples[batch] = watch.Elapsed.TotalMilliseconds / 20d;
+        }
+        Array.Sort(samples);
+        Debug.Log($"[HotPathPerf] sector-collapsed-refresh medianMs={samples[2]:F6} controlledOccupied={DataBase<SectorDef>.Count}");
+    }
     [SetUp]
     public void SetUp()
     {
@@ -180,8 +206,25 @@ public sealed class SectorBuildingPlayModeTests
         Transform build = menu.Find("EarthMoonLogisticsHub/Build");
         Assert.That(build.GetComponent<UnityEngine.UI.Button>().interactable, Is.False);
 
+        buildingButton.GetComponent<Button>().onClick.Invoke();
         PrepareBuildableSectorBuilding(game, hub);
-        root.RefreshSectorRowSummariesForEditor();
+        Canvas.ForceUpdateCanvases();
+        int forcedCanvasUpdates = 0;
+        Canvas.WillRenderCanvases observeCanvas = () => forcedCanvasUpdates++;
+        Canvas.willRenderCanvases += observeCanvas;
+        try
+        {
+            root.RefreshSectorRowSummariesForEditor();
+            root.RefreshSectorRowSummariesForEditor();
+        }
+        finally
+        {
+            Canvas.willRenderCanvases -= observeCanvas;
+        }
+        Assert.That(forcedCanvasUpdates, Is.Zero,
+            "Idle sector refresh must not force a global Canvas pass when row geometry is unchanged.");
+        Assert.That(menu.gameObject.activeSelf, Is.False);
+        buildingButton.GetComponent<Button>().onClick.Invoke();
         yield return null;
         Assert.That(build.GetComponent<UnityEngine.UI.Button>().interactable, Is.True);
         build.GetComponent<UnityEngine.UI.Button>().onClick.Invoke();

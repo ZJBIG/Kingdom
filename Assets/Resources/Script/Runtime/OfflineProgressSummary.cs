@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 
@@ -146,3 +147,5 @@ public sealed class OfflineProgressSummary
         SupplyBlockedSectors = blocked.AsReadOnly();
     }
 }
+
+#endif

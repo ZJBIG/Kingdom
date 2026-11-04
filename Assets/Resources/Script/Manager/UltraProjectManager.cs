@@ -336,7 +336,8 @@ public sealed class UltraProjectManager
             return false;
         }
 
-        ExpantaNum satisfaction = CalculateSatisfaction(stage, deltaSeconds, state.Doctrine);
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs = AggregateCosts(stage.ContinuousResourceCosts);
+        ExpantaNum satisfaction = CalculateSatisfaction(stage, deltaSeconds, state.Doctrine, costs);
         if (satisfaction <= ExpantaNum.Zero)
         {
             state.Pause(UltraProjectPauseReason.InsufficientSupply);
@@ -353,15 +354,14 @@ public sealed class UltraProjectManager
         if (progressDelta >= remainingProgress)
         {
             paymentSeconds = FindSecondsToCompleteStage(
-                stage, deltaSeconds, remainingProgress, state.Doctrine);
+                stage, deltaSeconds, remainingProgress, state.Doctrine, costs);
             seconds = new ExpantaNum(paymentSeconds);
-            satisfaction = CalculateSatisfaction(stage, paymentSeconds, state.Doctrine);
+            satisfaction = CalculateSatisfaction(stage, paymentSeconds, state.Doctrine, costs);
             progressDelta = ExpantaNum.Min(
                 remainingProgress,
                 seconds / stage.BaseDurationSeconds * GetProgressMultiplier(stage) * satisfaction);
         }
         Dictionary<ResourceDef, ExpantaNum> payment = new();
-        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs = AggregateCosts(stage.ContinuousResourceCosts);
         for (int i = 0; i < costs.Count; i++)
         {
             Pair<ResourceDef, ExpantaNum> cost = costs[i];
@@ -544,9 +544,10 @@ public sealed class UltraProjectManager
     private ExpantaNum CalculateSatisfaction(
         UltraProjectStageDefinition stage,
         double deltaSeconds,
-        UltraProjectDoctrine doctrine)
+        UltraProjectDoctrine doctrine,
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs = null)
     {
-        ExpantaNum result = CalculateMaterialSatisfaction(stage, deltaSeconds, doctrine);
+        ExpantaNum result = CalculateMaterialSatisfaction(stage, deltaSeconds, doctrine, costs);
         result = ExpantaNum.Min(result, GameManager.Instance.State.PowerSatisfaction);
         result = ExpantaNum.Min(result, GameManager.Instance.State.LogisticsSatisfaction);
         return ExpantaNum.Clamp01(result);
@@ -555,14 +556,15 @@ public sealed class UltraProjectManager
     private ExpantaNum CalculateMaterialSatisfaction(
         UltraProjectStageDefinition stage,
         double deltaSeconds,
-        UltraProjectDoctrine doctrine)
+        UltraProjectDoctrine doctrine,
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs = null)
     {
         if (stage == null)
             return ExpantaNum.Zero;
         ExpantaNum result = ExpantaNum.One;
         ExpantaNum seconds = new ExpantaNum(deltaSeconds);
         ExpantaNum costMultiplier = GetOperationalCostMultiplier(doctrine);
-        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs = AggregateCosts(stage.ContinuousResourceCosts);
+        costs ??= AggregateCosts(stage.ContinuousResourceCosts);
         for (int i = 0; i < costs.Count; i++)
         {
             Pair<ResourceDef, ExpantaNum> cost = costs[i];
@@ -592,14 +594,15 @@ public sealed class UltraProjectManager
         UltraProjectStageDefinition stage,
         double maximumSeconds,
         ExpantaNum targetProgress,
-        UltraProjectDoctrine doctrine)
+        UltraProjectDoctrine doctrine,
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs)
     {
         double low = 0d;
         double high = maximumSeconds;
         for (int i = 0; i < 48; i++)
         {
             double middle = (low + high) * .5d;
-            ExpantaNum satisfaction = CalculateSatisfaction(stage, middle, doctrine);
+            ExpantaNum satisfaction = CalculateSatisfaction(stage, middle, doctrine, costs);
             ExpantaNum progress = new ExpantaNum(middle) /
                 stage.BaseDurationSeconds * GetProgressMultiplier(stage) * satisfaction;
             if (progress >= targetProgress)

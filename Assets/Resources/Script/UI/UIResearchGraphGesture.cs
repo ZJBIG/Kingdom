@@ -212,7 +212,7 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
             return;
         dragging = true;
         Vector2 localPointerPosition = GetLocalPointerPosition(eventData);
-        Vector2 movement = (localPointerPosition - lastPointerLocalPosition) * KingdomScrollRect.DragSpeedMultiplier;
+        Vector2 movement = (localPointerPosition - lastPointerLocalPosition);
         lastPointerLocalPosition = localPointerPosition;
         // anchoredPosition belongs to the viewport, so content zoom does not scale this delta.
         if (!canPanHorizontal)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using TMPro;
@@ -17,6 +17,14 @@ public sealed partial class KingdomUIRoot
         public ExpantaNum Rate;
     }
 
+    private struct ResourceBuildingDefinitionFlow
+    {
+        public BuildingDef Building;
+        public ExpantaNum Production;
+        public ExpantaNum Consumption;
+        public bool Source;
+    }
+
     private readonly Dictionary<ResourceDef, TMP_Text> detailRequirementLabels = new();
     private readonly Dictionary<ResourceDef, TMP_Text> detailRequirementAmounts = new();
     private readonly List<Pair<ResourceDef, ExpantaNum>> buildingRequirementBuffer = new();
@@ -24,6 +32,11 @@ public sealed partial class KingdomUIRoot
     private readonly List<Pair<ResourceDef, ExpantaNum>> buildingInputFlowBuffer = new();
     private readonly List<ResourceBuildingFlow> resourceProducerFlowBuffer = new();
     private readonly List<ResourceBuildingFlow> resourceConsumerFlowBuffer = new();
+    private readonly List<ResourceBuildingDefinitionFlow> resourceBuildingDefinitions = new();
+    private ResourceDef resourceBuildingDefinitionsResource;
+    private string measuredResourceDetailText;
+    private float measuredResourceDetailWidth;
+    private float measuredResourceDetailHeight;
     private readonly StringBuilder resourceDetailTextBuilder = new();
 
     private void ShowDetails(string title, string description)
@@ -447,6 +460,8 @@ public sealed partial class KingdomUIRoot
     }
 
 #if UNITY_EDITOR
+    public void RefreshSelectedResourceDetailsForEditor() => RefreshResourceDetails(selectedResource);
+
     public void ShowResourceDetailsForEditor(ResourceDef resource) =>
         ShowResourceDetails(resource);
     public void ShowDetailsForEditor(string title, string description) =>
@@ -465,6 +480,8 @@ public sealed partial class KingdomUIRoot
         selectedResearchNode = null;
         selectedBuilding = null;
         selectedResource = resource;
+        resourceBuildingDefinitionsResource = null;
+        measuredResourceDetailText = null;
         selectedWorkshop = null;
         selectedSectorDefinition = null;
         lastSelectedResourceVersion = -1;
@@ -497,7 +514,7 @@ public sealed partial class KingdomUIRoot
             ? ExpantaNum.Zero
             : ResourceManager.ApplyCurrentProductionReward(state.ProductionRate);
         ExpantaNum consumption = state == null ? ExpantaNum.Zero : state.ConsumptionRate;
-        ExpantaNum net = production - consumption;
+        ExpantaNum net = state == null ? ExpantaNum.Zero : ResourceManager.Instance.GetNetRate(state);
         RefreshResourceBuildingFlows(resource);
         List<ResourceBuildingFlow> producers = resourceProducerFlowBuffer;
         List<ResourceBuildingFlow> consumers = resourceConsumerFlowBuffer;
@@ -559,37 +576,21 @@ public sealed partial class KingdomUIRoot
         if (buildingManager == null)
             return;
 
+        RefreshResourceBuildingDefinitions(resource);
         ProgressionModifierState modifiers = ProgressionModifierManager.Current;
-        foreach (KeyValuePair<BuildingDef, BuildingState> entry in buildingManager.States)
+        for (int definitionIndex = 0; definitionIndex < resourceBuildingDefinitions.Count; definitionIndex++)
         {
-            BuildingDef building = entry.Key;
-            BuildingState state = entry.Value;
-            if (building == null || state == null)
+            ResourceBuildingDefinitionFlow definition = resourceBuildingDefinitions[definitionIndex];
+            BuildingDef building = definition.Building;
+            if (!buildingManager.States.TryGetValue(building, out BuildingState state) || state == null)
                 continue;
 
             if (state.Amount <= ExpantaNum.Zero || state.Efficiency <= ExpantaNum.Zero)
                 continue;
 
             ExpantaNum scale = state.Amount * state.Efficiency;
-            ExpantaNum productionRate = ExpantaNum.Zero;
-            IReadOnlyList<Pair<ResourceDef, ExpantaNum>> productionFlows =
-                building.ResourceGenerationRates;
-            for (int i = 0; i < productionFlows.Count; i++)
-            {
-                Pair<ResourceDef, ExpantaNum> flow = productionFlows[i];
-                if (flow.First == resource)
-                    productionRate += flow.Second;
-            }
-
-            ExpantaNum consumptionRate = ExpantaNum.Zero;
-            IReadOnlyList<Pair<ResourceDef, ExpantaNum>> consumptionFlows =
-                building.ResourceConsumptionRates;
-            for (int i = 0; i < consumptionFlows.Count; i++)
-            {
-                Pair<ResourceDef, ExpantaNum> flow = consumptionFlows[i];
-                if (flow.First == resource)
-                    consumptionRate += flow.Second;
-            }
+            ExpantaNum productionRate = definition.Production;
+            ExpantaNum consumptionRate = definition.Consumption;
             if (productionRate <= ExpantaNum.Zero &&
                 consumptionRate <= ExpantaNum.Zero)
                 continue;
@@ -607,6 +608,36 @@ public sealed partial class KingdomUIRoot
 
         SortResourceBuildingFlows(resourceProducerFlowBuffer);
         SortResourceBuildingFlows(resourceConsumerFlowBuffer);
+    }
+
+    private void RefreshResourceBuildingDefinitions(ResourceDef resource)
+    {
+        if (resourceBuildingDefinitionsResource == resource)
+            return;
+        resourceBuildingDefinitions.Clear();
+        HashSet<BuildingDef> definitions = new(DataBase<BuildingDef>.All);
+        definitions.UnionWith(DataBase<SectorBuildingDef>.All);
+        foreach (BuildingDef building in definitions)
+        {
+            if (building == null) continue;
+            ExpantaNum production = ExpantaNum.Zero, consumption = ExpantaNum.Zero;
+            bool source = false;
+            foreach (Pair<ResourceDef, ExpantaNum> flow in building.ResourceGenerationRates)
+                if (flow.First == resource)
+                {
+                    production += flow.Second;
+                    source |= flow.Second > ExpantaNum.Zero;
+                }
+            foreach (Pair<ResourceDef, ExpantaNum> flow in building.ResourceConsumptionRates)
+                if (flow.First == resource) consumption += flow.Second;
+            if (source || production > ExpantaNum.Zero || consumption > ExpantaNum.Zero)
+                resourceBuildingDefinitions.Add(new ResourceBuildingDefinitionFlow
+                {
+                    Building = building, Production = production, Consumption = consumption, Source = source
+                });
+        }
+        // Definitions stay fixed during play; quantities, efficiency and affordability remain live.
+        resourceBuildingDefinitionsResource = resource;
     }
 
     private static void AddResourceBuildingFlow(
@@ -664,8 +695,14 @@ public sealed partial class KingdomUIRoot
         body.anchorMax = new Vector2(1, 1);
         body.pivot = new Vector2(.5f, 1f);
         float width = GetMeasuredDetailTextWidth(body);
-        float bodyHeight = Mathf.Max(96f,
-            detailBody.GetPreferredValues(detailBody.text, width, 1000f).y + 20f);
+        if (measuredResourceDetailText != detailBody.text || Mathf.Abs(measuredResourceDetailWidth - width) > .5f)
+        {
+            measuredResourceDetailHeight = Mathf.Max(96f,
+                detailBody.GetPreferredValues(detailBody.text, width, 1000f).y + 20f);
+            measuredResourceDetailText = detailBody.text;
+            measuredResourceDetailWidth = width;
+        }
+        float bodyHeight = measuredResourceDetailHeight;
         // The body height only changes when the line count changes; ordinary
         // value refreshes keep the same height. Skip the two full-canvas
         // immediate layout passes unless the height actually changed, otherwise
@@ -1414,6 +1451,8 @@ public sealed partial class KingdomUIRoot
         return true;
     }
 
+    private static string StableNumber(string text) => "<mspace=0.6em>" + text + "</mspace>";
+
     private string FormatRequirementAmount(Pair<ResourceDef, ExpantaNum> requirement)
     {
         if (requirement.First == null)
@@ -1421,16 +1460,18 @@ public sealed partial class KingdomUIRoot
 
         if ((selectedResearchNode != null && ResearchManager.TryGetInstance(out ResearchManager research) &&
             research.GetState(selectedResearchNode)?.CostPaid == true) || IsWorkshopPurchased(selectedWorkshop))
-            return requirement.Second.ToGameString() + "（已支付）";
+            return StableNumber(requirement.Second.ToGameString()) + "<pos=48%>（已支付）";
 
         ExpantaNum owned = ExpantaNum.Zero;
         ResourceManager resourceManager = ResourceManager.Instance;
         if (resourceManager != null && resourceManager.States.TryGetValue(requirement.First, out ResourceState resourceState))
             owned = resourceState.Amount;
         string amount = detailBuildingUpgrade && requirement.Second < ExpantaNum.Zero
-            ? "返还 " + requirement.Second.Abs().ToGameString()
-            : requirement.Second.ToGameString();
-        return amount + " (" + owned.ToGameString() + ")";
+            ? "返还 " + StableNumber(requirement.Second.Abs().ToGameString())
+            : StableNumber(requirement.Second.ToGameString());
+        Color tint = owned >= requirement.Second ? Positive : Error;
+        return amount + "<pos=48%> " +
+            StableNumber("(" + owned.ToGameString() + ")").Colorize(tint);
     }
 
     private void ResizeDetailBodyIfNeeded(int requirementCount, int flowCount)
@@ -1872,7 +1913,7 @@ public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
             // Screen coordinates use a bottom-left origin, so a finger
             // moving up produces a positive deltaY. The top-anchored
             // content follows that delta toward its positive scroll range.
-            content.anchoredPosition += new Vector2(0f, deltaY * KingdomScrollRect.DragSpeedMultiplier);
+            content.anchoredPosition += new Vector2(0f, deltaY);
             ClampContent();
             movementSamples++;
             movementPathLength += Mathf.Abs(deltaY);

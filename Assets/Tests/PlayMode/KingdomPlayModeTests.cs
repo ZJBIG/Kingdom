@@ -73,7 +73,7 @@ public sealed class KingdomPlayModeTests
     }
 
     [UnityTest]
-    public IEnumerator OvernightStartup_RendersProgressBeforeCompletingAndPreservesTheSave()
+    public IEnumerator OvernightStartup_BanksTimeWithoutBlockingTheGame()
     {
         yield return LoadIsolatedNewGame();
         SaveManager save = SaveManager.Instance;
@@ -83,114 +83,83 @@ public sealed class KingdomPlayModeTests
         string primary = Path.Combine(saveRoot, "KingdomSave-v1.json");
         foreach (GameObject root in SceneManager.GetSceneByName("SampleScene").GetRootGameObjects())
             Object.DestroyImmediate(root);
-        string original = JsonUtility.ToJson(data);
-        File.WriteAllText(primary, original);
+        File.WriteAllText(primary, JsonUtility.ToJson(data));
         SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
-        bool observedProgress = false;
-        bool builtDuringAcceleration = false;
-        string initialDate = null;
-        bool observedCalendarAdvance = false;
-        int loadingFrames = 0;
-        float deadline = Time.realtimeSinceStartup + 120f;
+        float deadline = Time.realtimeSinceStartup + 30f;
         while (Time.realtimeSinceStartup < deadline)
         {
             yield return null;
             GameBootstrap bootstrap = Object.FindObjectOfType<GameBootstrap>();
-            save = Object.FindObjectOfType<SaveManager>();
-            if (bootstrap == null || save == null) continue;
-            if (bootstrap.Completed) break;
-            Assert.That(save.LoadingError, Is.Empty);
-            if (!save.IsOfflineProgressRunning) continue;
-            loadingFrames++;
-            KingdomUIRoot ui = Object.FindObjectOfType<KingdomUIRoot>();
-            Assert.That(ui.transform.Find("LoadingOverlay"), Is.Null, "Acceleration must use the ordinary game view.");
-            foreach (CanvasGroup group in ui.transform.Find("SafeAreaRoot").GetComponents<CanvasGroup>())
-                Assert.That(group.interactable, Is.True);
-            Assert.That(ui.GetComponent<OnboardingInputGate>().IsActive, Is.False);
-            TMP_Text date = ui.GetComponentsInChildren<TMP_Text>().First(label => label.name == "Date");
-            initialDate ??= date.text;
-            observedCalendarAdvance |= date.text != initialDate;
-            BuildingDef house = DataBase<BuildingDef>.Find("WoodHouse");
-            if (!builtDuringAcceleration && BuildingManager.Instance.GetMaxBuildable(house, ExpantaNum.One) >= ExpantaNum.One)
-            {
-                Button navigation = ui.GetComponentsInChildren<Button>().First(button => button.name == "Nav_Buildings");
-                Assert.That(navigation.IsInteractable(), Is.True);
-                navigation.onClick.Invoke();
-                Assert.That(BuildingManager.Instance.TryBuild(house, ExpantaNum.One, out BuildFailure failure),
-                    Is.True, "Building during acceleration must remain available: " + failure);
-                builtDuringAcceleration = true;
-                ui.SetPage("Overview");
-            }
-            Assert.That(save.SaveNow(true), Is.False);
-            Assert.That(File.ReadAllText(primary), Is.EqualTo(original));
-            if (!observedProgress && observedCalendarAdvance && builtDuringAcceleration)
-            {
-                observedProgress = true;
-                string path = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "data", "startup-mobile-20261103", "startup-progress.png"));
-                CaptureStartupProgress(ui.GetComponent<Canvas>(), path);
-            }
+            if (bootstrap != null && bootstrap.Completed) break;
         }
+        save = SaveManager.Instance;
         Assert.That(Object.FindObjectOfType<GameBootstrap>().Completed, Is.True);
-        Assert.That(observedProgress, Is.True, "The overnight session must render the live game while accepting commands.");
-        Assert.That(loadingFrames, Is.GreaterThan(1), "Settlement must span multiple rendered frames.");
-        Assert.That(builtDuringAcceleration, Is.True, "A player command must succeed during the offline session.");
-        Assert.That(observedCalendarAdvance, Is.True, "The live HUD must visibly follow accelerated calendar time.");
-        Assert.That(save.LastOfflineProgressSeconds, Is.InRange(34800d, 34810d));
-        Assert.That(SimulationManager.Instance.IsRunning, Is.True);
-        SimulationManager.Instance.SetRunning(false);
+        Assert.That(save.RemainingOfflineSeconds, Is.InRange(34800d, 34810d));
+        Assert.That(save.IsLoading, Is.False);
+        Assert.That(SimulationManager.Instance.AccelerationMultiplier, Is.EqualTo(1), "The default speed is the discrete normal-play mode.");
+        Assert.That(save.SaveNow(true), Is.True);
+        KingdomUIRoot ui = Object.FindObjectOfType<KingdomUIRoot>();
+        ui.SetPage("Overview");
         yield return null;
-        Assert.That(Object.FindObjectOfType<KingdomUIRoot>().transform.Find("LoadingOverlay"), Is.Null);
-        Assert.That(SaveManager.ParseSaveDataForEditor(File.ReadAllText(primary)).General.LastSaveUnixSeconds,
-            Is.GreaterThan(savedAt));
-    }
-
-    private static void CaptureStartupProgress(Canvas canvas, string path)
-    {
-        Assert.That(SystemInfo.graphicsDeviceType, Is.Not.EqualTo(UnityEngine.Rendering.GraphicsDeviceType.Null));
-        RenderMode mode = canvas.renderMode;
-        Camera previousCamera = canvas.worldCamera;
-        float planeDistance = canvas.planeDistance;
-        RenderTexture previousTarget = RenderTexture.active;
-        GameObject cameraObject = new GameObject("StartupEvidenceCamera", typeof(Camera));
-        Camera camera = cameraObject.GetComponent<Camera>();
-        RenderTexture target = new RenderTexture(1760, 800, 24);
-        Texture2D pixels = new Texture2D(1760, 800, TextureFormat.RGB24, false);
-        try
+        Canvas.ForceUpdateCanvases();
+        Transform toolbar = ui.transform.Find("SafeAreaRoot/Content/PageTool/OfflineAccelerationToolbar");
+        Assert.That(toolbar, Is.Not.Null);
+        Assert.That(toolbar.gameObject.activeInHierarchy, Is.True);
+        TMP_Text remaining = toolbar.Find("RemainingTime").GetComponent<TMP_Text>();
+        Assert.That(remaining.text, Does.Contain("09:40:"));
+        string[] names = { "Normal", "Speed5", "Speed20", "Speed1000" };
+        int[] speeds = { 1, 5, 20, 1000 };
+        Rect previous = default;
+        Rect parent = ((RectTransform)toolbar).rect;
+        for (int i = 0; i < names.Length; i++)
         {
-            camera.enabled = false;
-            camera.transform.position = new Vector3(0f, 0f, -10f);
-            camera.clearFlags = CameraClearFlags.SolidColor;
-            camera.backgroundColor = Color.black;
-            camera.nearClipPlane = .1f;
-            camera.farClipPlane = 1000f;
-            target.Create();
-            camera.targetTexture = target;
-            canvas.renderMode = RenderMode.ScreenSpaceCamera;
-            canvas.worldCamera = camera;
-            canvas.planeDistance = 100f;
-            Canvas.ForceUpdateCanvases();
-            camera.Render();
-            RenderTexture.active = target;
-            pixels.ReadPixels(new Rect(0, 0, 1760, 800), 0, 0);
-            pixels.Apply();
-            File.WriteAllBytes(path, pixels.EncodeToPNG());
+            Button button = toolbar.Find(names[i]).GetComponent<Button>();
+            Assert.That(button.IsInteractable(), Is.True);
+            button.onClick.Invoke();
+            Assert.That(SimulationManager.Instance.AccelerationMultiplier, Is.EqualTo(speeds[i]), "The selected mode is an exact protocol value.");
+            RectTransform rect = button.GetComponent<RectTransform>();
+            Vector3[] corners = new Vector3[4];
+            rect.GetWorldCorners(corners);
+            Vector3 min = toolbar.InverseTransformPoint(corners[0]);
+            Vector3 max = toolbar.InverseTransformPoint(corners[2]);
+            Rect bounds = Rect.MinMaxRect(min.x, min.y, max.x, max.y);
+            Assert.That(bounds.width, Is.GreaterThan(0f));
+            Assert.That(bounds.height, Is.GreaterThan(0f));
+            Assert.That(bounds.xMin, Is.GreaterThanOrEqualTo(parent.xMin - 1f));
+            Assert.That(bounds.xMax, Is.LessThanOrEqualTo(parent.xMax + 1f));
+            if (i > 0) Assert.That(bounds.xMin, Is.GreaterThanOrEqualTo(previous.xMax - 1f));
+            previous = bounds;
         }
-        finally
+        RectTransform saveButtonRect = ui.transform.Find("SafeAreaRoot/Content/PageTool/PageTools/Save") as RectTransform;
+        RectTransform toolbarRect = (RectTransform)toolbar;
+        Vector3[] saveCorners = new Vector3[4];
+        saveButtonRect.GetWorldCorners(saveCorners);
+        Vector3[] toolbarCorners = new Vector3[4];
+        toolbarRect.GetWorldCorners(toolbarCorners);
+        Assert.That(toolbarCorners[2].x, Is.LessThanOrEqualTo(saveCorners[0].x + 1f),
+            "The acceleration controls must not overlap the save button.");
+        foreach (TMP_Text label in toolbar.GetComponentsInChildren<TMP_Text>())
         {
-            canvas.renderMode = mode;
-            canvas.worldCamera = previousCamera;
-            canvas.planeDistance = planeDistance;
-            RenderTexture.active = previousTarget;
-            camera.targetTexture = null;
-            target.Release();
-            Object.Destroy(target);
-            Object.Destroy(pixels);
-            Object.Destroy(cameraObject);
+            label.ForceMeshUpdate();
+            Assert.That(label.isTextOverflowing, Is.False, label.name + " must fit the authored toolbar.");
         }
+        toolbar.Find("Speed20").GetComponent<Button>().onClick.Invoke();
+        double before = save.RemainingOfflineSeconds;
+        yield return null;
+        yield return null;
+        Assert.That(save.RemainingOfflineSeconds, Is.LessThan(before));
+        ui.SetPage("Resources");
+        Assert.That(toolbar.gameObject.activeInHierarchy, Is.False);
+        ui.SetPage("Overview");
+        Assert.That(toolbar.gameObject.activeInHierarchy, Is.True);
+        Assert.That(save.SaveNow(true), Is.True, "Every paid acceleration tick is included in the durable snapshot.");
+        SimulationManager.Instance.SetRunning(false);
+        SaveManager.KingdomSaveData persisted = SaveManager.ParseSaveDataForEditor(File.ReadAllText(primary));
+        Assert.That(persisted.General.RemainingOfflineSeconds, Is.EqualTo(save.RemainingOfflineSeconds).Within(1e-6d));
     }
 
     [UnityTest]
-    public IEnumerator OfflineResume_UsesFramesAndBlocksPartialSavesAcrossPause()
+    public IEnumerator OfflineResume_BanksOnlyThePauseIntervalAndCapsTheBalance()
     {
         yield return LoadIsolatedNewGame();
         SaveManager save = SaveManager.Instance;
@@ -199,39 +168,25 @@ public sealed class KingdomPlayModeTests
         simulation.SetRunning(true);
         save.HandleApplicationPauseForTests(true, 1000L);
         simulation.OnApplicationPauseForEditor(true);
+        save.HandleApplicationPauseForTests(true, 1030L);
+        simulation.OnApplicationPauseForEditor(true);
+        Assert.That(save.SaveNow(true), Is.True);
         string primary = Path.Combine(saveRoot, "KingdomSave-v1.json");
-        string beforeSettlement = File.ReadAllText(primary);
-
+        SaveManager.KingdomSaveData pausedSave = SaveManager.ParseSaveDataForEditor(File.ReadAllText(primary));
+        Assert.That(pausedSave.General.LastSaveUnixSeconds, Is.EqualTo(1000L),
+            "The persisted protocol timestamp must retain the first pause boundary across background saves.");
         simulation.OnApplicationPauseForEditor(false);
         save.HandleApplicationPauseForTests(false, 1060L);
-        Assert.That(save.IsOfflineProgressRunning, Is.True,
-            "Resume must defer settlement to frame updates in the actual PlayMode path.");
-        Assert.That(save.IsLoading, Is.True);
-        Assert.That(simulation.IsRunning, Is.False);
-        Assert.That(save.SaveNow(true), Is.False);
-        Assert.That(File.ReadAllText(primary), Is.EqualTo(beforeSettlement),
-            "A partial settlement must not replace the primary save.");
-
-        save.HandleApplicationPauseForTests(true, 1060L);
-        simulation.OnApplicationPauseForEditor(true);
-        yield return null;
-        Assert.That(save.IsOfflineProgressRunning, Is.True);
-        simulation.OnApplicationPauseForEditor(false);
-        save.HandleApplicationPauseForTests(false, 1120L);
-        for (int frame = 0; frame < 600 && save.IsOfflineProgressRunning; frame++)
-            yield return null;
-        Assert.That(save.IsOfflineProgressRunning, Is.False);
-        Assert.That(save.LoadingError, Is.Empty);
+        Assert.That(save.RemainingOfflineSeconds, Is.EqualTo(60d).Within(1e-4d));
         Assert.That(save.IsLoading, Is.False);
-        Assert.That(save.LastOfflineProgressSeconds, Is.EqualTo(90d).Within(1e-4d),
-            "A pause during settlement extends the same session up to its configured cap.");
-        Assert.That(save.LastOfflineSummary.WallClockSeconds, Is.EqualTo(120d).Within(1e-6d));
-        Assert.That(save.LastOfflineSummary.SettledSeconds, Is.EqualTo(save.LastOfflineProgressSeconds).Within(1e-6d));
         Assert.That(simulation.IsRunning, Is.True);
+        Assert.That(save.SaveNow(true), Is.True);
+        save.HandleApplicationPauseForTests(false, 1120L);
+        Assert.That(save.RemainingOfflineSeconds, Is.EqualTo(60d).Within(1e-4d));
+        save.HandleApplicationPauseForTests(true, 1120L);
+        save.HandleApplicationPauseForTests(false, 1180L);
+        Assert.That(save.RemainingOfflineSeconds, Is.EqualTo(90d).Within(1e-4d));
         simulation.SetRunning(false);
-        long settledAt = GameManager.Instance.State.LastSaveUnixSeconds;
-        Assert.That(save.ApplyOfflineProgressForEditor(settledAt, settledAt), Is.False,
-            "A completed settlement must not be granted twice.");
     }
 
     [UnityTest]
@@ -1019,43 +974,6 @@ public sealed class KingdomPlayModeTests
         Assert.That(detail.text, Does.Contain(target.Label));
         Assert.That(game.Sectors.GetState(target).Unlocked, Is.False,
             "Opening the recommendation must not unlock or occupy its destination.");
-    }
-
-    [UnityTest]
-    public IEnumerator OfflineSummary_OverviewShowsActualSettlementAndClearsOnReload()
-    {
-        yield return LoadIsolatedNewGame();
-        KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
-        SaveManager save = SaveManager.Instance;
-        ResourceManager resources = ResourceManager.Instance;
-        ResourceDef wood = DataBase<ResourceDef>.Find("WoodLog");
-        BuildingDef lumber = DataBase<BuildingDef>.Find("Lumberyard");
-        Assert.That(lumber, Is.Not.Null);
-        BuildingState state = BuildingManager.Instance.EnsureBuilding(lumber);
-        BuildingManager.Instance.SetAmountAndRatesForEditor(state, ExpantaNum.One);
-        ExpantaNum before = resources.GetAmount(wood);
-        Assert.That(save.ApplyOfflineProgressForEditor(1000, 1010), Is.True);
-        OfflineProgressSummary summary = save.LastOfflineSummary;
-        ExpantaNum after = resources.GetAmount(wood);
-        Assert.That(after, Is.GreaterThan(before));
-        root.SetPage("Overview");
-        root.RefreshUI();
-        yield return new WaitForSeconds(0.35f);
-        TMP_Text body = root.transform.Find("SafeAreaRoot/Content/PageHost/Overview/SecondaryCard/Text")
-            .GetComponent<TMP_Text>();
-        Assert.That(body.text, Does.Contain("离线结算摘要"));
-        Assert.That(body.text, Does.Contain(before.ToGameString() + " → " + after.ToGameString()));
-        SimulationManager.Instance.ManualTick(1d);
-        root.RefreshUI();
-        yield return new WaitForSeconds(0.35f);
-        Assert.That(save.LastOfflineSummary, Is.SameAs(summary));
-        Assert.That(body.text, Does.Contain(before.ToGameString() + " → " + after.ToGameString()),
-            "Online ticks must not overwrite the evidence of the offline settlement.");
-        save.ApplySaveDataForEditor(save.CaptureSaveData());
-        root.RefreshUI();
-        yield return new WaitForSeconds(0.35f);
-        Assert.That(save.LastOfflineSummary, Is.Null);
-        Assert.That(body.text, Does.Not.Contain("离线结算摘要"));
     }
 
     [UnityTest]

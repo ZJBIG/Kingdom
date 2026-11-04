@@ -48,8 +48,8 @@ public sealed class AuditRuntimeRegressionTests
     [Test]
     public void ZeroProductivityHousing_PredictionAndSubmissionAgreeDuringDeficit()
     {
-        buildings.EnsureBuilding(DataBase<BuildingDef>.Find("Lumberyard"))
-            .SetAmountForEditor(new ExpantaNum(100));
+        buildings.SetAmountAndRatesForEditor(
+            buildings.EnsureBuilding(DataBase<BuildingDef>.Find("Lumberyard")), new ExpantaNum(100));
         resources.SetAmount(DataBase<ResourceDef>.Find("WoodLog"), new ExpantaNum(10000));
         BuildingDef housing = DataBase<BuildingDef>.Find("WoodHouse");
         Assert.That(buildings.AvailableProductivity, Is.LessThan(ExpantaNum.Zero));

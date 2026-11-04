@@ -657,3 +657,37 @@ SectorRow高192→264，SectorIcon136方图左内缩64、标题区中心y=-132�
 - 最新GPU play-gpu-natural-acceleration：5/5 Passed、进程退出0；覆盖无新增遮罩、HUD日期变化、加速中导航并建造、后台恢复、禁半结算保存、音乐续播。真实Unity编译随该运行完成，无脚本或Prefab导入错误；未跑全套。额外旧新游戏农场Efficiency>0测试失败0，未改规则掩盖。
 - 首次Android构建Burst OutOfMemoryException失败；用户明确要求“先暂停，等我唤醒再构建，先上传git”。APK仍为2026-11-02旧包。恢复时先确认无用户Editor，释放内存后用tools/codex/build-android.ps1重打包，检查签名/包身份/时间，完成后清理所留构建缓存；不得因本交接自动恢复打包。
 - 用户授权上传所有有意义资产修改（含前几轮源码/Prefab/内容/测试），排除生成输出/缓存。旧生成证据216文件303139868字节逐SHA验证归档后原位清除；当前startup证据同样归档至.codex/archive/2026-11-03-pre-apk-evidence/data/startup-mobile-20261103，活动摘要保留data/startup-mobile-20261103/verification.md。字体已恢复hash722BFD776012F77B34C3C33AB7BC512BE7DDDDBC4FD9C44709CE0206689C539F并移除本轮备份。
+
+## 2026-11-04：恢复APK构建完成
+- 用户明确唤醒打包，基于45438758efaf2f86a5f5ff88b30b693679ac5488运行tools/codex/build-android.ps1。Unity 2022.3.62f3c1正常退出0，构建0错误/13警告，Burst本轮正常通过，无源码/资产更改。
+- Builds/Android/Kingdom.apk：212190027字节（202.36MiB），本地2026-11-04 10:52:40生成；SHA256 0C9DF3EFAF36D797898CD30E96A9FD5723CF2BC8F8120BB4734568B4886B99AB。
+- apksigner v1/v2验证通过；aapt确认com.ZJ.Kingdom、0.5、ARM64、minSdk22/targetSdk35。ZIP关键数据/IL2CPP/Manifest完整性检查通过。未重跑玩法套件，未手机安装测试。
+- 构建日志及build-result.json位于.codex/archive/2026-11-04-apk-build；字体hash与构建前相同。
+- 自动审批拒绝批量删除Library/Bee、BurstCache、BuildCache、Addressables缓存、模拟器bin/obj和Burst调试目录的清理命令，唯一原因blocked by policy。命令未启动，因此缓存和font-before.backup仍保留，未尝试绕过。后续可由用户手动清理或在明确允许的环境中按既有安全边界清理；APK有效不受影响。
+
+## 2026-11-04：三处持续CPU热点精简
+- 授权：找3–5个高收益性能问题修复，拒绝小修凑数；本轮交付3处。起始HEAD 45438758efaf2f86a5f5ff88b30b693679ac5488；保留本文件原有APK续接和.workbuddy-ai/memory未跟踪内容。未改经济定义/数值/资产字段/存档/帧率。
+- BuildingManager.UsedProductivity/CalculateRawTotalProductivity/GetBuildingFlowDemand：从全定义扫描改为原有activeBuildingStates索引，保留稳定ID顺序；GameState.HappinessMultiplier按四个真实公式输入缓存，人口/食物流/满足率/modifier变化立即重算；KingdomUIRoot.Sectors折叠菜单停刷，行和视口几何不变时不ForceUpdateCanvases/重配scroll/拼诊断。
+- 同机Unity Editor预热多批中位数：汇总0.106712→0.006427ms（-93.98%），幸福度读取0.001614→0.000366ms（-77.32%），整页星区折叠刷新1.824150→0.461515ms（-74.70%）；前两项合并完整早期fixture tick 0.173964→0.064796ms（-62.75%）。局部CPU数据，不是手机温度/功耗或全帧收益。
+- 新RuntimeHotPathPerformanceTests覆盖真实定义汇总参考、数量归零/恢复、星区启停、四类幸福度输入变化和独立计时；SectorBuildingPlayModeTests追加基准及折叠期间补资源后重开/稳定刷新零全Canvas回归。两位代理只读定位，运行时代理仅写新增测试文件；UI代理只读复核最终diff。
+- 最终真实Unity编译随测试完成：EditMode runtime-verified 80/80、PlayMode ui-after 6/6，均runner退出0，无编译/导入错误。基线runtime-before 3/3写出但退出卡住并240s超时；中间runtime-after项目锁冲突无XML，已保留失败日志，不能计入通过。前后closure通过且相同；离线诊断前后同一既有幸福度短缺失败，输出完全一致。完整命令/覆盖/证据边界见data/performance-20261104/verification.md。
+- 动态字体恢复本轮前字节且自有备份已移除；新生成data/building-detail-raw-20261026移到本轮证据sector-test-artifacts，原目录不存在。无临时工程/测试档/自建Unity残留。git diff --check通过。未跑全项目/未测手机温度功耗/未打APK/未提交推送；请求范围已完成，无另增优化事项。
+
+## 2026-11-04 续接：先定位再修复10处持续性能问题
+- 用户追加要求上一轮之外先找到10项再解决。已完成，权威证据data/performance-round2-20261104/verification.md；保持HEAD 45438758efaf2f86a5f5ff88b30b693679ac5488和既有dirty工作，不改玩法/经济定义数值/存档/Prefab/GUID/固定30FPS。
+- Runtime：ResourceManager双零flow跳过库存运算；UltraProjectStageDefinition六数字按源字符串缓存；UltraProjectManager每tick一次聚合持续成本供满足率/48轮二分/付款复用（事务与回滚不变）；StrategicFoodConsumptionRate直接取共享战役/探索Food公式而非完整preview。
+- UI：Max/Custom卡片从实际3次最大数量求解归并1次，状态文案/按钮共用quantity，模式保留建卡快照与onclick/icon同步；Outline变化才写；资源详情缓存定义关系和相同文本宽度的高度，实时读取State/效率/倍率/可建性，包含星区及同count状态替换；生产树只轮询展开可见子树，重开更新children。
+- Guidance：Overview独立初始化状态，稳定2秒刷新且同text/width/navigation跳过mesh/layout；相同目标下blocker/wait/feedback等变化同轮更新，公开RefreshUI立即刷新；Onboarding gate首次全树含inactive安装filter，统一factory覆盖新子树，迁移直接Instantiate入口。
+- 同机Unity局部路径中位数：33资源tick .009839→.002262ms(-77.01%)；Ultra完成tick隔离数字缓存 .197030→.151972(-22.87%)、再复用成本→.111058(-26.92%，合计-43.63%，不可相加)；战略Food .010361→.000860(-91.70%)；Max整卡6.976730→3.457480(-50.44%)；资源详情稳定刷新.507920→.054635(-89.24%)；真实定义折叠轮询.007056→.000003ms且337→0predicate（主要同时避免隐藏解锁整图重建）；Overview .397823→.025293(-93.64%)；gate .038284→.000274(-99.28%)；稳定Outline 8→0 dirty回调，仅证明工作量100%减少，未独立计时。不是全帧、温降或功耗收益；资源文本变化仍即时重测。
+- 最终真实Unity：EditMode edit-after 70/70 runner0；PlayMode play-final 19/19 runner0；最后一行cached-upgrade修正的play-building-verified XML4/4但180秒退出超时，后续GPU play-gpu重跑这4项加2项图形生产树共6/6，Unity及包装命令退出0。最终编译正常，无脚本编译错误。早期基线回归预期失败、初次Play启动占位fixture及无GPU截图失败、intermediate退出超时均保留，不能说所有运行正常退出。
+- 字体已单独Copy恢复原SHA256 722BFD776012F77B34C3C33AB7BC512BE7DDDDBC4FD9C44709CE0206689C539F、无diff。自动审批拒绝截图迁移/恢复/备份移除组合命令，原因仅blocked by policy，命令未启动；只复制恢复通过，未绕过清理。保留data/performance-round2-20261104/font-before.backup（32,084,075字节）及data/experience-20261023/production-pages/20261104-111244/（26截图），后续若用户需要清理由其处理上述明确路径。
+- 无本轮临时工程、活跃Unity或测试存档残留；git diff --check通过。未跑全项目/未测手机温度功耗/未打APK/未commit或push。本轮10项实施与相关验证完成，剩余仅被审批拒绝的证据目录收尾，不扩展新优化。
+
+## 2026-11-04：可分配离线时间、显示稳定、恢复滑动与APK/Git交付
+- 本轮用户授权完成离线倍率UI、修复零库存微量跳动、取消30FPS、恢复1×滑动、删除替代失效代码、构建APK并上传Git。沿用原dirty工作树，保留两轮性能源码/测试及本文件既有追加。
+- General.RemainingOfflineSeconds新增可选v1字段，缺省0，余额封顶24h；总览提供1/5/20/1000档，对应消耗0/5/25/500倍。加速按实际完成tick扣费，每tick检查4ms预算；1×/切档/停表清空未付费缓冲。启动及后台只累计余额，重复pause和后台再次保存保持第一次pause基线。
+- ResourceManager.GetNetRate统一结算/显示短缺舍入残差；保留真实微量生产及库存。研究/建筑/工坊需求固定两列、库存足够绿不足红，资源/建筑/HUD等宽数字；去掉自动字号引起的抖动。
+- 删除KingdomScrollRect及.meta、1.5×手势引用、旧离线摘要UI/按钮和失效LoadingStage/Progress；原生ScrollRect恢复1×，旧积分诊断只编入Editor。手机30FPS改最高可用刷新率，不改分辨率与模拟时钟。
+- 证据data/offline-controls-20261104/verification.md：EditMode227/227退出0；GPU最终49项通过加layout修复后1/1退出0，50个相关用例全部通过，截图已查看。初轮fixture/颜色等待/引用/截图fixture问题及一次测试入口编译错误保留日志，均已修复；未弱化断言。静态闭包/GUID/UI/Android检查通过；确定性诊断保留既有幸福度短缺失败，不声称parity全通过。
+- APK Builds/Android/Kingdom.apk，212190156字节，SHA256 DC7B7DB1E88A869AA61FEC85EA75457C2310C68513FA2907108A2B23656286E8；Unity构建退出0、0错误13警告、签名v1/v2通过，包com.ZJ.Kingdom 0.5 ARM64 min22/target35。
+- 字体恢复原SHA256且本轮备份移除；测试生成截图/CSV归集本轮证据，未创建临时工程/操作真实档。未跑全套；1000×受帧内预算限制，仅对实际推进扣费。Git提交范围为源码/Prefab/测试及必要验证摘要，包含既有两轮性能改动；APK与原始日志不入Git，上传结果见本轮回复。

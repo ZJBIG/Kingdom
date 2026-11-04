@@ -36,6 +36,8 @@ public sealed class UltraProjectStageDefinition
     [SerializeField] private string logisticsConsumptionRate = "0";
     [NonSerialized] private List<Pair<ResourceDef, ExpantaNum>> oneTimeResourceCostsCache;
     [NonSerialized] private List<Pair<ResourceDef, ExpantaNum>> continuousResourceCostsCache;
+    [NonSerialized] private string[] numericSources;
+    [NonSerialized] private ExpantaNum[] numericValues;
 
     public string StageId => stageId;
     public string PrerequisiteStageId => prerequisiteStageId;
@@ -49,15 +51,32 @@ public sealed class UltraProjectStageDefinition
     public IReadOnlyList<Pair<ResourceDef, ExpantaNum>> ContinuousResourceCosts =>
         ResourceAmountDefinitionList.ToPairs(continuousResourceCosts, ref continuousResourceCostsCache);
     public ExpantaNum BaseDurationSeconds =>
-        string.IsNullOrWhiteSpace(baseDurationSeconds) ? ExpantaNum.Zero : baseDurationSeconds;
+        GetNumber(0, baseDurationSeconds, ExpantaNum.Zero);
     public ExpantaNum StablePostureMultiplier =>
-        string.IsNullOrWhiteSpace(stablePostureMultiplier) ? ExpantaNum.One : stablePostureMultiplier;
+        GetNumber(1, stablePostureMultiplier, ExpantaNum.One);
     public ExpantaNum RushPostureMultiplier =>
-        string.IsNullOrWhiteSpace(rushPostureMultiplier) ? ExpantaNum.One : rushPostureMultiplier;
+        GetNumber(2, rushPostureMultiplier, ExpantaNum.One);
     public ExpantaNum FoodConsumptionRate =>
-        string.IsNullOrWhiteSpace(foodConsumptionRate) ? ExpantaNum.Zero : foodConsumptionRate;
+        GetNumber(3, foodConsumptionRate, ExpantaNum.Zero);
     public ExpantaNum PowerConsumptionRate =>
-        string.IsNullOrWhiteSpace(powerConsumptionRate) ? ExpantaNum.Zero : powerConsumptionRate;
+        GetNumber(4, powerConsumptionRate, ExpantaNum.Zero);
     public ExpantaNum LogisticsConsumptionRate =>
-        string.IsNullOrWhiteSpace(logisticsConsumptionRate) ? ExpantaNum.Zero : logisticsConsumptionRate;
+        GetNumber(5, logisticsConsumptionRate, ExpantaNum.Zero);
+
+    private ExpantaNum GetNumber(int index, string source, ExpantaNum fallback)
+    {
+        if (numericSources == null)
+        {
+            numericSources = new string[6];
+            numericValues = new ExpantaNum[6];
+        }
+        if (source == null)
+            return fallback;
+        if (numericSources[index] != source)
+        {
+            numericValues[index] = string.IsNullOrWhiteSpace(source) ? fallback : (ExpantaNum)source;
+            numericSources[index] = source;
+        }
+        return numericValues[index];
+    }
 }

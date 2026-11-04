@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -16,7 +16,7 @@ public sealed partial class KingdomUIRoot
         if (!string.IsNullOrEmpty(save.LoadingError) && shownLoadingError != save.LoadingError)
             ShowTooltip(save.LoadingError);
         shownLoadingError = save.LoadingError;
-        return save.IsLoading && !save.IsOfflineProgressRunning;
+        return save.IsLoading;
     }
 
     private void SaveCurrentPagePosition()
@@ -275,7 +275,7 @@ public sealed partial class KingdomUIRoot
             return;
         musicListScroll = viewport.GetComponent<ScrollRect>();
         if (musicListScroll == null)
-            musicListScroll = viewport.gameObject.AddComponent<KingdomScrollRect>();
+            musicListScroll = viewport.gameObject.AddComponent<ScrollRect>();
         musicListScroll.viewport = viewport;
         musicListScroll.horizontal = false;
         musicListScroll.vertical = true;
@@ -439,10 +439,11 @@ public sealed partial class KingdomUIRoot
         // placeholder as soon as managers finish initializing.
         BuildDevelopmentGuidance(pages["Overview"]);
         BindOverviewNavigationToolbar(content as RectTransform);
+        BindOfflineAccelerationToolbar(content as RectTransform);
 
         pageScroll = pageHost.GetComponent<ScrollRect>();
         if (pageScroll == null)
-            pageScroll = pageHost.gameObject.AddComponent<KingdomScrollRect>();
+            pageScroll = pageHost.gameObject.AddComponent<ScrollRect>();
         pageScroll.viewport = pageHost;
         pageScroll.content = pages["Overview"];
         pageScroll.horizontal = false;

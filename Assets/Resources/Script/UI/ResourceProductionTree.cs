@@ -72,7 +72,11 @@ public sealed class ResourceProductionTree
 
     public IReadOnlyList<Node> GetChildren(Node node)
     {
-        if (node.Children != null) return node.VisibleChildren;
+        if (node.Children != null)
+        {
+            RefreshVisibleChildren(node);
+            return node.VisibleChildren;
+        }
         node.Children = new List<Node>();
         node.VisibleChildren = node.Children;
         if (node.IsCycle) return node.VisibleChildren;
@@ -157,10 +161,10 @@ public sealed class ResourceProductionTree
 
     private bool RefreshVisibility(Node node)
     {
-        if (node.Children == null) return false;
+        if (!node.Expanded || node.Children == null) return false;
         bool changed = RefreshVisibleChildren(node);
-        for (int i = 0; i < node.Children.Count; i++)
-            changed |= RefreshVisibility(node.Children[i]);
+        for (int i = 0; i < node.VisibleChildren.Count; i++)
+            changed |= RefreshVisibility(node.VisibleChildren[i]);
         return changed;
     }
 
