@@ -1,0 +1,23 @@
+自主材料调度
+
+技术等级: 极致时代
+
+以自动工单协调跨星区的材料制造，让组装、质检与回收在各处工坊之间顺畅接续。
+
+研究前置
+  ✓ <link="research:AutonomousMatterAssembly"><u>自主物质组装</u></link>
+  ✓ <link="research:PhaseGridSynchronization"><u>相位电网同步</u></link>
+
+效果
+  全局建筑生产效率 ×1.2
+
+
+工坊支付需求
+幽影合金
+<mspace=0.6em>180K</mspace><pos=48%>（已支付）
+幽影纤维
+<mspace=0.6em>150K</mspace><pos=48%>（已支付）
+相位材料
+<mspace=0.6em>120K</mspace><pos=48%>（已支付）
+电子元件
+<mspace=0.6em>80K</mspace><pos=48%>（已支付）

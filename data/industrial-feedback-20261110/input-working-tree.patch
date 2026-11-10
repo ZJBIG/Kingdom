@@ -1,0 +1,341 @@
+diff --git a/.codex/handoffs/2026-10-24-player-experience-qa-handoff.md b/.codex/handoffs/2026-10-24-player-experience-qa-handoff.md
+index 3ef8810..fc4e6a1 100644
+--- a/.codex/handoffs/2026-10-24-player-experience-qa-handoff.md
++++ b/.codex/handoffs/2026-10-24-player-experience-qa-handoff.md
+@@ -691,3 +691,20 @@ SectorRow高192→264，SectorIcon136方图左内缩64、标题区中心y=-132
+ - 证据data/offline-controls-20261104/verification.md：EditMode227/227退出0；GPU最终49项通过加layout修复后1/1退出0，50个相关用例全部通过，截图已查看。初轮fixture/颜色等待/引用/截图fixture问题及一次测试入口编译错误保留日志，均已修复；未弱化断言。静态闭包/GUID/UI/Android检查通过；确定性诊断保留既有幸福度短缺失败，不声称parity全通过。
+ - APK Builds/Android/Kingdom.apk，212190156字节，SHA256 DC7B7DB1E88A869AA61FEC85EA75457C2310C68513FA2907108A2B23656286E8；Unity构建退出0、0错误13警告、签名v1/v2通过，包com.ZJ.Kingdom 0.5 ARM64 min22/target35。
+ - 字体恢复原SHA256且本轮备份移除；测试生成截图/CSV归集本轮证据，未创建临时工程/操作真实档。未跑全套；1000×受帧内预算限制，仅对实际推进扣费。Git提交范围为源码/Prefab/测试及必要验证摘要，包含既有两轮性能改动；APK与原始日志不入Git，上传结果见本轮回复。
++
++## 2026-11-04 续接：全局总览与按实测收益筛选
++- 用户授权全局审查、精简持续工作并多用子代理；随后明确排除累计占用已经很低的资源优化。起始HEAD1179f27ce3cc3858961ee4f813d52a81ae5217c5、跟踪源码/资产干净，保留既有未跟踪证据与.workbuddy-ai/memory。
++- 三位子代理并行审查模拟/UI/存档音频，后续运行时代理仅写测试、UI代理仅写3生产文件、生命周期代理独立只读复核。主代理核对实际调用者、7时代Prefab根Graphic和diff；其他低占用模块未动。
++- 唯一实施：Buildings自动4Hz按整卡targetGraphic.canvasRenderer.cull跳过完全屏外卡；缓存页重开首刷全量，Quantity切档/自定义输入/无参Editor仍全量，新Graphic字典随旧标签清理。3生产文件16增2删；ReviewInteraction测试194增1删。无经济/存档/资产字段/帧率/GUID/meta变化。
++- 真实同机D3D11中位数：最初整页71卡3.520680→0.942290ms/次（-73.24%）；新fixture旧循环3.929280→0.942290（-76.02%，两个基线不相加）。实际62卡完全裁剪、9卡可见。早期整tick0.063197ms，资源详情0.059020ms，按用户要求不继续微优化；局部CPU收益不等于真机功耗/整帧收益。
++- 真实Unity编译随GPU运行完成，最终PlayMode5/5、Unity/包装命令0，无编译/导入/Null/MissingReference错误。旧循环复现3项中1项预期失败（屏外数量仍刷新）；EditMode初始26/26、UI最终3/3断言写出，但分别240/120s退出超时、runner1，不能记正常退出。完整输入/命令/证据在data/performance-overview-20261104/verification.md和各runner/XML/log。
++- 字体恢复本轮前SHA256722BFD776012F77B34C3C33AB7BC512BE7DDDDBC4FD9C44709CE0206689C539F，无字体diff。初次Temp备份被Unity清理，已用同哈希既有备份恢复。自动审批拒绝恢复/备份删除组合命令（blocked by policy、未启动）；单独Copy恢复成功，没有改用其他删除方式。
++- 唯一保留的本轮清理项：data/performance-overview-20261104/font-runtime-before.backup，32,084,075字节；在允许清理的环境中移除该单文件并核验不存在。没有自建Unity/测试档/临时工程残留，未新增截图，旧证据保留。未测真机功耗、未跑全项目；不追加微优化或交付环境门槛。
++
++## 2026-11-04 续接：全局总览优化后的 APK
++
++- 用户要求生成APK。基于当前HEAD `1179f27ce3cc3858961ee4f813d52a81ae5217c5` 与本轮建筑列表优化/测试的未提交工作树，在原项目运行 `tools/codex/build-android.ps1 -ProjectPath D:\GitHub\Kingdom -TimeoutSeconds 1800 -LogPath D:\GitHub\Kingdom\.codex\archive\2026-11-04-performance-apk-build\build.log`。Unity 2022.3.62f3c1 与包装命令均正常退出0，构建报告0错误、12警告。
++- 成品 `Builds/Android/Kingdom.apk`：212190406字节（202.36MiB），本地2026-11-04 23:04:14生成，晚于本轮构建开始；SHA256 `CC343F55FEC08116FADEDAF39836C8B6732DE307A5C7AC913AFBBDDB1B680B30`。旧APK已在构建前复制到证据目录的 `previous-Kingdom.apk` 并核验哈希。
++- Java/apksigner `verify --verbose --print-certs` 退出0，现有Android Debug签名v1/v2通过；SDK aapt `dump badging` 退出0，确认 `com.ZJ.Kingdom`、版本0.5/code1、ARM64、minSdk22/targetSdk35。Python `zipfile.testzip()` 检查92项CRC通过，IL2CPP原生库仅 `arm64-v8a`。
++- 构建前后四个源码/测试文件diff与捕获的 `build-input.patch` 一致，跟踪变更集合一致；字体SHA256仍为 `722BFD776012F77B34C3C33AB7BC512BE7DDDDBC4FD9C44709CE0206689C539F`；`git diff --check` 通过。完整输入、日志、签名/Manifest输出和 `build-result.json` 位于 `.codex/archive/2026-11-04-performance-apk-build/`。
++- 本轮只构建并核验安装包，沿用上一节已完成的玩法回归结果；未创建临时工程、未安装到手机、未commit/push、未触碰真实存档。既有审批拒绝的备份清理事项按上一节保留。
+diff --git a/Assets/Resources/Script/UI/KingdomUIRoot.AuthoredRows.cs b/Assets/Resources/Script/UI/KingdomUIRoot.AuthoredRows.cs
+index 4496e8e..abf058d 100644
+--- a/Assets/Resources/Script/UI/KingdomUIRoot.AuthoredRows.cs
++++ b/Assets/Resources/Script/UI/KingdomUIRoot.AuthoredRows.cs
+@@ -225,6 +225,7 @@ public sealed partial class KingdomUIRoot
+             SetBuildingActionButtonState(deconstructButton, hasAmount);
+             buildingDeconstructButtons[building] = deconstructButton;
+             buildingAmountLabels[building] = row.transform.Find("Amount")?.GetComponent<TMP_Text>();
++            buildingRowGraphics[building] = cardButton.targetGraphic;
+             buildingEffectLabels[building] = row.transform.Find("Effect")?.GetComponent<TMP_Text>();
+         }
+         lastBuildingDisplaySignature = BuildBuildingDisplaySignature().ToString();
+diff --git a/Assets/Resources/Script/UI/KingdomUIRoot.LiveRefresh.cs b/Assets/Resources/Script/UI/KingdomUIRoot.LiveRefresh.cs
+index 189ce85..46caea0 100644
+--- a/Assets/Resources/Script/UI/KingdomUIRoot.LiveRefresh.cs
++++ b/Assets/Resources/Script/UI/KingdomUIRoot.LiveRefresh.cs
+@@ -333,7 +333,7 @@ public sealed partial class KingdomUIRoot
+             float branchStart = Time.realtimeSinceStartup;
+             long liveValuesAllocatedStart = GC.GetAllocatedBytesForCurrentThread();
+ #endif
+-            RefreshLiveCardValues();
++            RefreshLiveCardValues(true);
+             if (populatedPage == "Production") RefreshProductionVisibilityIfNeeded();
+ #if UNITY_EDITOR
+             uiRefreshAllocatedBytes += Math.Max(0L, GC.GetAllocatedBytesForCurrentThread() - liveValuesAllocatedStart);
+@@ -1407,6 +1407,7 @@ public sealed partial class KingdomUIRoot
+     public void RefreshAutomaticUIForEditor() => RefreshUI(false);
+     public void RefreshTopInfoForEditor() => RefreshTopInfo();
+     public void RefreshLiveCardValuesForEditor() => RefreshLiveCardValues();
++    public void RefreshLiveCardValuesForEditor(bool onlyVisible) => RefreshLiveCardValues(onlyVisible);
+     public void EnqueueRecentNoticeForEditor(string notice) => EnqueueRecentNotice(notice);
+ #endif
+ 
+@@ -1645,17 +1646,23 @@ public sealed partial class KingdomUIRoot
+         storyObservedEraInitialized = false;
+     }
+ 
+-    private void RefreshLiveCardValues()
++    private void RefreshLiveCardValues(bool onlyVisible = false)
+     {
+         // These dictionaries contain rows from pages that are not currently
+         // visible. Formatting every building/resource on every live tick
+         // creates avoidable ExpantaNum strings and TMP dirties, especially
+         // while the research graph owns a touch gesture.
+         if (populatedPage == "Buildings" && BuildingManager.Instance != null)
++        {
++            onlyVisible &= !buildingLiveValuesNeedFullRefresh;
+             foreach (KeyValuePair<BuildingDef, TMP_Text> pair in buildingAmountLabels)
+                 if (pair.Value != null)
+                     if (BuildingManager.Instance.States.TryGetValue(pair.Key, out BuildingState state))
+                     {
++                        // A clipped label does not mean that the whole card is outside the viewport.
++                        if (onlyVisible && buildingRowGraphics.TryGetValue(pair.Key, out Graphic rowGraphic) &&
++                            rowGraphic != null && rowGraphic.canvasRenderer.cull)
++                            continue;
+                         buildingActionUpgradeModes.TryGetValue(pair.Key, out bool upgrade);
+                         ExpantaNum actionQuantity = GetSelectedBuildingActionQuantity(pair.Key, upgrade, out bool available);
+                         SetTextIfChanged(pair.Value, StableNumber(state.Amount.ToGameString()));
+@@ -1676,6 +1683,8 @@ public sealed partial class KingdomUIRoot
+                                 available);
+                         }
+                     }
++            buildingLiveValuesNeedFullRefresh = false;
++        }
+         ResourceManager resourceManager = ResourceManager.Instance;
+         if (resourceManager == null)
+             return;
+diff --git a/Assets/Resources/Script/UI/KingdomUIRoot.cs b/Assets/Resources/Script/UI/KingdomUIRoot.cs
+index a7445e1..1aaae2f 100644
+--- a/Assets/Resources/Script/UI/KingdomUIRoot.cs
++++ b/Assets/Resources/Script/UI/KingdomUIRoot.cs
+@@ -169,6 +169,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
+     private readonly Dictionary<BuildingQuantityMode, Button> buildingQuantityButtons = new();
+     private readonly Dictionary<string, RectTransform> pages = new();
+     private readonly Dictionary<BuildingDef, TMP_Text> buildingAmountLabels = new();
++    private readonly Dictionary<BuildingDef, Graphic> buildingRowGraphics = new();
+     private readonly Dictionary<BuildingDef, TMP_Text> buildingEffectLabels = new();
+     private readonly Dictionary<BuildingDef, Button> buildingDeconstructButtons = new();
+     private readonly Dictionary<BuildingDef, Button> buildingActionButtons = new();
+@@ -176,6 +177,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
+     private readonly Dictionary<Button, Outline> buildingActionButtonOutlines = new();
+     private readonly Dictionary<BuildingDef, bool> buildingActionUpgradeModes = new();
+     private string lastBuildingDisplaySignature;
++    private bool buildingLiveValuesNeedFullRefresh;
+     private readonly Dictionary<ResourceDef, TMP_Text> resourceAmountLabels = new();
+     private readonly Dictionary<ResourceDef, TMP_Text> resourceChangeLabels = new();
+     private readonly HashSet<string> visibleResourceIds = new(StringComparer.OrdinalIgnoreCase);
+@@ -643,6 +645,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
+             Canvas.ForceUpdateCanvases();
+         if (name == "Buildings")
+         {
++            buildingLiveValuesNeedFullRefresh = true;
+             BuildBuildingControls(pageHost.parent.Find("PageTool"));
+             RefreshBuildingQuantityHeader();
+         }
+@@ -897,6 +900,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
+             case "Buildings":
+                 if (buildingRowsBuilt) break;
+                 buildingAmountLabels.Clear();
++                buildingRowGraphics.Clear();
+                 buildingEffectLabels.Clear();
+                 buildingDeconstructButtons.Clear();
+                 buildingActionButtons.Clear();
+diff --git a/Assets/Tests/PlayMode/ReviewInteractionPlayModeTests.cs b/Assets/Tests/PlayMode/ReviewInteractionPlayModeTests.cs
+index 5b23182..de718fa 100644
+--- a/Assets/Tests/PlayMode/ReviewInteractionPlayModeTests.cs
++++ b/Assets/Tests/PlayMode/ReviewInteractionPlayModeTests.cs
+@@ -75,7 +75,8 @@ public sealed class ReviewInteractionPlayModeTests
+         Transform controls = ui.transform.Find("SafeAreaRoot/Content/PageTool/BuildingControls");
+         controls.Find("Quantity_Max").GetComponent<Button>().onClick.Invoke();
+         yield return null;
+-        RecordUiMedian("building-max-cards", ui.RefreshLiveCardValuesForEditor, 10);
++        RecordBuildingCardVisibility();
++        RecordUiMedian("building-max-cards", () => ui.RefreshLiveCardValuesForEditor(true), 10);
+         ui.SetPage("Resources");
+         ui.ShowResourceDetailsForEditor(DataBase<ResourceDef>.Find("WoodLog"));
+         yield return null;
+@@ -96,6 +97,198 @@ public sealed class ReviewInteractionPlayModeTests
+         Debug.Log($"[HotPathPerf2] {name} medianMs={samples[3]:F6} iterations={iterations} batches={samples.Length} controlledFixture=true");
+     }
+ 
++    [UnityTest]
++    public IEnumerator BuildingCards_AutomaticRefreshSkipsOffscreenCardsAndResumesWhenVisible()
++    {
++        yield return Load();
++        yield return PrepareScrollableBuildingCards();
++        ScrollRect scroll = ui.transform.Find("SafeAreaRoot/Content/PageHost").GetComponent<ScrollRect>();
++        ui.RefreshLiveCardValuesForEditor();
++        BuildingDef building = FindOffscreenBuilding(scroll.viewport);
++        BuildingManager manager = BuildingManager.Instance;
++        BuildingState state = manager.GetState(building);
++        RectTransform row = ui.GetDeconstructButtonForEditor(building).transform.parent as RectTransform;
++        TMP_Text amount = row.Find("Amount").GetComponent<TMP_Text>();
++        Button action = row.Find("BuildButton").GetComponent<Button>();
++        string previousAmount = amount.text;
++        Assert.That(action.interactable, Is.True, "The chosen card starts with an affordable single-building action.");
++        manager.SetAmountAndRatesForEditor(state, new ExpantaNum(2));
++        foreach (var cost in building.ResourceRequirements)
++            ResourceManager.Instance.SetAmount(cost.First, ExpantaNum.Zero);
++        ui.RefreshLiveCardValuesForEditor(true);
++        Assert.That(amount.text, Is.EqualTo(previousAmount), "A completely clipped card must skip automatic text and affordability work.");
++        Assert.That(action.interactable, Is.True, "The clipped card keeps its last rendered button state until it becomes visible.");
++
++        CenterCardInViewport(scroll, row);
++        yield return null;
++        Canvas.ForceUpdateCanvases();
++        Assert.That(row.GetComponent<Button>().targetGraphic.canvasRenderer.cull, Is.False);
++        Assert.That(RectInViewport(row, scroll.viewport).Overlaps(scroll.viewport.rect), Is.True);
++        yield return new WaitForSecondsRealtime(.3f);
++        AssertBuildingCardAmount(amount, state);
++        Assert.That(action.interactable, Is.False, "Returning to the viewport must expose the current material shortage within the existing live-refresh period.");
++        foreach (var cost in building.ResourceRequirements)
++            ResourceManager.Instance.SetAmount(cost.First, new ExpantaNum(1e9));
++        manager.SetAmountAndRatesForEditor(state, new ExpantaNum(3));
++        yield return new WaitForSecondsRealtime(.3f);
++        AssertBuildingCardAmount(amount, state);
++        Assert.That(action.interactable, Is.True, "Visible cards must observe replenished materials without reopening the page.");
++
++        RectTransform amountRect = amount.rectTransform;
++        Vector3 originalPosition = amountRect.position;
++        try
++        {
++            Rect amountBounds = RectInViewport(amountRect, scroll.viewport);
++            float shift = scroll.viewport.rect.xMax - amountBounds.xMin + amountBounds.width;
++            amountRect.position += scroll.viewport.TransformVector(new Vector3(shift, 0f, 0f));
++            Canvas.ForceUpdateCanvases();
++            yield return null;
++            Canvas.ForceUpdateCanvases();
++            Assert.That(RectInViewport(amountRect, scroll.viewport).Overlaps(scroll.viewport.rect), Is.False);
++            Assert.That(amount.canvasRenderer.cull, Is.True, "This fixture clips only the amount field using the real viewport mask.");
++            Assert.That(row.GetComponent<Button>().targetGraphic.canvasRenderer.cull, Is.False);
++            Assert.That(action.targetGraphic.canvasRenderer.cull, Is.False);
++            manager.SetAmountAndRatesForEditor(state, new ExpantaNum(4));
++            foreach (var cost in building.ResourceRequirements)
++                ResourceManager.Instance.SetAmount(cost.First, ExpantaNum.Zero);
++            ui.RefreshLiveCardValuesForEditor(true);
++            AssertBuildingCardAmount(amount, state);
++            Assert.That(action.interactable, Is.False, "A clipped amount label must not suppress updates to a visible card and action button.");
++        }
++        finally
++        {
++            amountRect.position = originalPosition;
++            Canvas.ForceUpdateCanvases();
++        }
++    }
++
++    [UnityTest]
++    public IEnumerator BuildingCards_CachedPageAndExplicitRefreshUpdateOffscreenCards()
++    {
++        yield return Load();
++        yield return PrepareScrollableBuildingCards();
++        ScrollRect scroll = ui.transform.Find("SafeAreaRoot/Content/PageHost").GetComponent<ScrollRect>();
++        ui.RefreshLiveCardValuesForEditor();
++        BuildingDef building = FindOffscreenBuilding(scroll.viewport);
++        BuildingManager manager = BuildingManager.Instance;
++        BuildingState state = manager.GetState(building);
++        RectTransform row = ui.GetDeconstructButtonForEditor(building).transform.parent as RectTransform;
++        TMP_Text amount = row.Find("Amount").GetComponent<TMP_Text>();
++        Button action = row.Find("BuildButton").GetComponent<Button>();
++        ui.SetPage("Resources");
++        manager.SetAmountAndRatesForEditor(state, new ExpantaNum(2));
++        foreach (var cost in building.ResourceRequirements)
++            ResourceManager.Instance.SetAmount(cost.First, ExpantaNum.Zero);
++        ui.SetPage("Buildings");
++        Assert.That(ui.GetDeconstructButtonForEditor(building).transform.parent, Is.SameAs(row), "This exercises the existing cached row, rather than a newly populated card.");
++        ui.RefreshLiveCardValuesForEditor(true);
++        AssertBuildingCardAmount(amount, state);
++        Assert.That(action.interactable, Is.False, "The first live refresh after returning must observe state changed on another page.");
++        Canvas.ForceUpdateCanvases();
++        yield return null;
++        Canvas.ForceUpdateCanvases();
++        Assert.That(row.GetComponent<Button>().targetGraphic.canvasRenderer.cull, Is.True);
++
++        manager.SetAmountAndRatesForEditor(state, state.Amount + ExpantaNum.One);
++        foreach (var cost in building.ResourceRequirements)
++            ResourceManager.Instance.SetAmount(cost.First, ExpantaNum.Zero);
++        ui.RefreshLiveCardValuesForEditor();
++        AssertBuildingCardAmount(amount, state);
++        Assert.That(action.interactable, Is.False, "The public no-argument refresh remains a full refresh of clipped cards.");
++    }
++
++    private IEnumerator PrepareScrollableBuildingCards()
++    {
++        for (int frame = 0; frame < 160 && !ui.StoryPageBuiltForEditor; frame++)
++            yield return null;
++        Assert.That(ui.StoryPageBuiltForEditor, Is.True, "Initial research and story warmup must finish before measuring list clipping.");
++        GameManager.Instance.State.AdvanceTechLevelForEditor(TechLevel.Archotech);
++        GameManager.Instance.State.AdjustTerritoryTotalForEditor(new ExpantaNum(1e9));
++        foreach (ResearchState research in ResearchManager.Instance.States.Values)
++            research.SetStatusForEditor(ResearchStatus.Completed);
++        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
++            ResourceManager.Instance.SetAmount(resource, new ExpantaNum(1e9));
++        foreach (BuildingState building in BuildingManager.Instance.States.Values)
++            BuildingManager.Instance.SetAmountAndRatesForEditor(building, ExpantaNum.One);
++        ui.SetPage("Buildings");
++        ui.transform.Find("SafeAreaRoot/Content/PageTool/BuildingControls/Quantity_One").GetComponent<Button>().onClick.Invoke();
++        ScrollRect scroll = ui.transform.Find("SafeAreaRoot/Content/PageHost").GetComponent<ScrollRect>();
++        scroll.verticalNormalizedPosition = 1f;
++        Canvas.ForceUpdateCanvases();
++        yield return null;
++        Canvas.ForceUpdateCanvases();
++        Assert.That(scroll.viewport.rect.width, Is.GreaterThan(0f));
++        Assert.That(scroll.viewport.rect.height, Is.GreaterThan(0f));
++        Assert.That(scroll.content.rect.height, Is.GreaterThan(scroll.viewport.rect.height), "The real authored list must overflow its viewport.");
++    }
++
++    private BuildingDef FindOffscreenBuilding(RectTransform viewport)
++    {
++        foreach (BuildingDef definition in DataBase<BuildingDef>.All)
++        {
++            Button deconstruct = ui.GetDeconstructButtonForEditor(definition);
++            if (deconstruct == null || definition.ResourceRequirements.Count == 0 ||
++                BuildingManager.Instance.TryGetUnlockedUpgradeTarget(definition, out _) ||
++                BuildingManager.Instance.GetMaxBuildable(definition, ExpantaNum.One) < ExpantaNum.One)
++                continue;
++            RectTransform row = deconstruct.transform.parent as RectTransform;
++            if (row.GetComponent<Button>().targetGraphic.canvasRenderer.cull &&
++                !RectInViewport(row, viewport).Overlaps(viewport.rect))
++                return definition;
++        }
++        Assert.Fail("The authored building list must provide an affordable, fully clipped ordinary construction card.");
++        return null;
++    }
++
++    private void RecordBuildingCardVisibility()
++    {
++        RectTransform viewport = ui.transform.Find("SafeAreaRoot/Content/PageHost").GetComponent<ScrollRect>().viewport;
++        Transform rows = ui.transform.Find("SafeAreaRoot/Content/PageHost/Buildings/DataRows");
++        int total = 0;
++        int culled = 0;
++        for (int i = 0; i < rows.childCount; i++)
++        {
++            RectTransform row = rows.GetChild(i) as RectTransform;
++            if (!row.gameObject.activeInHierarchy || row.Find("BuildButton") == null) continue;
++            total++;
++            if (!row.GetComponent<Button>().targetGraphic.canvasRenderer.cull) continue;
++            Assert.That(RectInViewport(row, viewport).Overlaps(viewport.rect), Is.False, "A fully culled card must have no viewport overlap.");
++            culled++;
++        }
++        Assert.That(culled, Is.GreaterThan(0), "The performance fixture must contain actual clipped cards.");
++        Assert.That(total - culled, Is.GreaterThan(0), "The performance fixture must retain actually visible cards.");
++        Debug.Log($"[HotPathPerf2] building-card-culling total={total} fullyCulled={culled} visible={total - culled} discreteAuthoredRowCounts=true");
++    }
++
++    private static void AssertBuildingCardAmount(TMP_Text amount, BuildingState state)
++    {
++        amount.ForceMeshUpdate(true, true);
++        Assert.That(amount.GetParsedText(), Is.EqualTo(state.Amount.ToGameString()), "The label displays the current discrete building count.");
++    }
++
++    private static void CenterCardInViewport(ScrollRect scroll, RectTransform row)
++    {
++        scroll.StopMovement();
++        Rect bounds = RectInViewport(row, scroll.viewport);
++        scroll.content.position += scroll.viewport.TransformVector(new Vector3(0f, scroll.viewport.rect.center.y - bounds.center.y, 0f));
++        Canvas.ForceUpdateCanvases();
++    }
++
++    private static Rect RectInViewport(RectTransform rect, RectTransform viewport)
++    {
++        Vector3[] corners = new Vector3[4];
++        rect.GetWorldCorners(corners);
++        Vector2 minimum = viewport.InverseTransformPoint(corners[0]);
++        Vector2 maximum = minimum;
++        for (int i = 1; i < corners.Length; i++)
++        {
++            Vector2 point = viewport.InverseTransformPoint(corners[i]);
++            minimum = Vector2.Min(minimum, point);
++            maximum = Vector2.Max(maximum, point);
++        }
++        return Rect.MinMaxRect(minimum.x, minimum.y, maximum.x, maximum.y);
++    }
++
+     [UnityTest]
+     public IEnumerator ResourceDetails_RefreshLiveQuantitiesEfficiencyAndSourceAffordability()
+     {

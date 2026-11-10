@@ -1,0 +1,15 @@
+[
+  "-batchmode",
+  "-force-d3d11",
+  "-projectPath",
+  "D:/GitHub/Kingdom",
+  "-runTests",
+  "-testPlatform",
+  "EditMode",
+  "-testFilter",
+  "C6IndustrialContentTests.IndustrialFootprintsRequireAMaterialShareOfTheAvailableLand;C6IndustrialContentTests.IndustrialRefiningHasMaterialLossAndPreservesTheSteelUpgrade;C6IndustrialContentTests.AdvancedMetalRefiningUpgradeKeepsOneInventoryAndProductivityEfficiency;C6IndustrialContentTests.C606_IndustrialPowerAndLogisticsRolesRemainDistinct;LateFactoryConsolidationTests;ResourceContinuityTests;EconomyIntegrationRegressionTests.PhantomSupplyCanBeRebuiltAfterItsLastFactoryWasUpgraded;EconomyIntegrationRegressionTests.EmptyOilChainCanRestartFromANewMaterialFreeWellAfterAllOldWellsWereUpgraded;EconomyIntegrationRegressionTests.FinalIndustrialChains_UpgradeTransactionsAndSaveJsonRemainValid;EconomyIntegrationRegressionTests.FinalMaterialChain_SixOperationStatesRetainAuthoredFlows;EconomyIntegrationRegressionTests.MachineFactory_CompletedResearchAllowsConstructionWithoutPrecisionTooling;EconomyIntegrationRegressionTests.ChemicalPlant_RocketFuelWaitsForOrbitalEngineeringAndStartsInExistingPlant;BuildingCostGrowthTests;ContentProgressionValidatorTests;C6IndustrialClosureAuditTests;GlobalEconomyDefinitionTests;BuildingVerticalSliceTests;FlowEfficiencyTests;AdvancedMaterialProgressionTests;UltraContentSliceTests",
+  "-testResults",
+  "D:/GitHub/Kingdom/data/industrial-feedback-20261110/economy-rebalance/edit-targeted.xml",
+  "-logFile",
+  "D:/GitHub/Kingdom/data/industrial-feedback-20261110/economy-rebalance/edit-targeted.log"
+]

@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="80" result="Passed" total="80" passed="80" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:40Z" duration="0.8999467">
+  <test-suite type="TestSuite" id="2306" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="1126" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:40Z" duration="0.899947" total="80" passed="80" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="3602" name="Assembly-CSharp-Editor.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="1125" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:40Z" duration="0.869368" total="80" passed="80" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="26228" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestFixture" id="2342" name="BuildingCostGrowthTests" fullname="BuildingCostGrowthTests" classname="BuildingCostGrowthTests" runstate="Runnable" testcasecount="19" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:39Z" duration="0.389964" total="19" passed="19" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2358" name="AgricultureCompletion_MakesFarmAvailableToBuildingMenu" fullname="BuildingCostGrowthTests.AgricultureCompletion_MakesFarmAvailableToBuildingMenu" methodname="AgricultureCompletion_MakesFarmAvailableToBuildingMenu" classname="BuildingCostGrowthTests" runstate="Runnable" seed="974396384" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:39Z" duration="0.323391" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2351" name="AllBuildings_DoNotSerializeTheSameResourceAsProductionAndConsumption" fullname="BuildingCostGrowthTests.AllBuildings_DoNotSerializeTheSameResourceAsProductionAndConsumption" methodname="AllBuildings_DoNotSerializeTheSameResourceAsProductionAndConsumption" classname="BuildingCostGrowthTests" runstate="Runnable" seed="1054706004" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:39Z" duration="0.001037" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2350" name="BuildingChain_AllowsMultipleBranchesToShareOneUpgradeTarget" fullname="BuildingCostGrowthTests.BuildingChain_AllowsMultipleBranchesToShareOneUpgradeTarget" methodname="BuildingChain_AllowsMultipleBranchesToShareOneUpgradeTarget" classname="BuildingCostGrowthTests" runstate="Runnable" seed="908275523" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:39Z" duration="0.000540" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2354" name="BuildingChain_FourZeroTiersDisplaysOnlyHighestAvailableTier" fullname="BuildingCostGrowthTests.BuildingChain_FourZeroTiersDisplaysOnlyHighestAvailableTier" methodname="BuildingChain_FourZeroTiersDisplaysOnlyHighestAvailableTier" classname="BuildingCostGrowthTests" runstate="Runnable" seed="928626113" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:39Z" duration="0.002756" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2355" name="BuildingChain_KeepsLowerSourceAndShowsHighestZeroTier" fullname="BuildingCostGrowthTests.BuildingChain_KeepsLowerSourceAndShowsHighestZeroTier" methodname="BuildingChain_KeepsLowerSourceAndShowsHighestZeroTier" classname="BuildingCostGrowthTests" runstate="Runnable" seed="11294776" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:39Z" duration="0.001506" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2356" name="BuildingChain_PreservesNonZeroSourcesAndTargetsHighestAvailableTier" fullname="BuildingCostGrowthTests.BuildingChain_PreservesNonZeroSourcesAndTargetsHighestAvailableTier" methodname="BuildingChain_PreservesNonZeroSourcesAndTargetsHighestAvailableTier" classname="BuildingCostGrowthTests" runstate="Runnable" seed="708913718" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:39Z" duration="0.005415" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2353" name="BuildingChainIndex_PreservesAllSharedTargetPredecessors" fullname="BuildingCostGrowthTests.BuildingChainIndex_PreservesAllSharedTargetPredecessors" methodname="BuildingChainIndex_PreservesAllSharedTargetPredecessors" classname="BuildingCostGrowthTests" runstate="Runnable" seed="1457131054" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:39Z" duration="0.001718" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2352" name="BuildingDefinition_RejectsUnmergedOpposingResourceFlows" fullname="BuildingCostGrowthTests.BuildingDefinition_RejectsUnmergedOpposingResourceFlows" methodname="BuildingDefinition_RejectsUnmergedOpposingResourceFlows" classname="BuildingCostGrowthTests" runstate="Runnable" seed="1539112638" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:39Z" duration="0.004915" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2357" name="BuildingManager_ChargesGrowthAndRefundsLastBatch" fullname="BuildingCostGrowthTests.BuildingManager_ChargesGrowthAndRefundsLastBatch" methodname="BuildingManager_ChargesGrowthAndRefundsLastBatch" classname="BuildingCostGrowthTests" runstate="Runnable" seed="1810620547" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:39Z" duration="0.017418" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="2361" name="BuildingTransaction_RejectsSingleUnitChangeThatCannotChangeHugeCount" fullname="BuildingCostGrowthTests.BuildingTransaction_RejectsSingleUnitChangeThatCannotChangeHugeCount" classname="BuildingCostGrowthTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:39Z" duration="0.006627" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2359" name="BuildingTransaction_RejectsSingleUnitChangeThatCannotChangeHugeCount(False)" fullname="BuildingCostGrowthTests.BuildingTransaction_RejectsSingleUnitChangeThatCannotChangeHugeCount(False)" methodname="BuildingTransaction_RejectsSingleUnitChangeThatCannotChangeHugeCount" classname="BuildingCostGrowthTests" runstate="Runnable" seed="60660758" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:39Z" duration="0.003945" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2360" name="BuildingTransaction_RejectsSingleUnitChangeThatCannotChangeHugeCount(True)" fullname="BuildingCostGrowthTests.BuildingTransaction_RejectsSingleUnitChangeThatCannotChangeHugeCount(True)" methodname="BuildingTransaction_RejectsSingleUnitChangeThatCannotChangeHugeCount" classname="BuildingCostGrowthTests" runstate="Runnable" seed="641825998" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:39Z" duration="0.000651" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-suite type="ParameterizedMethod" id="2364" name="BuildingUpgrade_RejectsSingleUnitChangeThatCannotChangeEitherHugeCount" fullname="BuildingCostGrowthTests.BuildingUpgrade_RejectsSingleUnitChangeThatCannotChangeEitherHugeCount" classname="BuildingCostGrowthTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:39Z" duration="0.004287" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2362" name="BuildingUpgrade_RejectsSingleUnitChangeThatCannotChangeEitherHugeCount(False)" fullname="BuildingCostGrowthTests.BuildingUpgrade_RejectsSingleUnitChangeThatCannotChangeEitherHugeCount(False)" methodname="BuildingUpgrade_RejectsSingleUnitChangeThatCannotChangeEitherHugeCount" classname="BuildingCostGrowthTests" runstate="Runnable" seed="262661412" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:39Z" duration="0.003254" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2363" name="BuildingUpgrade_RejectsSingleUnitChangeThatCannotChangeEitherHugeCount(True)" fullname="BuildingCostGrowthTests.BuildingUpgrade_RejectsSingleUnitChangeThatCannotChangeEitherHugeCount(True)" methodname="BuildingUpgrade_RejectsSingleUnitChangeThatCannotChangeEitherHugeCount" classname="BuildingCostGrowthTests" runstate="Runnable" seed="1699029670" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:39Z" duration="0.000441" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="2343" name="GeometricSeriesCost_UsesOwnedOffset" fullname="BuildingCostGrowthTests.GeometricSeriesCost_UsesOwnedOffset" methodname="GeometricSeriesCost_UsesOwnedOffset" classname="BuildingCostGrowthTests" runstate="Runnable" seed="1540572286" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:39Z" duration="0.000233" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="2349" name="MaxAffordableGeometricSeries_RemainsFiniteAtHugeCurrency" fullname="BuildingCostGrowthTests.MaxAffordableGeometricSeries_RemainsFiniteAtHugeCurrency" classname="BuildingCostGrowthTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:39Z" duration="0.006921" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2345" name="MaxAffordableGeometricSeries_RemainsFiniteAtHugeCurrency(1.0d)" fullname="BuildingCostGrowthTests.MaxAffordableGeometricSeries_RemainsFiniteAtHugeCurrency(1.0d)" methodname="MaxAffordableGeometricSeries_RemainsFiniteAtHugeCurrency" classname="BuildingCostGrowthTests" runstate="Runnable" seed="903816612" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:39Z" duration="0.004296" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2346" name="MaxAffordableGeometricSeries_RemainsFiniteAtHugeCurrency(1.14d)" fullname="BuildingCostGrowthTests.MaxAffordableGeometricSeries_RemainsFiniteAtHugeCurrency(1.14d)" methodname="MaxAffordableGeometricSeries_RemainsFiniteAtHugeCurrency" classname="BuildingCostGrowthTests" runstate="Runnable" seed="508480388" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:39Z" duration="0.001540" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2347" name="MaxAffordableGeometricSeries_RemainsFiniteAtHugeCurrency(1.15d)" fullname="BuildingCostGrowthTests.MaxAffordableGeometricSeries_RemainsFiniteAtHugeCurrency(1.15d)" methodname="MaxAffordableGeometricSeries_RemainsFiniteAtHugeCurrency" classname="BuildingCostGrowthTests" runstate="Runnable" seed="446435714" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:39Z" duration="0.000127" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2348" name="MaxAffordableGeometricSeries_RemainsFiniteAtHugeCurrency(1.22d)" fullname="BuildingCostGrowthTests.MaxAffordableGeometricSeries_RemainsFiniteAtHugeCurrency(1.22d)" methodname="MaxAffordableGeometricSeries_RemainsFiniteAtHugeCurrency" classname="BuildingCostGrowthTests" runstate="Runnable" seed="215671613" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:39Z" duration="0.000105" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="2344" name="MaxAffordableGeometricSeries_ReturnsExactBoundary" fullname="BuildingCostGrowthTests.MaxAffordableGeometricSeries_ReturnsExactBoundary" methodname="MaxAffordableGeometricSeries_ReturnsExactBoundary" classname="BuildingCostGrowthTests" runstate="Runnable" seed="626753356" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:39Z" duration="0.000296" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2558" name="FlowEfficiencyTests" fullname="FlowEfficiencyTests" classname="FlowEfficiencyTests" runstate="Runnable" testcasecount="17" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:40Z" duration="0.009908" total="17" passed="17" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="ParameterizedMethod" id="2562" name="BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues" fullname="FlowEfficiencyTests.BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues" classname="FlowEfficiencyTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:39Z" duration="0.002197" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2559" name="BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues(-9.0d)" fullname="FlowEfficiencyTests.BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues(-9.0d)" methodname="BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues" classname="FlowEfficiencyTests" runstate="Runnable" seed="206693470" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:39Z" duration="0.001200" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2560" name="BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues(0.0d)" fullname="FlowEfficiencyTests.BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues(0.0d)" methodname="BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues" classname="FlowEfficiencyTests" runstate="Runnable" seed="270693455" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:39Z" duration="0.000110" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2561" name="BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues(9.0d)" fullname="FlowEfficiencyTests.BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues(9.0d)" methodname="BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues" classname="FlowEfficiencyTests" runstate="Runnable" seed="34242578" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:39Z" duration="0.000099" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="2571" name="FlowSatisfaction_UsesProductionAgainstDemandWithoutInventory" fullname="FlowEfficiencyTests.FlowSatisfaction_UsesProductionAgainstDemandWithoutInventory" methodname="FlowSatisfaction_UsesProductionAgainstDemandWithoutInventory" classname="FlowEfficiencyTests" runstate="Runnable" seed="1392317022" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:39Z" duration="0.001812" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2572" name="HappinessCurveIsMonotonicAndBounded" fullname="FlowEfficiencyTests.HappinessCurveIsMonotonicAndBounded" methodname="HappinessCurveIsMonotonicAndBounded" classname="FlowEfficiencyTests" runstate="Runnable" seed="592842459" result="Passed" start-time="2026-11-04 05:15:39Z" end-time="2026-11-04 05:15:40Z" duration="0.000830" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2574" name="HappinessOwnsFoodShortagePenalty" fullname="FlowEfficiencyTests.HappinessOwnsFoodShortagePenalty" methodname="HappinessOwnsFoodShortagePenalty" classname="FlowEfficiencyTests" runstate="Runnable" seed="764442217" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000375" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2577" name="HappinessWithZeroPopulationIsSafe" fullname="FlowEfficiencyTests.HappinessWithZeroPopulationIsSafe" methodname="HappinessWithZeroPopulationIsSafe" classname="FlowEfficiencyTests" runstate="Runnable" seed="715065533" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000189" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2575" name="MedicalHappinessBonusOnlyAppliesWhenFoodIsAvailable" fullname="FlowEfficiencyTests.MedicalHappinessBonusOnlyAppliesWhenFoodIsAvailable" methodname="MedicalHappinessBonusOnlyAppliesWhenFoodIsAvailable" classname="FlowEfficiencyTests" runstate="Runnable" seed="1296586216" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000362" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2576" name="MedicalHappinessBonusSharesTheExistingUpperBound" fullname="FlowEfficiencyTests.MedicalHappinessBonusSharesTheExistingUpperBound" methodname="MedicalHappinessBonusSharesTheExistingUpperBound" classname="FlowEfficiencyTests" runstate="Runnable" seed="1464583456" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000189" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="2570" name="MigratedBuildingUsesOneAuthoredSignedContribution" fullname="FlowEfficiencyTests.MigratedBuildingUsesOneAuthoredSignedContribution" classname="FlowEfficiencyTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.001708" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2563" name="MigratedBuildingUsesOneAuthoredSignedContribution(&quot;DeepSpaceRelay&quot;,False,-23.0d)" fullname="FlowEfficiencyTests.MigratedBuildingUsesOneAuthoredSignedContribution(&quot;DeepSpaceRelay&quot;,False,-23.0d)" methodname="MigratedBuildingUsesOneAuthoredSignedContribution" classname="FlowEfficiencyTests" runstate="Runnable" seed="434706295" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000282" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2564" name="MigratedBuildingUsesOneAuthoredSignedContribution(&quot;EarthMoonLogisticsHub&quot;,False,240.0d)" fullname="FlowEfficiencyTests.MigratedBuildingUsesOneAuthoredSignedContribution(&quot;EarthMoonLogisticsHub&quot;,False,240.0d)" methodname="MigratedBuildingUsesOneAuthoredSignedContribution" classname="FlowEfficiencyTests" runstate="Runnable" seed="967331724" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000066" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2565" name="MigratedBuildingUsesOneAuthoredSignedContribution(&quot;OrbitalResourceExtractionArray&quot;,False,1200.0d)" fullname="FlowEfficiencyTests.MigratedBuildingUsesOneAuthoredSignedContribution(&quot;OrbitalResourceExtractionArray&quot;,False,1200.0d)" methodname="MigratedBuildingUsesOneAuthoredSignedContribution" classname="FlowEfficiencyTests" runstate="Runnable" seed="997488773" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000066" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2566" name="MigratedBuildingUsesOneAuthoredSignedContribution(&quot;OrbitalStation&quot;,False,180.0d)" fullname="FlowEfficiencyTests.MigratedBuildingUsesOneAuthoredSignedContribution(&quot;OrbitalStation&quot;,False,180.0d)" methodname="MigratedBuildingUsesOneAuthoredSignedContribution" classname="FlowEfficiencyTests" runstate="Runnable" seed="1942968180" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000069" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2567" name="MigratedBuildingUsesOneAuthoredSignedContribution(&quot;ThunderGatePropellantWorks&quot;,False,-38.666666666667d)" fullname="FlowEfficiencyTests.MigratedBuildingUsesOneAuthoredSignedContribution(&quot;ThunderGatePropellantWorks&quot;,False,-38.666666666667d)" methodname="MigratedBuildingUsesOneAuthoredSignedContribution" classname="FlowEfficiencyTests" runstate="Runnable" seed="1925745994" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000058" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2568" name="MigratedBuildingUsesOneAuthoredSignedContribution(&quot;AutonomousMatterFabricator&quot;,False,3000.0d)" fullname="FlowEfficiencyTests.MigratedBuildingUsesOneAuthoredSignedContribution(&quot;AutonomousMatterFabricator&quot;,False,3000.0d)" methodname="MigratedBuildingUsesOneAuthoredSignedContribution" classname="FlowEfficiencyTests" runstate="Runnable" seed="269159922" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000056" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2569" name="MigratedBuildingUsesOneAuthoredSignedContribution(&quot;PhaseEnergyArray&quot;,True,1410.0d)" fullname="FlowEfficiencyTests.MigratedBuildingUsesOneAuthoredSignedContribution(&quot;PhaseEnergyArray&quot;,True,1410.0d)" methodname="MigratedBuildingUsesOneAuthoredSignedContribution" classname="FlowEfficiencyTests" runstate="Runnable" seed="1577426941" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000059" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="2573" name="StoredFoodPreventsPrematureHappinessPenalty" fullname="FlowEfficiencyTests.StoredFoodPreventsPrematureHappinessPenalty" methodname="StoredFoodPreventsPrematureHappinessPenalty" classname="FlowEfficiencyTests" runstate="Runnable" seed="573783521" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000283" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2578" name="FoodEfficiencyTests" fullname="FoodEfficiencyTests" classname="FoodEfficiencyTests" runstate="Runnable" testcasecount="12" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.010483" total="12" passed="12" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2585" name="EffectiveEfficiency_MultipliesEveryIndependentConstraint" fullname="FoodEfficiencyTests.EffectiveEfficiency_MultipliesEveryIndependentConstraint" methodname="EffectiveEfficiency_MultipliesEveryIndependentConstraint" classname="FoodEfficiencyTests" runstate="Runnable" seed="637329363" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.001045" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2584" name="EnergyDrivenBuildings_DoNotUseFoodHappinessConstraint" fullname="FoodEfficiencyTests.EnergyDrivenBuildings_DoNotUseFoodHappinessConstraint" methodname="EnergyDrivenBuildings_DoNotUseFoodHappinessConstraint" classname="FoodEfficiencyTests" runstate="Runnable" seed="104111026" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000542" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2580" name="FarmsRecoverFoodWithoutAdditionalStarvationEfficiencyPenalty" fullname="FoodEfficiencyTests.FarmsRecoverFoodWithoutAdditionalStarvationEfficiencyPenalty" methodname="FarmsRecoverFoodWithoutAdditionalStarvationEfficiencyPenalty" classname="FoodEfficiencyTests" runstate="Runnable" seed="168699077" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000715" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2581" name="FoodAvailability_DecreasingSupplyCannotImproveDeficitHappiness" fullname="FoodEfficiencyTests.FoodAvailability_DecreasingSupplyCannotImproveDeficitHappiness" methodname="FoodAvailability_DecreasingSupplyCannotImproveDeficitHappiness" classname="FoodEfficiencyTests" runstate="Runnable" seed="612561156" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000316" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2583" name="FoodAvailability_UsesInventoryAndPotentialFlow" fullname="FoodEfficiencyTests.FoodAvailability_UsesInventoryAndPotentialFlow" methodname="FoodAvailability_UsesInventoryAndPotentialFlow" classname="FoodEfficiencyTests" runstate="Runnable" seed="721384805" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000780" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2587" name="GameState_AdvanceFoodDoesNotVersionWhenAmountIsUnchanged" fullname="FoodEfficiencyTests.GameState_AdvanceFoodDoesNotVersionWhenAmountIsUnchanged" methodname="GameState_AdvanceFoodDoesNotVersionWhenAmountIsUnchanged" classname="FoodEfficiencyTests" runstate="Runnable" seed="312333289" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000571" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2588" name="GameState_FoodFlowIncludesPopulationConsumptionInRuntimeAndHudRate" fullname="FoodEfficiencyTests.GameState_FoodFlowIncludesPopulationConsumptionInRuntimeAndHudRate" methodname="GameState_FoodFlowIncludesPopulationConsumptionInRuntimeAndHudRate" classname="FoodEfficiencyTests" runstate="Runnable" seed="580561173" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000440" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2589" name="GameState_NoOpDerivedMutationsDoNotIncrementVersion" fullname="FoodEfficiencyTests.GameState_NoOpDerivedMutationsDoNotIncrementVersion" methodname="GameState_NoOpDerivedMutationsDoNotIncrementVersion" classname="FoodEfficiencyTests" runstate="Runnable" seed="478210910" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000805" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2590" name="GameState_RepeatedSaveTimestampDoesNotIncrementVersion" fullname="FoodEfficiencyTests.GameState_RepeatedSaveTimestampDoesNotIncrementVersion" methodname="GameState_RepeatedSaveTimestampDoesNotIncrementVersion" classname="FoodEfficiencyTests" runstate="Runnable" seed="553471364" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000249" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2579" name="LaborOperatingRatio_TracksSupplyWithoutExceedingFullOperation" fullname="FoodEfficiencyTests.LaborOperatingRatio_TracksSupplyWithoutExceedingFullOperation" methodname="LaborOperatingRatio_TracksSupplyWithoutExceedingFullOperation" classname="FoodEfficiencyTests" runstate="Runnable" seed="653983310" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000459" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2582" name="NewGameAndDerivedReset_PreserveFoodProductionBaseline" fullname="FoodEfficiencyTests.NewGameAndDerivedReset_PreserveFoodProductionBaseline" methodname="NewGameAndDerivedReset_PreserveFoodProductionBaseline" classname="FoodEfficiencyTests" runstate="Runnable" seed="162563904" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000556" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2586" name="ResourceSatisfactionUsesInventoryAndRealizedSameTickProduction" fullname="FoodEfficiencyTests.ResourceSatisfactionUsesInventoryAndRealizedSameTickProduction" methodname="ResourceSatisfactionUsesInventoryAndRealizedSameTickProduction" classname="FoodEfficiencyTests" runstate="Runnable" seed="1332764103" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000450" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="3128" name="RuntimeHotPathPerformanceTests" fullname="RuntimeHotPathPerformanceTests" classname="RuntimeHotPathPerformanceTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.154455" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="3129" name="BuildingAggregatesMatchAllStatesAfterQuantityAndEnabledChanges" fullname="RuntimeHotPathPerformanceTests.BuildingAggregatesMatchAllStatesAfterQuantityAndEnabledChanges" methodname="BuildingAggregatesMatchAllStatesAfterQuantityAndEnabledChanges" classname="RuntimeHotPathPerformanceTests" runstate="Runnable" seed="1065050473" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.009427" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3130" name="HappinessReadsObserveEveryFormulaInputChange" fullname="RuntimeHotPathPerformanceTests.HappinessReadsObserveEveryFormulaInputChange" methodname="HappinessReadsObserveEveryFormulaInputChange" classname="RuntimeHotPathPerformanceTests" runstate="Runnable" seed="1574688120" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.003005" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3131" name="MeasureSparseBuildingAggregatesHappinessAndCompleteSimulationTicks" fullname="RuntimeHotPathPerformanceTests.MeasureSparseBuildingAggregatesHappinessAndCompleteSimulationTicks" methodname="MeasureSparseBuildingAggregatesHappinessAndCompleteSimulationTicks" classname="RuntimeHotPathPerformanceTests" runstate="Runnable" seed="1891243529" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.141232" asserts="0">
+          <properties />
+          <output><![CDATA[[HotPathPerf] definitions=79 fixture=WoodHouse5,Farm3,Quarry2 population=10
+[HotPathPerf] building-aggregates median_ms=0.006427 iterations=1000 batches=7
+[HotPathPerf] happiness-reads median_ms=0.000366 iterations=10000 batches=7
+[HotPathPerf] manual-tick median_ms=0.064796 iterations=100 batches=7
+]]></output>
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="3158" name="SectorBuildingTests" fullname="SectorBuildingTests" classname="SectorBuildingTests" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.091451" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="3160" name="EarthMoonLogisticsHubIsOneSectorBuildingDefinition" fullname="SectorBuildingTests.EarthMoonLogisticsHubIsOneSectorBuildingDefinition" methodname="EarthMoonLogisticsHubIsOneSectorBuildingDefinition" classname="SectorBuildingTests" runstate="Runnable" seed="910557873" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.004194" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3169" name="EarthMoonLogisticsHubStaysUniqueUntilCostGrowthIsFixed" fullname="SectorBuildingTests.EarthMoonLogisticsHubStaysUniqueUntilCostGrowthIsFixed" methodname="EarthMoonLogisticsHubStaysUniqueUntilCostGrowthIsFixed" classname="SectorBuildingTests" runstate="Runnable" seed="1526423477" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000430" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="3168" name="MegastructureCannotBeDemolishedOrRefunded" fullname="SectorBuildingTests.MegastructureCannotBeDemolishedOrRefunded" classname="SectorBuildingTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.002967" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="3166" name="MegastructureCannotBeDemolishedOrRefunded(&quot;DawnDysonSphere&quot;)" fullname="SectorBuildingTests.MegastructureCannotBeDemolishedOrRefunded(&quot;DawnDysonSphere&quot;)" methodname="MegastructureCannotBeDemolishedOrRefunded" classname="SectorBuildingTests" runstate="Runnable" seed="1210683968" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.001676" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="3167" name="MegastructureCannotBeDemolishedOrRefunded(&quot;ThunderGatePropellantWorks&quot;)" fullname="SectorBuildingTests.MegastructureCannotBeDemolishedOrRefunded(&quot;ThunderGatePropellantWorks&quot;)" methodname="MegastructureCannotBeDemolishedOrRefunded" classname="SectorBuildingTests" runstate="Runnable" seed="1457049419" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000607" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="3163" name="OrdinaryBuildingCannotUpgradeToSectorBuilding" fullname="SectorBuildingTests.OrdinaryBuildingCannotUpgradeToSectorBuilding" methodname="OrdinaryBuildingCannotUpgradeToSectorBuilding" classname="SectorBuildingTests" runstate="Runnable" seed="1227808077" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000610" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3165" name="SectorBuildingBuildAndSavePathIsOccupiedAndTerritoryFree" fullname="SectorBuildingTests.SectorBuildingBuildAndSavePathIsOccupiedAndTerritoryFree" methodname="SectorBuildingBuildAndSavePathIsOccupiedAndTerritoryFree" classname="SectorBuildingTests" runstate="Runnable" seed="1721886012" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.077990" asserts="0">
+          <properties />
+          <output><![CDATA[没有可应用的有效 Kingdom 存档，已开始新游戏。
+Kingdom 数据已保存至：D:\GitHub\Kingdom\Temp\SectorBuildingInvalidSave-0fc81e53a80742dcbef1a31746a2fad2\KingdomSave-v1.json
+Kingdom 数据已保存至：D:\GitHub\Kingdom\Temp\SectorBuildingInvalidSave-0fc81e53a80742dcbef1a31746a2fad2\KingdomSave-v1.json
+应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\SectorBuildingInvalidSave-0fc81e53a80742dcbef1a31746a2fad2\KingdomSave-v1.json”失败，将开始新游戏。详细信息：Sector building 'EarthMoonLogisticsHub' is built before sector 'AzurePool' is occupied.
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+        </test-case>
+        <test-case id="3164" name="SectorBuildingCannotParticipateInAnUpgradeChain" fullname="SectorBuildingTests.SectorBuildingCannotParticipateInAnUpgradeChain" methodname="SectorBuildingCannotParticipateInAnUpgradeChain" classname="SectorBuildingTests" runstate="Runnable" seed="1715543564" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000715" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3159" name="SectorBuildingUsesInheritedDefinitionAndKeepsLocalExplorationGate" fullname="SectorBuildingTests.SectorBuildingUsesInheritedDefinitionAndKeepsLocalExplorationGate" methodname="SectorBuildingUsesInheritedDefinitionAndKeepsLocalExplorationGate" classname="SectorBuildingTests" runstate="Runnable" seed="1463909492" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000641" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3162" name="SectorBuildingValidationRejectsInvalidLimitAndTerritoryCost" fullname="SectorBuildingTests.SectorBuildingValidationRejectsInvalidLimitAndTerritoryCost" methodname="SectorBuildingValidationRejectsInvalidLimitAndTerritoryCost" classname="SectorBuildingTests" runstate="Runnable" seed="1996051152" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000658" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3161" name="SectorBuildingValidationRejectsMissingSector" fullname="SectorBuildingTests.SectorBuildingValidationRejectsMissingSector" methodname="SectorBuildingValidationRejectsMissingSector" classname="SectorBuildingTests" runstate="Runnable" seed="2142016667" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000519" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="3312" name="SimulationBudgetTests" fullname="SimulationBudgetTests" classname="SimulationBudgetTests" runstate="Runnable" testcasecount="11" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.129272" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="3314" name="Advance_PreservesBacklogWhileRespectingMaximumTicksPerFrame" fullname="SimulationBudgetTests.Advance_PreservesBacklogWhileRespectingMaximumTicksPerFrame" methodname="Advance_PreservesBacklogWhileRespectingMaximumTicksPerFrame" classname="SimulationBudgetTests" runstate="Runnable" seed="382428742" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.002789" asserts="0">
+          <properties />
+          <output><![CDATA[模拟积压超过单帧处理预算，将在后续帧继续结算。
+]]></output>
+        </test-case>
+        <test-case id="3326" name="CampaignOperationalDoctrinesChangeProgressLossesAndSupplyUse" fullname="SimulationBudgetTests.CampaignOperationalDoctrinesChangeProgressLossesAndSupplyUse" methodname="CampaignOperationalDoctrinesChangeProgressLossesAndSupplyUse" classname="SimulationBudgetTests" runstate="Runnable" seed="286121154" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.013521" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="3322" name="OfflineCampaignMatchesRealtimeForTheSameEffectiveTickSlices" fullname="SimulationBudgetTests.OfflineCampaignMatchesRealtimeForTheSameEffectiveTickSlices" classname="SimulationBudgetTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.040358" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="3320" name="OfflineCampaignMatchesRealtimeForTheSameEffectiveTickSlices(Stable)" fullname="SimulationBudgetTests.OfflineCampaignMatchesRealtimeForTheSameEffectiveTickSlices(Stable)" methodname="OfflineCampaignMatchesRealtimeForTheSameEffectiveTickSlices" classname="SimulationBudgetTests" runstate="Runnable" seed="448651780" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.021348" asserts="0">
+            <properties />
+            <output><![CDATA[[KingdomOffline] seconds=1 slices=1 maxStepMs=1.34 maxSliceMs=2.087
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.174 maxSliceMs=0.177
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.078 maxSliceMs=0.08
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.073 maxSliceMs=0.137
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.069 maxSliceMs=0.072
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.069 maxSliceMs=0.132
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.071 maxSliceMs=0.073
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.071 maxSliceMs=0.074
+[KingdomOffline] seconds=1 slices=1 maxStepMs=0.16 maxSliceMs=0.667
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.166 maxSliceMs=0.169
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.074 maxSliceMs=0.076
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.071 maxSliceMs=0.134
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.07 maxSliceMs=0.072
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.07 maxSliceMs=0.132
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.071 maxSliceMs=0.074
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.071 maxSliceMs=0.073
+[KingdomOffline] seconds=1 slices=1 maxStepMs=0.133 maxSliceMs=0.595
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.137 maxSliceMs=0.145
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.081 maxSliceMs=0.083
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.065 maxSliceMs=0.114
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.045 maxSliceMs=0.048
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.074 maxSliceMs=0.113
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.074 maxSliceMs=0.076
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.044 maxSliceMs=0.047
+]]></output>
+          </test-case>
+          <test-case id="3321" name="OfflineCampaignMatchesRealtimeForTheSameEffectiveTickSlices(Surge)" fullname="SimulationBudgetTests.OfflineCampaignMatchesRealtimeForTheSameEffectiveTickSlices(Surge)" methodname="OfflineCampaignMatchesRealtimeForTheSameEffectiveTickSlices" classname="SimulationBudgetTests" runstate="Runnable" seed="434875679" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.017983" asserts="0">
+            <properties />
+            <output><![CDATA[[KingdomOffline] seconds=1 slices=1 maxStepMs=0.156 maxSliceMs=0.698
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.171 maxSliceMs=0.174
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.071 maxSliceMs=0.074
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.07 maxSliceMs=0.133
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.07 maxSliceMs=0.072
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.076 maxSliceMs=0.139
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.078 maxSliceMs=0.08
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.07 maxSliceMs=0.073
+[KingdomOffline] seconds=1 slices=1 maxStepMs=0.157 maxSliceMs=0.674
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.162 maxSliceMs=0.165
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.073 maxSliceMs=0.075
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.07 maxSliceMs=0.132
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.07 maxSliceMs=0.072
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.081 maxSliceMs=0.144
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.073 maxSliceMs=0.076
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.079 maxSliceMs=0.082
+[KingdomOffline] seconds=1 slices=1 maxStepMs=0.138 maxSliceMs=0.599
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.144 maxSliceMs=0.148
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.079 maxSliceMs=0.082
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.064 maxSliceMs=0.111
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.044 maxSliceMs=0.046
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.075 maxSliceMs=0.114
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.079 maxSliceMs=0.081
+[KingdomOffline] seconds=0.143 slices=1 maxStepMs=0.047 maxSliceMs=0.05
+]]></output>
+          </test-case>
+        </test-suite>
+        <test-suite type="ParameterizedMethod" id="3325" name="OfflineCampaignRemainderIsAppliedBeforeRealtimeResumes" fullname="SimulationBudgetTests.OfflineCampaignRemainderIsAppliedBeforeRealtimeResumes" classname="SimulationBudgetTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.004933" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="3323" name="OfflineCampaignRemainderIsAppliedBeforeRealtimeResumes(Stable)" fullname="SimulationBudgetTests.OfflineCampaignRemainderIsAppliedBeforeRealtimeResumes(Stable)" methodname="OfflineCampaignRemainderIsAppliedBeforeRealtimeResumes" classname="SimulationBudgetTests" runstate="Runnable" seed="116141116" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.002218" asserts="0">
+            <properties />
+            <output><![CDATA[[KingdomOffline] seconds=0.05 slices=1 maxStepMs=0.002 maxSliceMs=0.004
+]]></output>
+          </test-case>
+          <test-case id="3324" name="OfflineCampaignRemainderIsAppliedBeforeRealtimeResumes(Surge)" fullname="SimulationBudgetTests.OfflineCampaignRemainderIsAppliedBeforeRealtimeResumes(Surge)" methodname="OfflineCampaignRemainderIsAppliedBeforeRealtimeResumes" classname="SimulationBudgetTests" runstate="Runnable" seed="803282525" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.001664" asserts="0">
+            <properties />
+            <output><![CDATA[[KingdomOffline] seconds=0.05 slices=1 maxStepMs=0.002 maxSliceMs=0.003
+]]></output>
+          </test-case>
+        </test-suite>
+        <test-suite type="ParameterizedMethod" id="3318" name="OfflineColonizationMatchesRealtimeWhenFoodFlowExceedsItsSmallCapacity" fullname="SimulationBudgetTests.OfflineColonizationMatchesRealtimeWhenFoodFlowExceedsItsSmallCapacity" classname="SimulationBudgetTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.057578" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="3316" name="OfflineColonizationMatchesRealtimeWhenFoodFlowExceedsItsSmallCapacity(1)" fullname="SimulationBudgetTests.OfflineColonizationMatchesRealtimeWhenFoodFlowExceedsItsSmallCapacity(1)" methodname="OfflineColonizationMatchesRealtimeWhenFoodFlowExceedsItsSmallCapacity" classname="SimulationBudgetTests" runstate="Runnable" seed="456860582" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.028472" asserts="0">
+            <properties />
+            <output><![CDATA[[KingdomOffline] seconds=60 slices=1 maxStepMs=0.397 maxSliceMs=11.807
+]]></output>
+          </test-case>
+          <test-case id="3317" name="OfflineColonizationMatchesRealtimeWhenFoodFlowExceedsItsSmallCapacity(7)" fullname="SimulationBudgetTests.OfflineColonizationMatchesRealtimeWhenFoodFlowExceedsItsSmallCapacity(7)" methodname="OfflineColonizationMatchesRealtimeWhenFoodFlowExceedsItsSmallCapacity" classname="SimulationBudgetTests" runstate="Runnable" seed="705982995" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.027929" asserts="0">
+            <properties />
+            <output><![CDATA[[KingdomOffline] seconds=8.571 slices=1 maxStepMs=0.194 maxSliceMs=1.827
+[KingdomOffline] seconds=8.571 slices=1 maxStepMs=0.036 maxSliceMs=1.693
+[KingdomOffline] seconds=8.571 slices=1 maxStepMs=0.029 maxSliceMs=1.653
+[KingdomOffline] seconds=8.571 slices=1 maxStepMs=0.028 maxSliceMs=1.684
+[KingdomOffline] seconds=8.571 slices=1 maxStepMs=0.028 maxSliceMs=1.653
+[KingdomOffline] seconds=8.571 slices=1 maxStepMs=0.03 maxSliceMs=1.652
+[KingdomOffline] seconds=8.571 slices=1 maxStepMs=0.029 maxSliceMs=1.627
+]]></output>
+          </test-case>
+        </test-suite>
+        <test-case id="3319" name="OfflineColonizationRemainderIsAppliedBeforeRealtimeResumes" fullname="SimulationBudgetTests.OfflineColonizationRemainderIsAppliedBeforeRealtimeResumes" methodname="OfflineColonizationRemainderIsAppliedBeforeRealtimeResumes" classname="SimulationBudgetTests" runstate="Runnable" seed="1869599026" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.001801" asserts="0">
+          <properties />
+          <output><![CDATA[[KingdomOffline] seconds=0.15 slices=1 maxStepMs=0.163 maxSliceMs=0.166
+]]></output>
+        </test-case>
+        <test-case id="3315" name="UltraContinuousMaterialDemandParticipatesInSameTickSatisfaction" fullname="SimulationBudgetTests.UltraContinuousMaterialDemandParticipatesInSameTickSatisfaction" methodname="UltraContinuousMaterialDemandParticipatesInSameTickSatisfaction" classname="SimulationBudgetTests" runstate="Runnable" seed="2015845019" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.005169" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3313" name="ZeroOfflineWindowRequiresNoOtherManagersAndPreservesTheClock" fullname="SimulationBudgetTests.ZeroOfflineWindowRequiresNoOtherManagersAndPreservesTheClock" methodname="ZeroOfflineWindowRequiresNoOtherManagersAndPreservesTheClock" classname="SimulationBudgetTests" runstate="Runnable" seed="1876883337" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000429" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="3327" name="SimulationDeterminismTests" fullname="SimulationDeterminismTests" classname="SimulationDeterminismTests" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.005254" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="3328" name="FoodAndResourceIntegration_IsStableAcrossThirtyAndSixtyFpsSteps" fullname="SimulationDeterminismTests.FoodAndResourceIntegration_IsStableAcrossThirtyAndSixtyFpsSteps" methodname="FoodAndResourceIntegration_IsStableAcrossThirtyAndSixtyFpsSteps" classname="SimulationDeterminismTests" runstate="Runnable" seed="454295965" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000465" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3331" name="OfflineEffectiveTime_RejectsNegativeInputs" fullname="SimulationDeterminismTests.OfflineEffectiveTime_RejectsNegativeInputs" methodname="OfflineEffectiveTime_RejectsNegativeInputs" classname="SimulationDeterminismTests" runstate="Runnable" seed="1893141565" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000551" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3332" name="OfflineEffectiveTime_RejectsNonFiniteInputs" fullname="SimulationDeterminismTests.OfflineEffectiveTime_RejectsNonFiniteInputs" methodname="OfflineEffectiveTime_RejectsNonFiniteInputs" classname="SimulationDeterminismTests" runstate="Runnable" seed="498432303" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000312" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3330" name="OfflineEffectiveTime_UsesFullMiddleAndLateBands" fullname="SimulationDeterminismTests.OfflineEffectiveTime_UsesFullMiddleAndLateBands" methodname="OfflineEffectiveTime_UsesFullMiddleAndLateBands" classname="SimulationDeterminismTests" runstate="Runnable" seed="1071476430" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000198" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3329" name="OfflineElapsedTime_ClampsAndRejectsClockRollback" fullname="SimulationDeterminismTests.OfflineElapsedTime_ClampsAndRejectsClockRollback" methodname="OfflineElapsedTime_ClampsAndRejectsClockRollback" classname="SimulationDeterminismTests" runstate="Runnable" seed="1967351878" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000331" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3335" name="SimulatorEfficiencyAndResearchSpeedMatchRuntimeRules" fullname="SimulationDeterminismTests.SimulatorEfficiencyAndResearchSpeedMatchRuntimeRules" methodname="SimulatorEfficiencyAndResearchSpeedMatchRuntimeRules" classname="SimulationDeterminismTests" runstate="Runnable" seed="1236140446" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000437" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3334" name="SimulatorSatisfactionRulesMatchRuntimeRules" fullname="SimulationDeterminismTests.SimulatorSatisfactionRulesMatchRuntimeRules" methodname="SimulatorSatisfactionRulesMatchRuntimeRules" classname="SimulationDeterminismTests" runstate="Runnable" seed="367238332" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000510" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3333" name="SimulatorScalarStockpileRuleMatchesRuntimeRule" fullname="SimulationDeterminismTests.SimulatorScalarStockpileRuleMatchesRuntimeRule" methodname="SimulatorScalarStockpileRuleMatchesRuntimeRule" classname="SimulationDeterminismTests" runstate="Runnable" seed="1664786896" result="Passed" start-time="2026-11-04 05:15:40Z" end-time="2026-11-04 05:15:40Z" duration="0.000224" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

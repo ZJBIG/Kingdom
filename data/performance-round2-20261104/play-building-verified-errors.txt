@@ -1,0 +1,5 @@
+Kingdom Unity Test Runner - Latest Error Report
+Generated: 2026-11-04T19:11:34.8487194+08:00
+Platform: PlayMode
+Result: Failed(Timeout)
+Unity PlayMode tests timed out after 180 seconds. Log=D:/GitHub/Kingdom/data/performance-round2-20261104/play-building-verified.log

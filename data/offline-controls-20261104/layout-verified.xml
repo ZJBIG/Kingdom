@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Passed" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-04 12:02:49Z" end-time="2026-11-04 12:02:59Z" duration="9.3839264">
+  <test-suite type="TestSuite" id="1000" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="162" result="Passed" start-time="2026-11-04 12:02:49Z" end-time="2026-11-04 12:02:59Z" duration="9.383926" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="1199" name="Kingdom.PlayModeTests.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Kingdom.PlayModeTests.dll" runstate="Runnable" testcasecount="162" result="Passed" start-time="2026-11-04 12:02:49Z" end-time="2026-11-04 12:02:59Z" duration="9.372610" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="19348" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="PlayMode" />
+      </properties>
+      <test-suite type="TestFixture" id="1104" name="PlayerLayoutRequestPlayModeTests" fullname="PlayerLayoutRequestPlayModeTests" classname="PlayerLayoutRequestPlayModeTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2026-11-04 12:02:49Z" end-time="2026-11-04 12:02:59Z" duration="9.369001" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1105" name="RequestedDetails_RemoveRedundantCopyAndCaptureRepresentativeLayouts" fullname="PlayerLayoutRequestPlayModeTests.RequestedDetails_RemoveRedundantCopyAndCaptureRepresentativeLayouts" methodname="RequestedDetails_RemoveRedundantCopyAndCaptureRepresentativeLayouts" classname="PlayerLayoutRequestPlayModeTests" runstate="Runnable" seed="1338911545" result="Passed" start-time="2026-11-04 12:02:49Z" end-time="2026-11-04 12:02:59Z" duration="9.356754" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+          </properties>
+          <output><![CDATA[[王国界面] Canvas configured: mode=ScaleWithScreenSize, reference=(2640.00, 1200.00), match=0
+[王国界面] 字体解析完成：来源=NotoSansSC-Regular，共享字体=，默认字体=SIMSUN SDF
+[王国界面] Research tree cache warmed: prefabs=19/19, sprites=19/19
+[王国界面] Legacy UI isolated: SafeAreaRoot is the only runtime UI surface
+[王国界面] Development guidance binding deferred until layout: rect=(0.00, 0.00)
+[王国界面] Detail UI rebuilt: legacyChildren=discarded, viewport=(582.00, -302.00), content=(582.00, 1.00), footer=82
+[王国界面] Research queue graphic bound: horizontal drag, ResearchNode prefab, ResearchLine bus/end sprites
+[王国界面] Detail UI v2 bound; legacy detail hierarchy is inactive.
+[KingdomUI] UnsafeAreaTicker screen=640x480 safeArea=(0.00, 0.00) edge=None designWidth=0.0 text=False
+[王国界面] Authored scene shell bound; Detail UI v2 rebuilt and legacy detail UI discarded.
+[王国界面] Detail UI v2 geometry: viewport=(582.00, 178.00), content=(582.00, 178.00)
+[王国界面] Runtime geometry valid: screen=640x480, safeArea=(640.00, 480.00), navigation=(270.00, 348.00), detail=(622.00, 348.00), bottomDelta=0.00, topDelta=0.00
+[王国界面] Panel alignment: navigation=(270.00, 348.00), detail=(622.00, 348.00), bottomDelta=0.00, topDelta=0.00
+[王国界面] Outer page scroll diagnostic: Overview:enabled=True:vertical=True:viewport=(-370.00, 88.00):content=(-370.00, 0.00):position=(0.00, 0.00):normalized=0:raycast=True:eventSystem=False
+[王国界面] TMP runtime diagnostic: reason=initial, name=Title, active=True, enabled=True, valueLength=4, characterCount=0, vertexCount=0, rect=(249.90, 60.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Date, active=True, enabled=True, valueLength=6, characterCount=0, vertexCount=0, rect=(249.90, 40.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Caption, active=True, enabled=True, valueLength=4, characterCount=0, vertexCount=0, rect=(222.00, 50.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Text, active=True, enabled=True, valueLength=2, characterCount=0, vertexCount=0, rect=(198.00, 72.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic summary: reason=initial, total=79, active=28, nonEmpty=27, characters=72, vertices=360, alphaVisible=28, suspicious=25
+[KingdomUI] UnsafeAreaTicker screen=640x480 safeArea=(2640.00, 1980.00) edge=None designWidth=0.0 text=False
+科研“CivilizationPlanning”没有任何效果，必须至少声明一个真实效果。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+[KingdomMilestone] NewGameStarted elapsed=0.00s days=0 population=0 food=300 foodNet=5 wood=60 woodNet=3.047 productivity=0/0 researchPower=10 era=Animal
+[王国界面] BuildResearchTreePage implementation=ResearchTreeSK-IntegerGrid-v1-batched parent=DataRows (UnityEngine.RectTransform) parentRect=(1630.00, 900.00)
+[王国界面] Outer page scroll diagnostic: Research:enabled=False:vertical=False:viewport=(1630.00, 1588.00):content=(1630.00, 1588.00):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Outer page scroll diagnostic: Overview:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 511.45):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Research page warmed and cached before first tab activation
+[王国剧情] New Overview-style Story shell rendered: era=Animal, unlocked=1, height=5446.885
+[王国界面] Outer page scroll diagnostic: Story:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 5419.84):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Outer page scroll diagnostic: Overview:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 511.45):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Story page warmed and cached before first tab activation
+[MusicManager] Addressables catalog contains 56 tracks.
+[王国界面] Research era block: era=Animal, nodes=18, columns=0-4
+[王国界面] Research era block: era=StoneAge, nodes=17, columns=6-9
+[王国界面] Research era block: era=Medieval, nodes=12, columns=11-14
+[王国界面] Research era block: era=Industrial, nodes=36, columns=16-28
+[王国界面] Research era block: era=Spacer, nodes=47, columns=30-42
+[王国界面] Research era block: era=Ultra, nodes=15, columns=44-51
+[王国界面] Research graph topology candidate: nodes=145, layers=52, rows=31, cycles=0
+[王国界面] Research topology decision: selected=topology-integer-grid, reason=canonical-prerequisite-layout, duplicates=0, backwardsEdges=0, inversions=3427
+[王国界面] Research grid layout: nodes=145, duplicates=0, backwardsEdges=0, intermediateNodeCrossings=0, maxGrid=(51,30), grid=255x60, layoutSource=topology-integer-grid
+[王国界面] Research static shell source=scene: viewport, content, lineLayer, dragSurface; toolbar=standard-prefab-runtime-fallback; runtime creates only data-driven repeated nodes, links and era bands.
+[KingdomMilestone] FirstBuildingBuilt elapsed=0.75s days=600 population=0 food=1M foodNet=6.383K wood=12.35M woodNet=-3.934 productivity=60.08K/1.21K researchPower=122.7 era=Archotech
+[KingdomMilestone] FirstResearchQueued elapsed=0.75s days=600 population=0 food=1M foodNet=6.383K wood=12.35M woodNet=-3.934 productivity=60.08K/1.21K researchPower=122.7 era=Archotech
+[KingdomMilestone] FirstResearchPaid elapsed=0.75s days=600 population=0 food=1M foodNet=6.383K wood=12.35M woodNet=-3.934 productivity=60.08K/1.21K researchPower=122.7 era=Archotech
+[KingdomMilestone] FirstResearchProgressed elapsed=0.75s days=600 population=0 food=1M foodNet=6.383K wood=12.35M woodNet=-3.934 productivity=60.08K/1.21K researchPower=122.7 era=Archotech
+[KingdomMilestone] FirstResearchCompleted elapsed=0.75s days=600 population=0 food=1M foodNet=6.383K wood=12.35M woodNet=-3.934 productivity=60.08K/1.21K researchPower=122.7 era=Archotech
+[KingdomMilestone] FirstProductionChain elapsed=0.75s days=600 population=0 food=1M foodNet=6.383K wood=12.35M woodNet=-3.934 productivity=60.08K/1.21K researchPower=122.7 era=Archotech
+[KingdomMilestone] StoneAgeReached elapsed=0.75s days=600 population=0 food=1M foodNet=6.383K wood=12.35M woodNet=-3.934 productivity=60.08K/1.21K researchPower=122.7 era=Archotech
+[KingdomMilestone] MedievalReached elapsed=0.75s days=600 population=0 food=1M foodNet=6.383K wood=12.35M woodNet=-3.934 productivity=60.08K/1.21K researchPower=122.7 era=Archotech
+[KingdomMilestone] IndustrialReached elapsed=0.75s days=600 population=0 food=1M foodNet=6.383K wood=12.35M woodNet=-3.934 productivity=60.08K/1.21K researchPower=122.7 era=Archotech
+[KingdomPacing] era=Animal samples=0.7s resourceWait=0.0% researchWait=0.0% productivityBlocked=100.0% populationBlocked=0.0% actionAvailable=0.0%
+[王国界面] Research graph routes: links=404, sharedBusSegments=3671, batchGraphics=8, cache=struct-half-cell, renderer=batch-mesh-v1
+[王国界面] Outer page scroll diagnostic: Overview:enabled=True:vertical=True:viewport=(1630.00, 808.00):content=(1630.00, 1102.45):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Authored building rows: visible=71, rowsRect=(1630.00, 720.00)
+[王国界面] Outer page scroll diagnostic: Buildings:enabled=True:vertical=True:viewport=(1630.00, 808.00):content=(1630.00, 13632.00):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Detail content bounds: viewport=(582.00, 898.00), content=(582.00, 1925.29), rangeY=1027.3, flowSection=(582.00, 1925.29), requirementSection=(514.00, 1234.00), requirementRows=13, active=True, customGestureEnabled=True
+[王国界面] Detail content bounds: viewport=(582.00, 898.00), content=(582.00, 1925.29), rangeY=1027.3, flowSection=(582.00, 1925.29), requirementSection=(514.00, 1234.00), requirementRows=13, active=True, customGestureEnabled=True
+[王国界面] Authored workshop rows: visible=92, pooled=92, rowsRect=(1630.00, 720.00)
+[王国界面] Outer page scroll diagnostic: Workshop:enabled=True:vertical=True:viewport=(1630.00, 808.00):content=(1630.00, 17664.00):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Authored workshop rows: visible=92, pooled=92, rowsRect=(1630.00, 17664.00)
+[KingdomPerf] RefreshUI 33.5ms page=Workshop
+[王国界面] Detail content bounds: viewport=(582.00, 898.00), content=(582.00, 1183.61), rangeY=285.6, flowSection=(582.00, 1183.61), requirementSection=(514.00, 442.00), requirementRows=4, active=True, customGestureEnabled=True
+[王国界面] SetPage Research
+[王国界面] Outer page scroll diagnostic: Research:enabled=False:vertical=False:viewport=(1630.00, 808.00):content=(1630.00, 808.00):position=(0.00, 0.00):normalized=0:raycast=True:eventSystem=True
+[王国界面] Research graph overflow state: viewport=(1630.00, 808.00), content=(13260.00, 1980.00), horizontal=True, vertical=True
+[王国界面] Research graph bounds: viewport=(1630.00, 808.00), content=(13260.00, 1980.00), scale=1, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 808.00), content=(13260.00, 1980.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 808.00), content=(13260.00, 1980.00), scale=1.3, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(0.00, -1766.00), bounds=(17238.00, 2574.00) vs (1630.00, 808.00)
+[王国界面] Research runtime node rects: nodes=145, uniquePositions=145, range=(25,65)-(13030,1865), content=(13260.00, 1980.00)
+[王国界面] Research page build complete: nodes=145, elapsedMs=4669.7
+[王国界面] Research graph runtime validation: valid=True, duplicates=0, backwardsEdges=0, missingNodes=0, missingDragForwarders=0, positiveBounds=True, dragSurface=True
+[王国界面] Research graph bounds: viewport=(1630.00, 808.00), content=(13260.00, 1980.00), scale=1, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] 研究选择闭包目标=Industrialization，节点=Agriculture,AnimalHusbandry,BronzeAlloyCrafting,Calendar,CeramicFiring,CharcoalMaking,ClayExtraction,ControlledFire,FeudalAdministration,Industrialization,IronworkingAndSteelmaking,KnowledgeSharing,Mathematics,Measurement,MechanicalEngineering,Mining,MultiMetalSmeltingFundamentals,Quarry,Steelmaking,StoneAgeSettlement,StoneProcessing,TextileCraft,WrittenRecords
+[王国界面] Detail content bounds: viewport=(582.00, 898.00), content=(582.00, 1875.29), rangeY=977.3, flowSection=(582.00, 1875.29), requirementSection=(514.00, 178.00), requirementRows=1, active=True, customGestureEnabled=True
+[王国界面] 研究选择闭包目标=AdaptiveFleetLogistics，节点=AdaptiveFleetLogistics,AdvancedMetalHydrometallurgy,AdvancedMetalMetallurgy,Agriculture,AnimalHusbandry,AutonomousMatterAssembly,AutonomousOrbitalMining,Bookmaking,BronzeAlloyCrafting,Calendar,CeramicFiring,CharcoalMaking,ChlorideTitaniumMetallurgy,ClayExtraction,Coking,CombustionEngines,ConcreteEngineering,ControlledFire,DeepSpaceFleet,DeepSpaceIndustrialIntegration,DeepSpaceLogisticsReliability,DeepSpaceNavigationReliability,DeepSpacePowerGridResilience,DeepSpaceShipbuilding,DeepSpaceSurvey,DeepSpaceThermalExchangeTheory,DistributedCognitionProtocol,ElectricalEngineering,FactoryOrganization,FeudalAdministration,FleetDamageControlTheory,Fortification,GravitationalCommunicationTheory,GravityAssistTrajectoryTheory,HomeSystemSurvey,IndustrialChemistry,IndustrialHabitationEngineering,IndustrialMetalSmelting,IndustrialWorkshop,Industrialization,IntegratedMetalResourceDevelopment,InterstellarCampaignTimingTheory,InterstellarCombatLogistics,InterstellarKnowledgeCoordination,InterstellarLogisticsDoctrine,InterstellarNavigation,InterstellarResourceCoordination,IronworkingAndSteelmaking,KnowledgeSharing,LogisticsManagement,Masonry,MassProduction,MaterialLifecycleControl,Mathematics,MatterTransmutationTheory,Measurement,MechanicalEngineering,MilitaryIndustry,Mining,ModernUniversity,MultiMetalSmeltingFundamentals,OrbitalConstructionAutomation,OrbitalEngineering,OrbitalLogisticsInfrastructure,OrbitalPowerTransmission,OrbitalPropellantEngineering,OrbitalStationEngineering,OrbitalStructuralDynamicsTheory,OrbitalVacuumMetallurgy,PetroleumExtraction,PhantomMaterials,PhaseFieldEngineering,PhaseFieldNavigation,PhaseGridSynchronization,PhaseMaterialDurabilityTheory,PhaseMaterialEngineering,PowerGridEngineering,PrecisionManufacturing,QuantumComputing,Quarry,RailwayEngineering,ScientificInstrumentation,ScientificMethod,SelfRepairingFleetArchitecture,Standardization,SteamPower,Steelmaking,StoneAgeSettlement,StoneProcessing,TechnologicalSingularity,TextileCraft,TitaniumAlloyEngineering,UrbanHousing,WrittenRecords
+[王国界面] Research progress visual: id=AdaptiveFleetLogistics, fill=0.000, color=RGBA(1.000, 1.000, 1.000, 1.000), alpha=1.000, active=True, sibling=0
+[王国界面] Detail content bounds: viewport=(582.00, 898.00), content=(582.00, 1183.61), rangeY=285.6, flowSection=(582.00, 1183.61), requirementSection=(514.00, 442.00), requirementRows=4, active=True, customGestureEnabled=True
+[王国界面] Outer page scroll diagnostic: Sectors:enabled=True:vertical=True:viewport=(1630.00, 808.00):content=(1630.00, 2640.00):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[SectorBuildings] sector=AlphaCentauri expanded=False collapsed=264 expandedHeight=264 cards=0 viewport=(1630.00, 808.00) content=(1630.00, 2640.00)
+[SectorBuildings] sector=AzurePool expanded=False collapsed=264 expandedHeight=784 cards=1 viewport=(1630.00, 808.00) content=(1630.00, 2640.00)
+[SectorBuildings] sector=DawnRing expanded=False collapsed=264 expandedHeight=548 cards=0 viewport=(1630.00, 808.00) content=(1630.00, 2640.00)
+[SectorBuildings] sector=HeliosCore expanded=False collapsed=264 expandedHeight=784 cards=1 viewport=(1630.00, 808.00) content=(1630.00, 2640.00)
+[SectorBuildings] sector=ProximaB expanded=False collapsed=264 expandedHeight=264 cards=0 viewport=(1630.00, 808.00) content=(1630.00, 2640.00)
+[SectorBuildings] sector=ShardCrown expanded=False collapsed=264 expandedHeight=548 cards=0 viewport=(1630.00, 808.00) content=(1630.00, 2640.00)
+[SectorBuildings] sector=SiriusResourceBelt expanded=False collapsed=264 expandedHeight=264 cards=0 viewport=(1630.00, 808.00) content=(1630.00, 2640.00)
+[SectorBuildings] sector=TauCetiFoundry expanded=False collapsed=264 expandedHeight=264 cards=0 viewport=(1630.00, 808.00) content=(1630.00, 2640.00)
+[SectorBuildings] sector=Terminus expanded=False collapsed=264 expandedHeight=548 cards=0 viewport=(1630.00, 808.00) content=(1630.00, 2640.00)
+[SectorBuildings] sector=ThunderGate expanded=False collapsed=264 expandedHeight=548 cards=0 viewport=(1630.00, 808.00) content=(1630.00, 2640.00)
+[PlayerLayoutRequest]
+Active Images under sector DetailUI; controlled 2640x1200 render
+SafeAreaRoot/DetailPanel/DetailUI | color=RGBA(0.000, 0.000, 0.000, 0.000) | sprite=none | rect=(x:-311.00, y:-534.00, width:622.00, height:1068.00) | world=(65.43, -57.74, 90.00) .. (125.29, 45.03, 90.00) | raycast=False
+SafeAreaRoot/DetailPanel/DetailUI/Header | color=RGBA(0.000, 0.000, 0.000, 0.000) | sprite=none | rect=(x:-289.00, y:-27.00, width:578.00, height:54.00) | world=(67.55, 38.49, 90.00) .. (123.17, 43.69, 90.00) | raycast=False
+SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport | color=RGBA(0.000, 0.000, 0.000, 0.000) | sprite=none | rect=(x:-291.00, y:-449.00, width:582.00, height:898.00) | world=(67.36, -48.69, 90.00) .. (123.36, 37.72, 90.00) | raycast=True
+SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent/ResourceProductionTree/Mode | color=RGBA(0.160, 0.290, 0.280, 1.000) | sprite=ControlMetal | rect=(x:-257.00, y:-56.00, width:514.00, height:56.00) | world=(70.63, 31.56, 90.00) .. (120.09, 36.95, 90.00) | raycast=True
+SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/ScrollFrame/Top | color=RGBA(0.650, 0.550, 0.350, 0.850) | sprite=none | rect=(x:-290.00, y:-2.00, width:580.00, height:2.00) | world=(67.45, 37.43, 90.00) .. (123.26, 37.62, 90.00) | raycast=False
+SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/ScrollFrame/Bottom | color=RGBA(0.650, 0.550, 0.350, 0.850) | sprite=none | rect=(x:-290.00, y:0.00, width:580.00, height:2.00) | world=(67.45, -48.59, 90.00) .. (123.26, -48.40, 90.00) | raycast=False
+SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/ScrollFrame/Left | color=RGBA(0.650, 0.550, 0.350, 0.850) | sprite=none | rect=(x:0.00, y:-448.00, width:2.00, height:896.00) | world=(67.45, -48.59, 90.00) .. (67.65, 37.62, 90.00) | raycast=False
+SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/ScrollFrame/Right | color=RGBA(0.650, 0.550, 0.350, 0.850) | sprite=none | rect=(x:-2.00, y:-448.00, width:2.00, height:896.00) | world=(123.07, -48.59, 90.00) .. (123.26, 37.62, 90.00) | raycast=False
+
+[王国界面] Outer page scroll diagnostic: Sectors:enabled=True:vertical=True:viewport=(1630.00, 808.00):content=(1630.00, 3160.00):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[SectorBuildings] sector=AlphaCentauri expanded=False collapsed=264 expandedHeight=264 cards=0 viewport=(1630.00, 808.00) content=(1630.00, 3160.00)
+[SectorBuildings] sector=AzurePool expanded=True collapsed=264 expandedHeight=784 cards=1 viewport=(1630.00, 808.00) content=(1630.00, 3160.00)
+[SectorBuildings] sector=DawnRing expanded=False collapsed=264 expandedHeight=548 cards=0 viewport=(1630.00, 808.00) content=(1630.00, 3160.00)
+[SectorBuildings] sector=HeliosCore expanded=False collapsed=264 expandedHeight=784 cards=1 viewport=(1630.00, 808.00) content=(1630.00, 3160.00)
+[SectorBuildings] sector=ProximaB expanded=False collapsed=264 expandedHeight=264 cards=0 viewport=(1630.00, 808.00) content=(1630.00, 3160.00)
+[SectorBuildings] sector=ShardCrown expanded=False collapsed=264 expandedHeight=548 cards=0 viewport=(1630.00, 808.00) content=(1630.00, 3160.00)
+[SectorBuildings] sector=SiriusResourceBelt expanded=False collapsed=264 expandedHeight=264 cards=0 viewport=(1630.00, 808.00) content=(1630.00, 3160.00)
+[SectorBuildings] sector=TauCetiFoundry expanded=False collapsed=264 expandedHeight=264 cards=0 viewport=(1630.00, 808.00) content=(1630.00, 3160.00)
+[SectorBuildings] sector=Terminus expanded=False collapsed=264 expandedHeight=548 cards=0 viewport=(1630.00, 808.00) content=(1630.00, 3160.00)
+[SectorBuildings] sector=ThunderGate expanded=False collapsed=264 expandedHeight=548 cards=0 viewport=(1630.00, 808.00) content=(1630.00, 3160.00)
+[王国界面] Detail content bounds: viewport=(582.00, 898.00), content=(582.00, 2027.61), rangeY=1129.6, flowSection=(514.00, 404.00), requirementSection=(514.00, 794.00), requirementRows=8, active=True, customGestureEnabled=True
+[PlayerLayoutRequest] Five 2640x1200 GPU captures; isolated controlled fixture; Unity Button events, not native OS input.
+[KingdomPacing] era=Archotech samples=6.6s resourceWait=0.0% researchWait=0.0% productivityBlocked=100.0% populationBlocked=0.0% actionAvailable=0.0%
+]]></output>
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

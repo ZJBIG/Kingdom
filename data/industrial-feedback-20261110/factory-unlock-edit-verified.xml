@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="10" result="Passed" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-10 04:09:10Z" end-time="2026-11-10 04:09:11Z" duration="0.7064425">
+  <test-suite type="TestSuite" id="2345" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="1157" result="Passed" start-time="2026-11-10 04:09:10Z" end-time="2026-11-10 04:09:11Z" duration="0.706443" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="3680" name="Assembly-CSharp-Editor.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="1156" result="Passed" start-time="2026-11-10 04:09:10Z" end-time="2026-11-10 04:09:11Z" duration="0.691978" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="27096" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestFixture" id="2421" name="C6IndustrialContentTests" fullname="C6IndustrialContentTests" classname="C6IndustrialContentTests" runstate="Runnable" testcasecount="59" result="Passed" start-time="2026-11-10 04:09:10Z" end-time="2026-11-10 04:09:10Z" duration="0.430928" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2475" name="MachineFactory_PrecisionToolingImprovesProductionWithoutBlockingConstruction" fullname="C6IndustrialContentTests.MachineFactory_PrecisionToolingImprovesProductionWithoutBlockingConstruction" methodname="MachineFactory_PrecisionToolingImprovesProductionWithoutBlockingConstruction" classname="C6IndustrialContentTests" runstate="Runnable" seed="1914309136" result="Passed" start-time="2026-11-10 04:09:10Z" end-time="2026-11-10 04:09:10Z" duration="0.413832" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2481" name="ContentProgressionValidatorTests" fullname="ContentProgressionValidatorTests" classname="ContentProgressionValidatorTests" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-11-10 04:09:10Z" end-time="2026-11-10 04:09:11Z" duration="0.188736" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="ParameterizedMethod" id="2487" name="ChemicalPlant_RocketFuelGatePreservesClosureAndRejectsSelfFunding" fullname="ContentProgressionValidatorTests.ChemicalPlant_RocketFuelGatePreservesClosureAndRejectsSelfFunding" classname="ContentProgressionValidatorTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-10 04:09:10Z" end-time="2026-11-10 04:09:10Z" duration="0.018857" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2485" name="ChemicalPlant_RocketFuelGatePreservesClosureAndRejectsSelfFunding(False)" fullname="ContentProgressionValidatorTests.ChemicalPlant_RocketFuelGatePreservesClosureAndRejectsSelfFunding(False)" methodname="ChemicalPlant_RocketFuelGatePreservesClosureAndRejectsSelfFunding" classname="ContentProgressionValidatorTests" runstate="Runnable" seed="2079943346" result="Passed" start-time="2026-11-10 04:09:10Z" end-time="2026-11-10 04:09:10Z" duration="0.014370" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2486" name="ChemicalPlant_RocketFuelGatePreservesClosureAndRejectsSelfFunding(True)" fullname="ContentProgressionValidatorTests.ChemicalPlant_RocketFuelGatePreservesClosureAndRejectsSelfFunding(True)" methodname="ChemicalPlant_RocketFuelGatePreservesClosureAndRejectsSelfFunding" classname="ContentProgressionValidatorTests" runstate="Runnable" seed="2010511419" result="Passed" start-time="2026-11-10 04:09:10Z" end-time="2026-11-10 04:09:10Z" duration="0.000454" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="2490" name="EveryReleasedResource_HasSourceAndSink" fullname="ContentProgressionValidatorTests.EveryReleasedResource_HasSourceAndSink" methodname="EveryReleasedResource_HasSourceAndSink" classname="ContentProgressionValidatorTests" runstate="Runnable" seed="1082617234" result="Passed" start-time="2026-11-10 04:09:10Z" end-time="2026-11-10 04:09:10Z" duration="0.010535" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2483" name="IndustrialProduction_DoesNotGrantOutputsWithoutAllContinuousInputs" fullname="ContentProgressionValidatorTests.IndustrialProduction_DoesNotGrantOutputsWithoutAllContinuousInputs" methodname="IndustrialProduction_DoesNotGrantOutputsWithoutAllContinuousInputs" classname="ContentProgressionValidatorTests" runstate="Runnable" seed="393660318" result="Passed" start-time="2026-11-10 04:09:10Z" end-time="2026-11-10 04:09:10Z" duration="0.000930" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2488" name="MainProgression_ReachesMedievalWithoutInjectedResources" fullname="ContentProgressionValidatorTests.MainProgression_ReachesMedievalWithoutInjectedResources" methodname="MainProgression_ReachesMedievalWithoutInjectedResources" classname="ContentProgressionValidatorTests" runstate="Runnable" seed="1242899344" result="Passed" start-time="2026-11-10 04:09:10Z" end-time="2026-11-10 04:09:10Z" duration="0.011821" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2484" name="MainProgression_ReachesUltraWithContinuousInputSources" fullname="ContentProgressionValidatorTests.MainProgression_ReachesUltraWithContinuousInputSources" methodname="MainProgression_ReachesUltraWithContinuousInputSources" classname="ContentProgressionValidatorTests" runstate="Runnable" seed="222348067" result="Passed" start-time="2026-11-10 04:09:10Z" end-time="2026-11-10 04:09:10Z" duration="0.009635" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2482" name="ResearchCosts_HaveAProducerWithinTheirPrerequisiteClosure" fullname="ContentProgressionValidatorTests.ResearchCosts_HaveAProducerWithinTheirPrerequisiteClosure" methodname="ResearchCosts_HaveAProducerWithinTheirPrerequisiteClosure" classname="ContentProgressionValidatorTests" runstate="Runnable" seed="1566997827" result="Passed" start-time="2026-11-10 04:09:10Z" end-time="2026-11-10 04:09:11Z" duration="0.132879" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2489" name="ResourcesWithoutProducersOrConsumers_AreReportedIndividually" fullname="ContentProgressionValidatorTests.ResourcesWithoutProducersOrConsumers_AreReportedIndividually" methodname="ResourcesWithoutProducersOrConsumers_AreReportedIndividually" classname="ContentProgressionValidatorTests" runstate="Runnable" seed="603114043" result="Passed" start-time="2026-11-10 04:09:11Z" end-time="2026-11-10 04:09:11Z" duration="0.001536" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2518" name="EconomyIntegrationRegressionTests" fullname="EconomyIntegrationRegressionTests" classname="EconomyIntegrationRegressionTests" runstate="Runnable" testcasecount="53" result="Passed" start-time="2026-11-10 04:09:11Z" end-time="2026-11-10 04:09:11Z" duration="0.041035" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2519" name="MachineFactory_CompletedResearchAllowsConstructionWithoutPrecisionTooling" fullname="EconomyIntegrationRegressionTests.MachineFactory_CompletedResearchAllowsConstructionWithoutPrecisionTooling" methodname="MachineFactory_CompletedResearchAllowsConstructionWithoutPrecisionTooling" classname="EconomyIntegrationRegressionTests" runstate="Runnable" seed="1314903935" result="Passed" start-time="2026-11-10 04:09:11Z" end-time="2026-11-10 04:09:11Z" duration="0.035659" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

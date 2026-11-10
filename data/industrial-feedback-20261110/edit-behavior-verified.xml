@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="31" result="Failed(Child)" total="31" passed="29" failed="2" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-10 02:03:42Z" end-time="2026-11-10 02:04:09Z" duration="26.9681478">
+  <test-suite type="TestSuite" id="2345" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="1157" result="Failed" site="Child" start-time="2026-11-10 02:03:42Z" end-time="2026-11-10 02:04:09Z" duration="26.968148" total="31" passed="29" failed="2" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="3680" name="Assembly-CSharp-Editor.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="1156" result="Failed" site="Child" start-time="2026-11-10 02:03:42Z" end-time="2026-11-10 02:04:09Z" duration="26.937405" total="31" passed="29" failed="2" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="12852" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestFixture" id="2481" name="ContentProgressionValidatorTests" fullname="ContentProgressionValidatorTests" classname="ContentProgressionValidatorTests" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-11-10 02:03:42Z" end-time="2026-11-10 02:03:43Z" duration="0.392323" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="ParameterizedMethod" id="2487" name="ChemicalPlant_RocketFuelGatePreservesClosureAndRejectsSelfFunding" fullname="ContentProgressionValidatorTests.ChemicalPlant_RocketFuelGatePreservesClosureAndRejectsSelfFunding" classname="ContentProgressionValidatorTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-10 02:03:42Z" end-time="2026-11-10 02:03:43Z" duration="0.388787" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2485" name="ChemicalPlant_RocketFuelGatePreservesClosureAndRejectsSelfFunding(False)" fullname="ContentProgressionValidatorTests.ChemicalPlant_RocketFuelGatePreservesClosureAndRejectsSelfFunding(False)" methodname="ChemicalPlant_RocketFuelGatePreservesClosureAndRejectsSelfFunding" classname="ContentProgressionValidatorTests" runstate="Runnable" seed="243278010" result="Passed" start-time="2026-11-10 02:03:42Z" end-time="2026-11-10 02:03:43Z" duration="0.379142" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2486" name="ChemicalPlant_RocketFuelGatePreservesClosureAndRejectsSelfFunding(True)" fullname="ContentProgressionValidatorTests.ChemicalPlant_RocketFuelGatePreservesClosureAndRejectsSelfFunding(True)" methodname="ChemicalPlant_RocketFuelGatePreservesClosureAndRejectsSelfFunding" classname="ContentProgressionValidatorTests" runstate="Runnable" seed="961671831" result="Passed" start-time="2026-11-10 02:03:43Z" end-time="2026-11-10 02:03:43Z" duration="0.000499" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+      </test-suite>
+      <test-suite type="TestFixture" id="2518" name="EconomyIntegrationRegressionTests" fullname="EconomyIntegrationRegressionTests" classname="EconomyIntegrationRegressionTests" runstate="Runnable" testcasecount="53" result="Failed" site="Child" start-time="2026-11-10 02:03:43Z" end-time="2026-11-10 02:03:43Z" duration="0.105356" total="3" passed="1" failed="2" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-suite type="ParameterizedMethod" id="2522" name="ChemicalPlant_RocketFuelWaitsForOrbitalEngineeringAndStartsInExistingPlant" fullname="EconomyIntegrationRegressionTests.ChemicalPlant_RocketFuelWaitsForOrbitalEngineeringAndStartsInExistingPlant" classname="EconomyIntegrationRegressionTests" runstate="Runnable" testcasecount="2" result="Failed" site="Child" start-time="2026-11-10 02:03:43Z" end-time="2026-11-10 02:03:43Z" duration="0.086569" total="2" passed="0" failed="2" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[One or more child tests had errors]]></message>
+          </failure>
+          <test-case id="2520" name="ChemicalPlant_RocketFuelWaitsForOrbitalEngineeringAndStartsInExistingPlant(False)" fullname="EconomyIntegrationRegressionTests.ChemicalPlant_RocketFuelWaitsForOrbitalEngineeringAndStartsInExistingPlant(False)" methodname="ChemicalPlant_RocketFuelWaitsForOrbitalEngineeringAndStartsInExistingPlant" classname="EconomyIntegrationRegressionTests" runstate="Runnable" seed="1346252381" result="Failed" label="Error" start-time="2026-11-10 02:03:43Z" end-time="2026-11-10 02:03:43Z" duration="0.073911" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[System.ArgumentOutOfRangeException : 领土奖励必须是非负数。
+Parameter name: delta]]></message>
+              <stack-trace><![CDATA[  at TerritoryState.AddTotal (ExpantaNum delta) [0x00056] in D:\GitHub\Kingdom\Assets\Resources\Script\Runtime\TerritoryState.cs:44 
+  at GameState.AdjustTerritoryTotal (ExpantaNum delta) [0x0000c] in D:\GitHub\Kingdom\Assets\Resources\Script\Runtime\GameState.cs:304 
+  at GameManager.AdjustTerritoryTotal (ExpantaNum delta) [0x00000] in D:\GitHub\Kingdom\Assets\Resources\Script\Manager\GameManager.cs:279 
+  at BuildingManager.ApplyProgressionModifierChange (ProgressionModifierState previous, ProgressionModifierState current) [0x00301] in D:\GitHub\Kingdom\Assets\Resources\Script\Manager\BuildingManager.cs:2222 
+  at ResearchManager.RestoreSaveData (SaveManager+ResearchSaveData data) [0x0014b] in D:\GitHub\Kingdom\Assets\Resources\Script\Manager\ResearchManager.cs:1044 
+  at ResearchManager.RestoreSaveDataForEditor (SaveManager+ResearchSaveData data) [0x00000] in D:\GitHub\Kingdom\Assets\Resources\Script\Manager\ResearchManager.cs:133 
+  at EconomyIntegrationRegressionTests.ChemicalPlant_RocketFuelWaitsForOrbitalEngineeringAndStartsInExistingPlant (System.Boolean offline) [0x00462] in D:\GitHub\Kingdom\Assets\Tests\Editor\EconomyIntegrationRegressionTests.cs:135 
+  at (wrapper managed-to-native) System.Reflection.RuntimeMethodInfo.InternalInvoke(System.Reflection.RuntimeMethodInfo,object,object[],System.Exception&)
+  at System.Reflection.RuntimeMethodInfo.Invoke (System.Object obj, System.Reflection.BindingFlags invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo culture) [0x0006a] in <1071a2cb0cb3433aae80a793c277a048>:0 ]]></stack-trace>
+            </failure>
+            <output><![CDATA[[KingdomPerf] ManualTick 23.4ms: building=12.6ms, game=1.5ms, resource=0.8ms, sectors=3.0ms, research=5.5ms, activeBuildings=4, efficiencyPasses=1
+]]></output>
+          </test-case>
+          <test-case id="2521" name="ChemicalPlant_RocketFuelWaitsForOrbitalEngineeringAndStartsInExistingPlant(True)" fullname="EconomyIntegrationRegressionTests.ChemicalPlant_RocketFuelWaitsForOrbitalEngineeringAndStartsInExistingPlant(True)" methodname="ChemicalPlant_RocketFuelWaitsForOrbitalEngineeringAndStartsInExistingPlant" classname="EconomyIntegrationRegressionTests" runstate="Runnable" seed="517551524" result="Failed" label="Error" start-time="2026-11-10 02:03:43Z" end-time="2026-11-10 02:03:43Z" duration="0.008422" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[System.ArgumentOutOfRangeException : 领土奖励必须是非负数。
+Parameter name: delta]]></message>
+              <stack-trace><![CDATA[  at TerritoryState.AddTotal (ExpantaNum delta) [0x00056] in D:\GitHub\Kingdom\Assets\Resources\Script\Runtime\TerritoryState.cs:44 
+  at GameState.AdjustTerritoryTotal (ExpantaNum delta) [0x0000c] in D:\GitHub\Kingdom\Assets\Resources\Script\Runtime\GameState.cs:304 
+  at GameManager.AdjustTerritoryTotal (ExpantaNum delta) [0x00000] in D:\GitHub\Kingdom\Assets\Resources\Script\Manager\GameManager.cs:279 
+  at BuildingManager.ApplyProgressionModifierChange (ProgressionModifierState previous, ProgressionModifierState current) [0x00301] in D:\GitHub\Kingdom\Assets\Resources\Script\Manager\BuildingManager.cs:2222 
+  at ResearchManager.RestoreSaveData (SaveManager+ResearchSaveData data) [0x0014b] in D:\GitHub\Kingdom\Assets\Resources\Script\Manager\ResearchManager.cs:1044 
+  at ResearchManager.RestoreSaveDataForEditor (SaveManager+ResearchSaveData data) [0x00000] in D:\GitHub\Kingdom\Assets\Resources\Script\Manager\ResearchManager.cs:133 
+  at EconomyIntegrationRegressionTests.ChemicalPlant_RocketFuelWaitsForOrbitalEngineeringAndStartsInExistingPlant (System.Boolean offline) [0x00462] in D:\GitHub\Kingdom\Assets\Tests\Editor\EconomyIntegrationRegressionTests.cs:135 
+  at (wrapper managed-to-native) System.Reflection.RuntimeMethodInfo.InternalInvoke(System.Reflection.RuntimeMethodInfo,object,object[],System.Exception&)
+  at System.Reflection.RuntimeMethodInfo.Invoke (System.Object obj, System.Reflection.BindingFlags invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo culture) [0x0006a] in <1071a2cb0cb3433aae80a793c277a048>:0 ]]></stack-trace>
+            </failure>
+            <output><![CDATA[[KingdomOffline] seconds=1 slices=1 maxStepMs=1.243 maxSliceMs=2.048
+[KingdomOffline] seconds=1 slices=1 maxStepMs=0.102 maxSliceMs=0.785
+]]></output>
+          </test-case>
+        </test-suite>
+        <test-case id="2519" name="MachineFactory_CompletedResearchShowsWorkshopLockedCardWithoutAllowingConstruction" fullname="EconomyIntegrationRegressionTests.MachineFactory_CompletedResearchShowsWorkshopLockedCardWithoutAllowingConstruction" methodname="MachineFactory_CompletedResearchShowsWorkshopLockedCardWithoutAllowingConstruction" classname="EconomyIntegrationRegressionTests" runstate="Runnable" seed="293428684" result="Passed" start-time="2026-11-10 02:03:43Z" end-time="2026-11-10 02:03:43Z" duration="0.010952" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2950" name="OfflineProgressSummaryTests" fullname="OfflineProgressSummaryTests" classname="OfflineProgressSummaryTests" runstate="Runnable" testcasecount="15" result="Passed" start-time="2026-11-10 02:03:43Z" end-time="2026-11-10 02:04:09Z" duration="26.097724" total="15" passed="15" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="ParameterizedMethod" id="2962" name="ActualResearchSettlement_ReportsOnlyCompletedResearchAndEndMaterialBlocker" fullname="OfflineProgressSummaryTests.ActualResearchSettlement_ReportsOnlyCompletedResearchAndEndMaterialBlocker" classname="OfflineProgressSummaryTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-10 02:03:43Z" end-time="2026-11-10 02:03:43Z" duration="0.019776" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2960" name="ActualResearchSettlement_ReportsOnlyCompletedResearchAndEndMaterialBlocker(True)" fullname="OfflineProgressSummaryTests.ActualResearchSettlement_ReportsOnlyCompletedResearchAndEndMaterialBlocker(True)" methodname="ActualResearchSettlement_ReportsOnlyCompletedResearchAndEndMaterialBlocker" classname="OfflineProgressSummaryTests" runstate="Runnable" seed="1856269472" result="Passed" start-time="2026-11-10 02:03:43Z" end-time="2026-11-10 02:03:43Z" duration="0.012904" asserts="0">
+            <properties />
+            <output><![CDATA[[KingdomOffline] seconds=1 slices=1 maxStepMs=0.818 maxSliceMs=0.962
+已应用离线进度：1 秒。
+[KingdomOffline] seconds=1 slices=1 maxStepMs=0.107 maxSliceMs=0.111
+已应用离线进度：1 秒。
+]]></output>
+          </test-case>
+          <test-case id="2961" name="ActualResearchSettlement_ReportsOnlyCompletedResearchAndEndMaterialBlocker(False)" fullname="OfflineProgressSummaryTests.ActualResearchSettlement_ReportsOnlyCompletedResearchAndEndMaterialBlocker(False)" methodname="ActualResearchSettlement_ReportsOnlyCompletedResearchAndEndMaterialBlocker" classname="OfflineProgressSummaryTests" runstate="Runnable" seed="1810173039" result="Passed" start-time="2026-11-10 02:03:43Z" end-time="2026-11-10 02:03:43Z" duration="0.002625" asserts="0">
+            <properties />
+            <output><![CDATA[[KingdomOffline] seconds=1 slices=1 maxStepMs=0.094 maxSliceMs=0.49
+已应用离线进度：1 秒。
+]]></output>
+          </test-case>
+        </test-suite>
+        <test-case id="2957" name="ActualSettlement_CopiesResourceFoodAndPopulationDifferences" fullname="OfflineProgressSummaryTests.ActualSettlement_CopiesResourceFoodAndPopulationDifferences" methodname="ActualSettlement_CopiesResourceFoodAndPopulationDifferences" classname="OfflineProgressSummaryTests" runstate="Runnable" seed="143263517" result="Passed" start-time="2026-11-10 02:03:43Z" end-time="2026-11-10 02:03:43Z" duration="0.003405" asserts="0">
+          <properties />
+          <output><![CDATA[[KingdomOffline] seconds=10 slices=1 maxStepMs=0.177 maxSliceMs=0.18
+已应用离线进度：10 秒。
+]]></output>
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="2965" name="AllocatedOfflineTime_ConsumesOnlyCompletedProgressAtTheSelectedRate" fullname="OfflineProgressSummaryTests.AllocatedOfflineTime_ConsumesOnlyCompletedProgressAtTheSelectedRate" classname="OfflineProgressSummaryTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-10 02:03:43Z" end-time="2026-11-10 02:03:43Z" duration="0.009752" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2963" name="AllocatedOfflineTime_ConsumesOnlyCompletedProgressAtTheSelectedRate(5,200)" fullname="OfflineProgressSummaryTests.AllocatedOfflineTime_ConsumesOnlyCompletedProgressAtTheSelectedRate(5,200)" methodname="AllocatedOfflineTime_ConsumesOnlyCompletedProgressAtTheSelectedRate" classname="OfflineProgressSummaryTests" runstate="Runnable" seed="1723475054" result="Passed" start-time="2026-11-10 02:03:43Z" end-time="2026-11-10 02:03:43Z" duration="0.005182" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2964" name="AllocatedOfflineTime_ConsumesOnlyCompletedProgressAtTheSelectedRate(20,500)" fullname="OfflineProgressSummaryTests.AllocatedOfflineTime_ConsumesOnlyCompletedProgressAtTheSelectedRate(20,500)" methodname="AllocatedOfflineTime_ConsumesOnlyCompletedProgressAtTheSelectedRate" classname="OfflineProgressSummaryTests" runstate="Runnable" seed="1169077341" result="Passed" start-time="2026-11-10 02:03:43Z" end-time="2026-11-10 02:03:43Z" duration="0.003820" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-suite type="ParameterizedMethod" id="2968" name="AllocatedOfflineTime_ExhaustsProportionallyAndReturnsToNormalSpeed" fullname="OfflineProgressSummaryTests.AllocatedOfflineTime_ExhaustsProportionallyAndReturnsToNormalSpeed" classname="OfflineProgressSummaryTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-10 02:03:43Z" end-time="2026-11-10 02:03:43Z" duration="0.004817" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2966" name="AllocatedOfflineTime_ExhaustsProportionallyAndReturnsToNormalSpeed(5,200)" fullname="OfflineProgressSummaryTests.AllocatedOfflineTime_ExhaustsProportionallyAndReturnsToNormalSpeed(5,200)" methodname="AllocatedOfflineTime_ExhaustsProportionallyAndReturnsToNormalSpeed" classname="OfflineProgressSummaryTests" runstate="Runnable" seed="1527403569" result="Passed" start-time="2026-11-10 02:03:43Z" end-time="2026-11-10 02:03:43Z" duration="0.002539" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2967" name="AllocatedOfflineTime_ExhaustsProportionallyAndReturnsToNormalSpeed(20,500)" fullname="OfflineProgressSummaryTests.AllocatedOfflineTime_ExhaustsProportionallyAndReturnsToNormalSpeed(20,500)" methodname="AllocatedOfflineTime_ExhaustsProportionallyAndReturnsToNormalSpeed" classname="OfflineProgressSummaryTests" runstate="Runnable" seed="257794337" result="Passed" start-time="2026-11-10 02:03:43Z" end-time="2026-11-10 02:03:43Z" duration="0.001528" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="2969" name="AllocatedOfflineTime_NormalSpeedDiscardsUnpaidBacklogImmediately" fullname="OfflineProgressSummaryTests.AllocatedOfflineTime_NormalSpeedDiscardsUnpaidBacklogImmediately" methodname="AllocatedOfflineTime_NormalSpeedDiscardsUnpaidBacklogImmediately" classname="OfflineProgressSummaryTests" runstate="Runnable" seed="1435839039" result="Passed" start-time="2026-11-10 02:03:43Z" end-time="2026-11-10 02:03:43Z" duration="0.006345" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2958" name="CapAndFoodOverflow_ReportActualStockAndSeparateFullAbsence" fullname="OfflineProgressSummaryTests.CapAndFoodOverflow_ReportActualStockAndSeparateFullAbsence" methodname="CapAndFoodOverflow_ReportActualStockAndSeparateFullAbsence" classname="OfflineProgressSummaryTests" runstate="Runnable" seed="253540632" result="Passed" start-time="2026-11-10 02:03:43Z" end-time="2026-11-10 02:03:43Z" duration="0.002929" asserts="0">
+          <properties />
+          <output><![CDATA[[KingdomOffline] seconds=1 slices=1 maxStepMs=0.136 maxSliceMs=0.139
+已应用离线进度：1 秒。
+]]></output>
+        </test-case>
+        <test-case id="2951" name="CompletedTerritoryRewards_AreNotReappliedAfterSavingAndReloading" fullname="OfflineProgressSummaryTests.CompletedTerritoryRewards_AreNotReappliedAfterSavingAndReloading" methodname="CompletedTerritoryRewards_AreNotReappliedAfterSavingAndReloading" classname="OfflineProgressSummaryTests" runstate="Runnable" seed="1848950019" result="Passed" start-time="2026-11-10 02:03:43Z" end-time="2026-11-10 02:03:43Z" duration="0.030633" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2952" name="ExistingFeudalReward_IsCompensatedOnceAndPersistsItsReceipt" fullname="OfflineProgressSummaryTests.ExistingFeudalReward_IsCompensatedOnceAndPersistsItsReceipt" methodname="ExistingFeudalReward_IsCompensatedOnceAndPersistsItsReceipt" classname="OfflineProgressSummaryTests" runstate="Runnable" seed="1726882035" result="Passed" start-time="2026-11-10 02:03:43Z" end-time="2026-11-10 02:03:43Z" duration="0.017767" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="2956" name="IncrementalSettlement_PreservesSynchronousRateBoundaries" fullname="OfflineProgressSummaryTests.IncrementalSettlement_PreservesSynchronousRateBoundaries" classname="OfflineProgressSummaryTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-10 02:03:43Z" end-time="2026-11-10 02:04:09Z" duration="25.985788" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2954" name="IncrementalSettlement_PreservesSynchronousRateBoundaries(7201.0d)" fullname="OfflineProgressSummaryTests.IncrementalSettlement_PreservesSynchronousRateBoundaries(7201.0d)" methodname="IncrementalSettlement_PreservesSynchronousRateBoundaries" classname="OfflineProgressSummaryTests" runstate="Runnable" seed="603054278" result="Passed" start-time="2026-11-10 02:03:43Z" end-time="2026-11-10 02:03:50Z" duration="6.878448" asserts="0">
+            <properties />
+            <output><![CDATA[[KingdomOffline] seconds=7201 slices=1 maxStepMs=0.447 maxSliceMs=3416.659
+[KingdomOffline] seconds=7201 slices=859 maxStepMs=0.433 maxSliceMs=4.151
+]]></output>
+          </test-case>
+          <test-case id="2955" name="IncrementalSettlement_PreservesSynchronousRateBoundaries(28801.0d)" fullname="OfflineProgressSummaryTests.IncrementalSettlement_PreservesSynchronousRateBoundaries(28801.0d)" methodname="IncrementalSettlement_PreservesSynchronousRateBoundaries" classname="OfflineProgressSummaryTests" runstate="Runnable" seed="919252762" result="Passed" start-time="2026-11-10 02:03:50Z" end-time="2026-11-10 02:04:09Z" duration="19.106210" asserts="0">
+            <properties />
+            <output><![CDATA[[KingdomOffline] seconds=28801 slices=1 maxStepMs=26.34 maxSliceMs=9561.325
+[KingdomOffline] seconds=28801 slices=2370 maxStepMs=6.032 maxSliceMs=7.293
+]]></output>
+          </test-case>
+        </test-suite>
+        <test-case id="2953" name="NewFeudalCompletion_Grants2200AndDoesNotReceiveTheOldSaveCompensation" fullname="OfflineProgressSummaryTests.NewFeudalCompletion_Grants2200AndDoesNotReceiveTheOldSaveCompensation" methodname="NewFeudalCompletion_Grants2200AndDoesNotReceiveTheOldSaveCompensation" classname="OfflineProgressSummaryTests" runstate="Runnable" seed="1918888863" result="Passed" start-time="2026-11-10 02:04:09Z" end-time="2026-11-10 02:04:09Z" duration="0.010456" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2959" name="ZeroOrDuplicateTimestamp_ClearsPreviousSessionSummary" fullname="OfflineProgressSummaryTests.ZeroOrDuplicateTimestamp_ClearsPreviousSessionSummary" methodname="ZeroOrDuplicateTimestamp_ClearsPreviousSessionSummary" classname="OfflineProgressSummaryTests" runstate="Runnable" seed="1876993241" result="Passed" start-time="2026-11-10 02:04:09Z" end-time="2026-11-10 02:04:09Z" duration="0.002431" asserts="0">
+          <properties />
+          <output><![CDATA[[KingdomOffline] seconds=1 slices=1 maxStepMs=0.155 maxSliceMs=0.158
+已应用离线进度：1 秒。
+]]></output>
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2978" name="P40UiConfigurationTests" fullname="P40UiConfigurationTests" classname="P40UiConfigurationTests" runstate="Runnable" testcasecount="11" result="Passed" start-time="2026-11-10 02:04:09Z" end-time="2026-11-10 02:04:09Z" duration="0.272899" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="ParameterizedMethod" id="2987" name="BuildingCards_AuthorInactiveRecommendationStarsWithoutInterceptingInput" fullname="P40UiConfigurationTests.BuildingCards_AuthorInactiveRecommendationStarsWithoutInterceptingInput" classname="P40UiConfigurationTests" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-11-10 02:04:09Z" end-time="2026-11-10 02:04:09Z" duration="0.200776" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2979" name="BuildingCards_AuthorInactiveRecommendationStarsWithoutInterceptingInput(&quot;&quot;)" fullname="P40UiConfigurationTests.BuildingCards_AuthorInactiveRecommendationStarsWithoutInterceptingInput(&quot;&quot;)" methodname="BuildingCards_AuthorInactiveRecommendationStarsWithoutInterceptingInput" classname="P40UiConfigurationTests" runstate="Runnable" seed="1605036484" result="Passed" start-time="2026-11-10 02:04:09Z" end-time="2026-11-10 02:04:09Z" duration="0.175069" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2980" name="BuildingCards_AuthorInactiveRecommendationStarsWithoutInterceptingInput(&quot;EraCards/Animal/&quot;)" fullname="P40UiConfigurationTests.BuildingCards_AuthorInactiveRecommendationStarsWithoutInterceptingInput(&quot;EraCards/Animal/&quot;)" methodname="BuildingCards_AuthorInactiveRecommendationStarsWithoutInterceptingInput" classname="P40UiConfigurationTests" runstate="Runnable" seed="1326192055" result="Passed" start-time="2026-11-10 02:04:09Z" end-time="2026-11-10 02:04:09Z" duration="0.003398" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2981" name="BuildingCards_AuthorInactiveRecommendationStarsWithoutInterceptingInput(&quot;EraCards/StoneAge/&quot;)" fullname="P40UiConfigurationTests.BuildingCards_AuthorInactiveRecommendationStarsWithoutInterceptingInput(&quot;EraCards/StoneAge/&quot;)" methodname="BuildingCards_AuthorInactiveRecommendationStarsWithoutInterceptingInput" classname="P40UiConfigurationTests" runstate="Runnable" seed="719635977" result="Passed" start-time="2026-11-10 02:04:09Z" end-time="2026-11-10 02:04:09Z" duration="0.003260" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2982" name="BuildingCards_AuthorInactiveRecommendationStarsWithoutInterceptingInput(&quot;EraCards/Medieval/&quot;)" fullname="P40UiConfigurationTests.BuildingCards_AuthorInactiveRecommendationStarsWithoutInterceptingInput(&quot;EraCards/Medieval/&quot;)" methodname="BuildingCards_AuthorInactiveRecommendationStarsWithoutInterceptingInput" classname="P40UiConfigurationTests" runstate="Runnable" seed="2143838312" result="Passed" start-time="2026-11-10 02:04:09Z" end-time="2026-11-10 02:04:09Z" duration="0.002922" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2983" name="BuildingCards_AuthorInactiveRecommendationStarsWithoutInterceptingInput(&quot;EraCards/Industrial/&quot;)" fullname="P40UiConfigurationTests.BuildingCards_AuthorInactiveRecommendationStarsWithoutInterceptingInput(&quot;EraCards/Industrial/&quot;)" methodname="BuildingCards_AuthorInactiveRecommendationStarsWithoutInterceptingInput" classname="P40UiConfigurationTests" runstate="Runnable" seed="1977604575" result="Passed" start-time="2026-11-10 02:04:09Z" end-time="2026-11-10 02:04:09Z" duration="0.003387" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2984" name="BuildingCards_AuthorInactiveRecommendationStarsWithoutInterceptingInput(&quot;EraCards/Spacer/&quot;)" fullname="P40UiConfigurationTests.BuildingCards_AuthorInactiveRecommendationStarsWithoutInterceptingInput(&quot;EraCards/Spacer/&quot;)" methodname="BuildingCards_AuthorInactiveRecommendationStarsWithoutInterceptingInput" classname="P40UiConfigurationTests" runstate="Runnable" seed="883852859" result="Passed" start-time="2026-11-10 02:04:09Z" end-time="2026-11-10 02:04:09Z" duration="0.002996" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2985" name="BuildingCards_AuthorInactiveRecommendationStarsWithoutInterceptingInput(&quot;EraCards/Ultra/&quot;)" fullname="P40UiConfigurationTests.BuildingCards_AuthorInactiveRecommendationStarsWithoutInterceptingInput(&quot;EraCards/Ultra/&quot;)" methodname="BuildingCards_AuthorInactiveRecommendationStarsWithoutInterceptingInput" classname="P40UiConfigurationTests" runstate="Runnable" seed="1080957865" result="Passed" start-time="2026-11-10 02:04:09Z" end-time="2026-11-10 02:04:09Z" duration="0.002874" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2986" name="BuildingCards_AuthorInactiveRecommendationStarsWithoutInterceptingInput(&quot;EraCards/Archotech/&quot;)" fullname="P40UiConfigurationTests.BuildingCards_AuthorInactiveRecommendationStarsWithoutInterceptingInput(&quot;EraCards/Archotech/&quot;)" methodname="BuildingCards_AuthorInactiveRecommendationStarsWithoutInterceptingInput" classname="P40UiConfigurationTests" runstate="Runnable" seed="938991153" result="Passed" start-time="2026-11-10 02:04:09Z" end-time="2026-11-10 02:04:09Z" duration="0.003034" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="2988" name="OverviewNavigationToolbarPrefabProvidesAuthoredTargetButton" fullname="P40UiConfigurationTests.OverviewNavigationToolbarPrefabProvidesAuthoredTargetButton" methodname="OverviewNavigationToolbarPrefabProvidesAuthoredTargetButton" classname="P40UiConfigurationTests" runstate="Runnable" seed="1188062823" result="Passed" start-time="2026-11-10 02:04:09Z" end-time="2026-11-10 02:04:09Z" duration="0.061362" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2990" name="RuntimeUiRoot_AuthorsNonInteractiveCivilizationTelegraphOutsideSafeArea" fullname="P40UiConfigurationTests.RuntimeUiRoot_AuthorsNonInteractiveCivilizationTelegraphOutsideSafeArea" methodname="RuntimeUiRoot_AuthorsNonInteractiveCivilizationTelegraphOutsideSafeArea" classname="P40UiConfigurationTests" runstate="Runnable" seed="1552276093" result="Passed" start-time="2026-11-10 02:04:09Z" end-time="2026-11-10 02:04:09Z" duration="0.001435" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2989" name="RuntimeUiRoot_DrawsNonInteractiveBackdropOutsideSafeArea" fullname="P40UiConfigurationTests.RuntimeUiRoot_DrawsNonInteractiveBackdropOutsideSafeArea" methodname="RuntimeUiRoot_DrawsNonInteractiveBackdropOutsideSafeArea" classname="P40UiConfigurationTests" runstate="Runnable" seed="244659242" result="Passed" start-time="2026-11-10 02:04:09Z" end-time="2026-11-10 02:04:09Z" duration="0.000267" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

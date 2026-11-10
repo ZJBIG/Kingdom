@@ -1,0 +1,16 @@
+Kingdom Unity Test Runner - Latest Error Report
+Generated: 2026-11-04T13:58:33.4171096+08:00
+Platform: PlayMode
+Result: Failed
+Total: 6 Passed:4 Failed:2 Skipped:0
+
+=== FAILURE 1 ===
+Test: OnboardingPerformancePlayModeTests.StableOverviewDoesNotRegenerateGuidanceMesh
+Message: System.Xml.XmlElement
+StackTrace: System.Xml.XmlElement
+
+=== FAILURE 2 ===
+Test: ReviewInteractionPlayModeTests.StableBuildingButtons_DoNotDirtyTheirGraphicVertices
+Message: System.Xml.XmlElement
+StackTrace: System.Xml.XmlElement
+UnityExitCode: 2

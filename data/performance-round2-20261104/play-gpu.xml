@@ -1,0 +1,983 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="6" result="Passed" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-04 11:12:44Z" end-time="2026-11-04 11:13:04Z" duration="19.7114055">
+  <test-suite type="TestSuite" id="1000" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="162" result="Passed" start-time="2026-11-04 11:12:44Z" end-time="2026-11-04 11:13:04Z" duration="19.711406" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="1199" name="Kingdom.PlayModeTests.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Kingdom.PlayModeTests.dll" runstate="Runnable" testcasecount="162" result="Passed" start-time="2026-11-04 11:12:44Z" end-time="2026-11-04 11:13:04Z" duration="19.700075" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="25304" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="PlayMode" />
+      </properties>
+      <test-suite type="TestFixture" id="1120" name="ResourceProductionTreePlayModeTests" fullname="ResourceProductionTreePlayModeTests" classname="ResourceProductionTreePlayModeTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-11-04 11:12:44Z" end-time="2026-11-04 11:13:00Z" duration="15.864225" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1122" name="IndependentProductionPage_UsesRealEntriesAndPreservesGraphWhileInspectingNodes" fullname="ResourceProductionTreePlayModeTests.IndependentProductionPage_UsesRealEntriesAndPreservesGraphWhileInspectingNodes" methodname="IndependentProductionPage_UsesRealEntriesAndPreservesGraphWhileInspectingNodes" classname="ResourceProductionTreePlayModeTests" runstate="Runnable" seed="187021710" result="Passed" start-time="2026-11-04 11:12:44Z" end-time="2026-11-04 11:12:55Z" duration="10.142876" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+          </properties>
+          <output><![CDATA[[王国界面] Canvas configured: mode=ScaleWithScreenSize, reference=(2640.00, 1200.00), match=0
+[王国界面] 字体解析完成：来源=NotoSansSC-Regular，共享字体=，默认字体=SIMSUN SDF
+[王国界面] Research tree cache warmed: prefabs=19/19, sprites=19/19
+[王国界面] Legacy UI isolated: SafeAreaRoot is the only runtime UI surface
+[王国界面] Development guidance binding deferred until layout: rect=(0.00, 0.00)
+[王国界面] Detail UI rebuilt: legacyChildren=discarded, viewport=(582.00, -302.00), content=(582.00, 1.00), footer=82
+[王国界面] Research queue graphic bound: horizontal drag, ResearchNode prefab, ResearchLine bus/end sprites
+[王国界面] Detail UI v2 bound; legacy detail hierarchy is inactive.
+[KingdomUI] UnsafeAreaTicker screen=640x480 safeArea=(0.00, 0.00) edge=None designWidth=0.0 text=False
+[王国界面] Authored scene shell bound; Detail UI v2 rebuilt and legacy detail UI discarded.
+[王国界面] Detail UI v2 geometry: viewport=(582.00, 178.00), content=(582.00, 178.00)
+[王国界面] Runtime geometry valid: screen=640x480, safeArea=(640.00, 480.00), navigation=(270.00, 348.00), detail=(622.00, 348.00), bottomDelta=0.00, topDelta=0.00
+[王国界面] Panel alignment: navigation=(270.00, 348.00), detail=(622.00, 348.00), bottomDelta=0.00, topDelta=0.00
+[王国界面] Outer page scroll diagnostic: Overview:enabled=True:vertical=True:viewport=(-370.00, 88.00):content=(-370.00, 0.00):position=(0.00, 0.00):normalized=0:raycast=True:eventSystem=False
+[王国界面] TMP runtime diagnostic: reason=initial, name=Title, active=True, enabled=True, valueLength=4, characterCount=0, vertexCount=0, rect=(249.90, 60.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Date, active=True, enabled=True, valueLength=6, characterCount=0, vertexCount=0, rect=(249.90, 40.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Caption, active=True, enabled=True, valueLength=4, characterCount=0, vertexCount=0, rect=(222.00, 50.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Text, active=True, enabled=True, valueLength=2, characterCount=0, vertexCount=0, rect=(198.00, 72.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic summary: reason=initial, total=75, active=23, nonEmpty=22, characters=11, vertices=56, alphaVisible=23, suspicious=20
+[KingdomUI] UnsafeAreaTicker screen=640x480 safeArea=(2640.00, 1980.00) edge=None designWidth=0.0 text=False
+科研“CivilizationPlanning”没有任何效果，必须至少声明一个真实效果。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+[KingdomMilestone] NewGameStarted elapsed=0.00s days=0 population=0 food=300 foodNet=5 wood=60 woodNet=3.047 productivity=0/0 researchPower=10 era=Animal
+[王国界面] BuildResearchTreePage implementation=ResearchTreeSK-IntegerGrid-v1-batched parent=DataRows (UnityEngine.RectTransform) parentRect=(1630.00, 900.00)
+[王国界面] Outer page scroll diagnostic: Research:enabled=False:vertical=False:viewport=(1630.00, 1588.00):content=(1630.00, 1588.00):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Outer page scroll diagnostic: Overview:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 511.45):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Research page warmed and cached before first tab activation
+[王国剧情] New Overview-style Story shell rendered: era=Animal, unlocked=1, height=5446.885
+[王国界面] Outer page scroll diagnostic: Story:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 5419.84):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Outer page scroll diagnostic: Overview:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 511.45):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Story page warmed and cached before first tab activation
+[MusicManager] Addressables catalog contains 56 tracks.
+[王国界面] Authored resource rows: visible=1, rowsRect=(1630.00, 720.00)
+[王国界面] Outer page scroll diagnostic: Resources:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 144.00):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[KingdomMilestone] FirstResourceDetailViewed elapsed=0.44s days=0 population=0 food=301 foodNet=5 wood=60.61 woodNet=3.047 productivity=0/0 researchPower=10 era=Animal
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=1, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=False, verticalScrollable=False, overflow=x=False,y=False
+[王国界面] Research graph overflow state: viewport=(1630.00, 1588.00), content=(3156.63, 3075.30), horizontal=True, vertical=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Outer page scroll diagnostic: Production:enabled=False:vertical=False:viewport=(1630.00, 1588.00):content=(1630.00, 1588.00):position=(0.00, 0.00):normalized=0:raycast=True:eventSystem=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-763.32, -1487.30), bounds=(3156.63, 3075.30) vs (1630.00, 1588.00)
+[KingdomMilestone] FirstResearchQueued elapsed=0.52s days=0 population=0 food=301 foodNet=5 wood=60.61 woodNet=3.047 productivity=0/0 researchPower=10 era=Animal
+[KingdomMilestone] FirstResearchCompleted elapsed=0.52s days=0 population=0 food=301 foodNet=5 wood=60.61 woodNet=3.047 productivity=0/0 researchPower=10 era=Animal
+[王国界面] Research era block: era=Animal, nodes=18, columns=0-4
+[王国界面] Research era block: era=StoneAge, nodes=17, columns=6-9
+[王国界面] Research era block: era=Medieval, nodes=12, columns=11-14
+[王国界面] Research era block: era=Industrial, nodes=36, columns=16-28
+[王国界面] Research era block: era=Spacer, nodes=47, columns=30-42
+[王国界面] Research era block: era=Ultra, nodes=15, columns=44-51
+[王国界面] Research graph topology candidate: nodes=145, layers=52, rows=31, cycles=0
+[王国界面] Research topology decision: selected=topology-integer-grid, reason=canonical-prerequisite-layout, duplicates=0, backwardsEdges=0, inversions=3427
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-763.32, -1487.30), bounds=(3156.63, 3075.30) vs (1630.00, 1588.00)
+[王国界面] Research grid layout: nodes=145, duplicates=0, backwardsEdges=0, intermediateNodeCrossings=0, maxGrid=(51,30), grid=255x60, layoutSource=topology-integer-grid
+[王国界面] Research static shell source=scene: viewport, content, lineLayer, dragSurface; toolbar=standard-prefab-runtime-fallback; runtime creates only data-driven repeated nodes, links and era bands.
+[王国界面] Research graph bounds: viewport=(1630.00, 808.00), content=(1630.00, 1588.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[ProductionPageScreenshot] size=(2640, 1200) viewport=(1630.00, 808.00) visibleNodes=1
+[ProductionPageEvidence] size=(2640, 1200) viewport=(1630.00, 808.00) graph=(1630.00, 1588.00) nodes=1 horizontal=True vertical=True
+[王国界面] Outer page scroll diagnostic: Production:enabled=False:vertical=False:viewport=(1630.00, 808.00):content=(1630.00, 808.00):position=(0.00, 0.00):normalized=0:raycast=True:eventSystem=True
+[王国界面] Research graph routes: links=404, sharedBusSegments=3671, batchGraphics=8, cache=struct-half-cell, renderer=batch-mesh-v1
+[ProductionPageScreenshot] size=(1760, 800) viewport=(1630.00, 808.00) visibleNodes=1
+[ProductionPageEvidence] size=(1760, 800) viewport=(1630.00, 808.00) graph=(1630.00, 1588.00) nodes=1 horizontal=True vertical=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[KingdomMilestone] FirstBuildingBuilt elapsed=1.17s days=0 population=0 food=301 foodNet=276.2 wood=60.61 woodNet=3.75 productivity=0/1.21K researchPower=10 era=Ultra
+[KingdomMilestone] FirstResearchPaid elapsed=1.17s days=0 population=0 food=301 foodNet=276.2 wood=60.61 woodNet=3.75 productivity=0/1.21K researchPower=10 era=Ultra
+[KingdomMilestone] StoneAgeReached elapsed=1.17s days=0 population=0 food=301 foodNet=276.2 wood=60.61 woodNet=3.75 productivity=0/1.21K researchPower=10 era=Ultra
+[KingdomMilestone] MedievalReached elapsed=1.17s days=0 population=0 food=301 foodNet=276.2 wood=60.61 woodNet=3.75 productivity=0/1.21K researchPower=10 era=Ultra
+[KingdomMilestone] IndustrialReached elapsed=1.17s days=0 population=0 food=301 foodNet=276.2 wood=60.61 woodNet=3.75 productivity=0/1.21K researchPower=10 era=Ultra
+[KingdomPacing] era=Animal samples=1.1s resourceWait=0.0% researchWait=0.0% productivityBlocked=100.0% populationBlocked=0.0% actionAvailable=0.0%
+[王国界面] Detail content bounds: viewport=(582.00, 1678.00), content=(582.00, 2995.61), rangeY=1317.6, flowSection=(514.00, 932.00), requirementSection=(514.00, 1234.00), requirementRows=13, active=True, customGestureEnabled=True
+[王国界面] Detail content bounds: viewport=(582.00, 1678.00), content=(582.00, 2995.61), rangeY=1317.6, flowSection=(514.00, 932.00), requirementSection=(514.00, 1234.00), requirementRows=13, active=True, customGestureEnabled=True
+[王国界面] Outer page scroll diagnostic: Production:enabled=False:vertical=False:viewport=(1630.00, 1588.00):content=(1630.00, 1588.00):position=(0.00, 0.00):normalized=0:raycast=True:eventSystem=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(2592.00, 1588.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(2592.00, 1588.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph overflow state: viewport=(1630.00, 1588.00), content=(2592.00, 1588.00), horizontal=True, vertical=False
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(2592.00, 1588.00), scale=1, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-481.00, 0.00), bounds=(2592.00, 1588.00) vs (1630.00, 1588.00)
+[王国界面] Research graph overflow state: viewport=(1630.00, 808.00), content=(2592.00, 1588.00), horizontal=True, vertical=True
+[王国界面] Research graph bounds: viewport=(1630.00, 808.00), content=(2592.00, 1588.00), scale=1, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[ProductionPageScreenshot] size=(2640, 1200) viewport=(1630.00, 808.00) visibleNodes=7
+[ProductionPageEvidence] size=(2640, 1200) viewport=(1630.00, 808.00) graph=(2592.00, 1588.00) nodes=9 horizontal=True vertical=True
+[ProductionPageScreenshot] size=(1760, 800) viewport=(1630.00, 808.00) visibleNodes=7
+[ProductionPageEvidence] size=(1760, 800) viewport=(1630.00, 808.00) graph=(2592.00, 1588.00) nodes=9 horizontal=True vertical=True
+[王国界面] Detail content bounds: viewport=(582.00, 1678.00), content=(582.00, 1809.29), rangeY=131.3, flowSection=(514.00, 580.00), requirementSection=(514.00, 530.00), requirementRows=5, active=True, customGestureEnabled=True
+[王国界面] Detail content bounds: viewport=(582.00, 1678.00), content=(582.00, 1809.29), rangeY=131.3, flowSection=(514.00, 580.00), requirementSection=(514.00, 530.00), requirementRows=5, active=True, customGestureEnabled=True
+[王国界面] Research graph overflow state: viewport=(1630.00, 1588.00), content=(2592.00, 1588.00), horizontal=True, vertical=False
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(2592.00, 1588.00), scale=1, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph overflow state: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), horizontal=False, vertical=False
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=1, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=False, verticalScrollable=False, overflow=x=False,y=False
+[王国界面] Research graph overflow state: viewport=(1630.00, 1588.00), content=(2025.08, 1972.90), horizontal=True, vertical=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=1.242378, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-197.54, -384.90), bounds=(2025.08, 1972.90) vs (1630.00, 1588.00)
+[王国界面] Research graph bounds: viewport=(1630.00, 808.00), content=(1630.00, 1588.00), scale=1.242378, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[ProductionPageScreenshot] size=(2640, 1200) viewport=(1630.00, 808.00) visibleNodes=5
+[ProductionPageEvidence] size=(2640, 1200) viewport=(1630.00, 808.00) graph=(1630.00, 1588.00) nodes=5 horizontal=True vertical=True
+[ProductionPageScreenshot] size=(1760, 800) viewport=(1630.00, 808.00) visibleNodes=5
+[ProductionPageEvidence] size=(1760, 800) viewport=(1630.00, 808.00) graph=(1630.00, 1588.00) nodes=5 horizontal=True vertical=True
+[王国界面] Detail content bounds: viewport=(582.00, 1678.00), content=(582.00, 1678.00), rangeY=0.0, flowSection=(514.00, 580.00), requirementSection=(514.00, 442.00), requirementRows=4, active=True, customGestureEnabled=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=1.242378, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=1.242378, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-763.32, -1487.30), bounds=(3156.63, 3075.30) vs (1630.00, 1588.00)
+[王国界面] Detail content bounds: viewport=(582.00, 1678.00), content=(582.00, 1678.00), rangeY=0.0, flowSection=(514.00, 228.00), requirementSection=(514.00, 442.00), requirementRows=4, active=True, customGestureEnabled=True
+[王国界面] Research graph bounds: viewport=(1630.00, 808.00), content=(1630.00, 1588.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[ProductionPageScreenshot] size=(2640, 1200) viewport=(1630.00, 808.00) visibleNodes=1
+[ProductionPageEvidence] size=(2640, 1200) viewport=(1630.00, 808.00) graph=(1630.00, 1588.00) nodes=2 horizontal=True vertical=True
+[ProductionPageScreenshot] size=(1760, 800) viewport=(1630.00, 808.00) visibleNodes=1
+[ProductionPageEvidence] size=(1760, 800) viewport=(1630.00, 808.00) graph=(1630.00, 1588.00) nodes=2 horizontal=True vertical=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-763.32, -1487.30), bounds=(3156.63, 3075.30) vs (1630.00, 1588.00)
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-918.24, -1487.30), bounds=(3156.63, 3075.30) vs (1630.00, 1588.00)
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1616.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(1630.00, 1616.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1616.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-1228.10, -1541.52), bounds=(3156.63, 3129.52) vs (1630.00, 1588.00)
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(3552.00, 2014.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(3552.00, 2014.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(3552.00, 2014.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-3863.79, -2312.28), bounds=(6878.75, 3900.28) vs (1630.00, 1588.00)
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(3712.00, 2412.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(3712.00, 2412.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(3712.00, 2412.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-4173.64, -3083.04), bounds=(7188.60, 4671.04) vs (1630.00, 1588.00)
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(3872.00, 2810.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(3872.00, 2810.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(3872.00, 2810.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-4483.50, -3853.81), bounds=(7498.46, 5441.80) vs (1630.00, 1588.00)
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4032.00, 3208.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(4032.00, 3208.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4032.00, 3208.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-4793.35, -4624.57), bounds=(7808.31, 6212.57) vs (1630.00, 1588.00)
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4192.00, 3606.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(4192.00, 3606.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4192.00, 3606.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-5103.21, -5395.33), bounds=(8118.17, 6983.33) vs (1630.00, 1588.00)
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4352.00, 4004.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(4352.00, 4004.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4352.00, 4004.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-5413.06, -6166.09), bounds=(8428.02, 7754.09) vs (1630.00, 1588.00)
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4512.00, 4402.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(4512.00, 4402.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4512.00, 4402.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-5722.91, -6936.85), bounds=(8737.87, 8524.85) vs (1630.00, 1588.00)
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4512.00, 4800.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(4512.00, 4800.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4512.00, 4800.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-5722.91, -7707.61), bounds=(8737.87, 9295.61) vs (1630.00, 1588.00)
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4512.00, 5198.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(4512.00, 5198.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4512.00, 5198.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-5722.91, -8478.37), bounds=(8737.87, 10066.37) vs (1630.00, 1588.00)
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4512.00, 5596.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(4512.00, 5596.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4512.00, 5596.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-5722.91, -9249.13), bounds=(8737.87, 10837.13) vs (1630.00, 1588.00)
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4592.00, 5994.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(4592.00, 5994.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4592.00, 5994.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-6962.33, -10019.89), bounds=(8892.80, 11607.89) vs (1630.00, 1588.00)
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4612.00, 6392.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(4612.00, 6392.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4612.00, 6392.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-7272.18, -10790.65), bounds=(8931.53, 12378.65) vs (1630.00, 1588.00)
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4612.00, 6790.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(4612.00, 6790.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4612.00, 6790.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-7272.18, -11561.41), bounds=(8931.53, 13149.41) vs (1630.00, 1588.00)
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4632.00, 6790.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(4632.00, 6790.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4632.00, 6790.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-7340.26, -11561.41), bounds=(8970.26, 13149.41) vs (1630.00, 1588.00)
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4662.00, 6790.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(4662.00, 6790.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4662.00, 6790.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-7398.36, -11561.41), bounds=(9028.36, 13149.41) vs (1630.00, 1588.00)
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4692.00, 6790.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(4692.00, 6790.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4692.00, 6790.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-7456.46, -11561.41), bounds=(9086.46, 13149.41) vs (1630.00, 1588.00)
+[王国界面] Research graph overflow state: viewport=(1630.00, 1588.00), content=(13260.00, 1980.00), horizontal=True, vertical=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(13260.00, 1980.00), scale=1, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(13260.00, 1980.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(13260.00, 1980.00), scale=1.3, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4692.00, 7188.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(4692.00, 7188.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4692.00, 7188.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-7456.46, -12332.17), bounds=(9086.46, 13920.17) vs (1630.00, 1588.00)
+[王国界面] Research runtime node rects: nodes=145, uniquePositions=145, range=(25,65)-(13030,1865), content=(13260.00, 1980.00)
+[王国界面] Research progress visual: id=AdaptiveFleetLogistics, fill=1.000, color=RGBA(1.000, 1.000, 1.000, 1.000), alpha=1.000, active=True, sibling=0
+[王国界面] Research page build complete: nodes=145, elapsedMs=5787.4
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4732.00, 7586.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(4732.00, 7586.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4732.00, 7586.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-7533.92, -13102.93), bounds=(9163.92, 14690.94) vs (1630.00, 1588.00)
+[王国界面] Research graph runtime validation: valid=True, duplicates=0, backwardsEdges=0, missingNodes=0, missingDragForwarders=0, positiveBounds=True, dragSurface=True
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4742.00, 7984.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(4742.00, 7984.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4742.00, 7984.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-7553.29, -13873.70), bounds=(9183.29, 15461.70) vs (1630.00, 1588.00)
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4742.00, 7984.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(4742.00, 7984.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4742.00, 7984.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-7553.29, -13873.70), bounds=(9183.29, 15461.70) vs (1630.00, 1588.00)
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4742.00, 8382.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(4742.00, 8382.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4742.00, 8382.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-7553.29, -14644.46), bounds=(9183.29, 16232.46) vs (1630.00, 1588.00)
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4742.00, 8780.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(4742.00, 8780.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4742.00, 8780.00), scale=1.936585, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-7553.29, -15415.22), bounds=(9183.29, 17003.22) vs (1630.00, 1588.00)
+[KingdomPerf] RefreshUI 18.1ms page=Production
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4742.00, 8780.00), scale=1.25, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Outer page scroll diagnostic: Resources:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 144.00):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Outer page scroll diagnostic: Production:enabled=False:vertical=False:viewport=(1630.00, 1588.00):content=(1630.00, 1588.00):position=(0.00, 0.00):normalized=0:raycast=True:eventSystem=True
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4742.00, 8780.00), scale=1.25, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4742.00, 8780.00), scale=1.25, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=1.25, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=1.25, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-3.75, -397.00), bounds=(2037.50, 1985.00) vs (1630.00, 1588.00)
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4742.00, 8780.00), scale=1.25, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(4742.00, 8780.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4742.00, 8780.00), scale=1.25, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-3492.50, -9387.00), bounds=(5927.50, 10975.00) vs (1630.00, 1588.00)
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(4742.00, 8780.00), scale=1, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+[王国界面] Research graph bounds: viewport=(1630.00, 808.00), content=(4742.00, 8780.00), scale=1, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[ProductionPageScreenshot] size=(2640, 1200) viewport=(1630.00, 808.00) visibleNodes=3
+[ProductionPageEvidence] size=(2640, 1200) viewport=(1630.00, 808.00) graph=(4742.00, 8780.00) nodes=83 horizontal=True vertical=True
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u21A9 was not found in the [SIMSUN SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+[ProductionPageScreenshot] size=(1760, 800) viewport=(1630.00, 808.00) visibleNodes=3
+[ProductionPageEvidence] size=(1760, 800) viewport=(1630.00, 808.00) graph=(4742.00, 8780.00) nodes=83 horizontal=True vertical=True
+[KingdomPacing] era=Ultra samples=7.2s resourceWait=0.0% researchWait=0.0% productivityBlocked=0.0% populationBlocked=0.0% actionAvailable=100.0%
+]]></output>
+        </test-case>
+        <test-case id="1123" name="SectorProduction_RespectsOccupationExplorationAndAuthoredIcons" fullname="ResourceProductionTreePlayModeTests.SectorProduction_RespectsOccupationExplorationAndAuthoredIcons" methodname="SectorProduction_RespectsOccupationExplorationAndAuthoredIcons" classname="ResourceProductionTreePlayModeTests" runstate="Runnable" seed="1118633969" result="Passed" start-time="2026-11-04 11:12:55Z" end-time="2026-11-04 11:13:00Z" duration="5.706479" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+          </properties>
+          <output><![CDATA[[王国界面] Canvas configured: mode=ScaleWithScreenSize, reference=(2640.00, 1200.00), match=0
+[王国界面] 复用共享字体：
+[王国界面] Research tree cache warmed: prefabs=19/19, sprites=19/19
+[王国界面] Legacy UI isolated: SafeAreaRoot is the only runtime UI surface
+[王国界面] Development guidance binding deferred until layout: rect=(0.00, 0.00)
+[王国界面] Detail UI rebuilt: legacyChildren=discarded, viewport=(582.00, -302.00), content=(582.00, 1.00), footer=82
+[王国界面] Research queue graphic bound: horizontal drag, ResearchNode prefab, ResearchLine bus/end sprites
+[王国界面] Detail UI v2 bound; legacy detail hierarchy is inactive.
+[KingdomUI] UnsafeAreaTicker screen=640x480 safeArea=(0.00, 0.00) edge=None designWidth=0.0 text=False
+[王国界面] Authored scene shell bound; Detail UI v2 rebuilt and legacy detail UI discarded.
+[王国界面] Detail UI v2 geometry: viewport=(582.00, 178.00), content=(582.00, 178.00)
+[王国界面] Runtime geometry valid: screen=640x480, safeArea=(640.00, 480.00), navigation=(270.00, 348.00), detail=(622.00, 348.00), bottomDelta=0.00, topDelta=0.00
+[王国界面] Panel alignment: navigation=(270.00, 348.00), detail=(622.00, 348.00), bottomDelta=0.00, topDelta=0.00
+[王国界面] Outer page scroll diagnostic: Overview:enabled=True:vertical=True:viewport=(-370.00, 88.00):content=(-370.00, 0.00):position=(0.00, 0.00):normalized=0:raycast=True:eventSystem=False
+[王国界面] TMP runtime diagnostic: reason=initial, name=Title, active=True, enabled=True, valueLength=4, characterCount=0, vertexCount=0, rect=(249.90, 60.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Date, active=True, enabled=True, valueLength=6, characterCount=0, vertexCount=0, rect=(249.90, 40.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Caption, active=True, enabled=True, valueLength=4, characterCount=0, vertexCount=0, rect=(222.00, 50.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Text, active=True, enabled=True, valueLength=2, characterCount=0, vertexCount=0, rect=(198.00, 72.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic summary: reason=initial, total=75, active=25, nonEmpty=24, characters=11, vertices=56, alphaVisible=25, suspicious=22
+[KingdomUI] UnsafeAreaTicker screen=640x480 safeArea=(2640.00, 1980.00) edge=None designWidth=0.0 text=False
+科研“CivilizationPlanning”没有任何效果，必须至少声明一个真实效果。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+[KingdomMilestone] NewGameStarted elapsed=0.00s days=0 population=0 food=300 foodNet=5 wood=60 woodNet=3.047 productivity=0/0 researchPower=10 era=Animal
+[王国界面] BuildResearchTreePage implementation=ResearchTreeSK-IntegerGrid-v1-batched parent=DataRows (UnityEngine.RectTransform) parentRect=(1630.00, 900.00)
+[王国界面] Outer page scroll diagnostic: Research:enabled=False:vertical=False:viewport=(1630.00, 1588.00):content=(1630.00, 1588.00):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Outer page scroll diagnostic: Overview:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 511.45):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Research page warmed and cached before first tab activation
+[王国剧情] New Overview-style Story shell rendered: era=Animal, unlocked=1, height=5446.885
+[王国界面] Outer page scroll diagnostic: Story:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 5419.84):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Outer page scroll diagnostic: Overview:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 511.45):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Story page warmed and cached before first tab activation
+[MusicManager] Addressables catalog contains 56 tracks.
+[KingdomMilestone] FirstResourceDetailViewed elapsed=0.07s days=0 population=0 food=300 foodNet=5 wood=60 woodNet=3.047 productivity=0/0 researchPower=10 era=Animal
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=1, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=False, verticalScrollable=False, overflow=x=False,y=False
+[王国界面] Research graph overflow state: viewport=(1630.00, 1588.00), content=(3260.00, 3176.00), horizontal=True, vertical=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=2, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Outer page scroll diagnostic: Production:enabled=False:vertical=False:viewport=(1630.00, 1588.00):content=(1630.00, 1588.00):position=(0.00, 0.00):normalized=0:raycast=True:eventSystem=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=2, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=2, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=2, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=2, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=2, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=2, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-815.00, -1588.00), bounds=(3260.00, 3176.00) vs (1630.00, 1588.00)
+[KingdomMilestone] FirstResearchQueued elapsed=0.15s days=0 population=0 food=300 foodNet=276.2 wood=60 woodNet=3.75 productivity=0/1.21K researchPower=10 era=Ultra
+[KingdomMilestone] FirstResearchPaid elapsed=0.15s days=0 population=0 food=300 foodNet=276.2 wood=60 woodNet=3.75 productivity=0/1.21K researchPower=10 era=Ultra
+[KingdomMilestone] FirstResearchCompleted elapsed=0.15s days=0 population=0 food=300 foodNet=276.2 wood=60 woodNet=3.75 productivity=0/1.21K researchPower=10 era=Ultra
+[KingdomMilestone] StoneAgeReached elapsed=0.15s days=0 population=0 food=300 foodNet=276.2 wood=60 woodNet=3.75 productivity=0/1.21K researchPower=10 era=Ultra
+[KingdomMilestone] MedievalReached elapsed=0.15s days=0 population=0 food=300 foodNet=276.2 wood=60 woodNet=3.75 productivity=0/1.21K researchPower=10 era=Ultra
+[KingdomMilestone] IndustrialReached elapsed=0.15s days=0 population=0 food=300 foodNet=276.2 wood=60 woodNet=3.75 productivity=0/1.21K researchPower=10 era=Ultra
+[KingdomPacing] era=Animal samples=0.0s resourceWait=0.0% researchWait=0.0% productivityBlocked=100.0% populationBlocked=0.0% actionAvailable=0.0%
+[王国界面] Research era block: era=Animal, nodes=18, columns=0-4
+[王国界面] Research era block: era=StoneAge, nodes=17, columns=6-9
+[王国界面] Research era block: era=Medieval, nodes=12, columns=11-14
+[王国界面] Research era block: era=Industrial, nodes=36, columns=16-28
+[王国界面] Research era block: era=Spacer, nodes=47, columns=30-42
+[王国界面] Research era block: era=Ultra, nodes=15, columns=44-51
+[王国界面] Research graph topology candidate: nodes=145, layers=52, rows=31, cycles=0
+[王国界面] Research topology decision: selected=topology-integer-grid, reason=canonical-prerequisite-layout, duplicates=0, backwardsEdges=0, inversions=3427
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=2, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=2, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-815.00, -1588.00), bounds=(3260.00, 3176.00) vs (1630.00, 1588.00)
+[王国界面] Research grid layout: nodes=145, duplicates=0, backwardsEdges=0, intermediateNodeCrossings=0, maxGrid=(51,30), grid=255x60, layoutSource=topology-integer-grid
+[王国界面] Research static shell source=scene: viewport, content, lineLayer, dragSurface; toolbar=standard-prefab-runtime-fallback; runtime creates only data-driven repeated nodes, links and era bands.
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=2, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=2, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-815.00, -1588.00), bounds=(3260.00, 3176.00) vs (1630.00, 1588.00)
+[王国界面] Detail content bounds: viewport=(582.00, 1678.00), content=(582.00, 1810.41), rangeY=132.4, flowSection=(514.00, 404.00), requirementSection=(514.00, 794.00), requirementRows=8, active=True, customGestureEnabled=True
+[王国界面] Research graph bounds: viewport=(1630.00, 808.00), content=(1630.00, 1588.00), scale=2, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph routes: links=404, sharedBusSegments=3671, batchGraphics=8, cache=struct-half-cell, renderer=batch-mesh-v1
+[ProductionPageScreenshot] size=(2640, 1200) viewport=(1630.00, 808.00) visibleNodes=1
+[ProductionPageEvidence] size=(2640, 1200) viewport=(1630.00, 808.00) graph=(1630.00, 1588.00) nodes=3 horizontal=True vertical=True
+[王国界面] Outer page scroll diagnostic: Production:enabled=False:vertical=False:viewport=(1630.00, 808.00):content=(1630.00, 808.00):position=(0.00, 0.00):normalized=0:raycast=True:eventSystem=True
+[ProductionPageScreenshot] size=(1760, 800) viewport=(1630.00, 808.00) visibleNodes=1
+[ProductionPageEvidence] size=(1760, 800) viewport=(1630.00, 808.00) graph=(1630.00, 1588.00) nodes=3 horizontal=True vertical=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=2, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph bounds: viewport=(1630.00, 808.00), content=(1630.00, 1588.00), scale=2, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[ProductionPageScreenshot] size=(2640, 1200) viewport=(1630.00, 808.00) visibleNodes=1
+[ProductionPageEvidence] size=(2640, 1200) viewport=(1630.00, 808.00) graph=(1630.00, 1588.00) nodes=3 horizontal=True vertical=True
+[ProductionPageScreenshot] size=(1760, 800) viewport=(1630.00, 808.00) visibleNodes=1
+[ProductionPageEvidence] size=(1760, 800) viewport=(1630.00, 808.00) graph=(1630.00, 1588.00) nodes=3 horizontal=True vertical=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=2, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph bounds: viewport=(1630.00, 808.00), content=(1630.00, 1588.00), scale=2, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[ProductionPageScreenshot] size=(2640, 1200) viewport=(1630.00, 808.00) visibleNodes=1
+[ProductionPageEvidence] size=(2640, 1200) viewport=(1630.00, 808.00) graph=(1630.00, 1588.00) nodes=3 horizontal=True vertical=True
+[ProductionPageScreenshot] size=(1760, 800) viewport=(1630.00, 808.00) visibleNodes=1
+[ProductionPageEvidence] size=(1760, 800) viewport=(1630.00, 808.00) graph=(1630.00, 1588.00) nodes=3 horizontal=True vertical=True
+[王国界面] Detail content bounds: viewport=(582.00, 1678.00), content=(582.00, 1810.41), rangeY=132.4, flowSection=(514.00, 404.00), requirementSection=(514.00, 794.00), requirementRows=8, active=True, customGestureEnabled=True
+[王国界面] Outer page scroll diagnostic: Production:enabled=False:vertical=False:viewport=(1630.00, 1588.00):content=(1630.00, 1588.00):position=(0.00, 0.00):normalized=0:raycast=True:eventSystem=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=2, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=2, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=1.242378, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-197.54, -384.90), bounds=(2025.08, 1972.90) vs (1630.00, 1588.00)
+[王国界面] Research graph bounds: viewport=(1630.00, 808.00), content=(1630.00, 1588.00), scale=1.242378, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[ProductionPageScreenshot] size=(2640, 1200) viewport=(1630.00, 808.00) visibleNodes=5
+[ProductionPageEvidence] size=(2640, 1200) viewport=(1630.00, 808.00) graph=(1630.00, 1588.00) nodes=5 horizontal=True vertical=True
+[ProductionPageScreenshot] size=(1760, 800) viewport=(1630.00, 808.00) visibleNodes=5
+[ProductionPageEvidence] size=(1760, 800) viewport=(1630.00, 808.00) graph=(1630.00, 1588.00) nodes=5 horizontal=True vertical=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=1.242378, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=1.242378, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(1630.00, 1588.00), scale=1.643145, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph moved by UIResearchGraphGesture: position=(-524.16, -1021.31), bounds=(2678.33, 2609.31) vs (1630.00, 1588.00)
+[KingdomMilestone] FirstBuildingBuilt elapsed=2.28s days=0 population=0 food=300 foodNet=276.2 wood=60 woodNet=3.75 productivity=0/1.21K researchPower=10 era=Ultra
+[王国界面] Research graph bounds: viewport=(1630.00, 808.00), content=(1630.00, 1588.00), scale=1.643145, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[ProductionPageScreenshot] size=(2640, 1200) viewport=(1630.00, 808.00) visibleNodes=4
+[ProductionPageEvidence] size=(2640, 1200) viewport=(1630.00, 808.00) graph=(1630.00, 1588.00) nodes=4 horizontal=True vertical=True
+[ProductionPageScreenshot] size=(1760, 800) viewport=(1630.00, 808.00) visibleNodes=4
+[ProductionPageEvidence] size=(1760, 800) viewport=(1630.00, 808.00) graph=(1630.00, 1588.00) nodes=4 horizontal=True vertical=True
+[王国界面] Outer page scroll diagnostic: Sectors:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 528.00):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[SectorBuildings] sector=AlphaCentauri expanded=False collapsed=264 expandedHeight=264 cards=0 viewport=(1630.00, 1588.00) content=(1630.00, 528.00)
+[SectorBuildings] sector=AzurePool expanded=False collapsed=264 expandedHeight=264 cards=0 viewport=(1630.00, 1588.00) content=(1630.00, 528.00)
+[SectorBuildings] sector=DawnRing expanded=False collapsed=264 expandedHeight=548 cards=0 viewport=(1630.00, 1588.00) content=(1630.00, 528.00)
+[SectorBuildings] sector=HeliosCore expanded=False collapsed=264 expandedHeight=784 cards=1 viewport=(1630.00, 1588.00) content=(1630.00, 528.00)
+[SectorBuildings] sector=ProximaB expanded=False collapsed=264 expandedHeight=264 cards=0 viewport=(1630.00, 1588.00) content=(1630.00, 528.00)
+[SectorBuildings] sector=ShardCrown expanded=False collapsed=264 expandedHeight=264 cards=0 viewport=(1630.00, 1588.00) content=(1630.00, 528.00)
+[SectorBuildings] sector=SiriusResourceBelt expanded=False collapsed=264 expandedHeight=264 cards=0 viewport=(1630.00, 1588.00) content=(1630.00, 528.00)
+[SectorBuildings] sector=TauCetiFoundry expanded=False collapsed=264 expandedHeight=264 cards=0 viewport=(1630.00, 1588.00) content=(1630.00, 528.00)
+[SectorBuildings] sector=Terminus expanded=False collapsed=264 expandedHeight=264 cards=0 viewport=(1630.00, 1588.00) content=(1630.00, 528.00)
+[SectorBuildings] sector=ThunderGate expanded=False collapsed=264 expandedHeight=264 cards=0 viewport=(1630.00, 1588.00) content=(1630.00, 528.00)
+[王国界面] Outer page scroll diagnostic: Sectors:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 812.00):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[SectorBuildings] sector=AlphaCentauri expanded=False collapsed=264 expandedHeight=264 cards=0 viewport=(1630.00, 1588.00) content=(1630.00, 812.00)
+[SectorBuildings] sector=AzurePool expanded=False collapsed=264 expandedHeight=264 cards=0 viewport=(1630.00, 1588.00) content=(1630.00, 812.00)
+[SectorBuildings] sector=DawnRing expanded=True collapsed=264 expandedHeight=548 cards=0 viewport=(1630.00, 1588.00) content=(1630.00, 812.00)
+[SectorBuildings] sector=HeliosCore expanded=False collapsed=264 expandedHeight=784 cards=1 viewport=(1630.00, 1588.00) content=(1630.00, 812.00)
+[SectorBuildings] sector=ProximaB expanded=False collapsed=264 expandedHeight=264 cards=0 viewport=(1630.00, 1588.00) content=(1630.00, 812.00)
+[SectorBuildings] sector=ShardCrown expanded=False collapsed=264 expandedHeight=264 cards=0 viewport=(1630.00, 1588.00) content=(1630.00, 812.00)
+[SectorBuildings] sector=SiriusResourceBelt expanded=False collapsed=264 expandedHeight=264 cards=0 viewport=(1630.00, 1588.00) content=(1630.00, 812.00)
+[SectorBuildings] sector=TauCetiFoundry expanded=False collapsed=264 expandedHeight=264 cards=0 viewport=(1630.00, 1588.00) content=(1630.00, 812.00)
+[SectorBuildings] sector=Terminus expanded=False collapsed=264 expandedHeight=264 cards=0 viewport=(1630.00, 1588.00) content=(1630.00, 812.00)
+[SectorBuildings] sector=ThunderGate expanded=False collapsed=264 expandedHeight=264 cards=0 viewport=(1630.00, 1588.00) content=(1630.00, 812.00)
+[王国界面] Authored building rows: visible=33, rowsRect=(1630.00, 720.00)
+[王国界面] Outer page scroll diagnostic: Buildings:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 6336.00):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Research graph overflow state: viewport=(1630.00, 1588.00), content=(13260.00, 1980.00), horizontal=True, vertical=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(13260.00, 1980.00), scale=1, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(13260.00, 1980.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(13260.00, 1980.00), scale=1.3, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research runtime node rects: nodes=145, uniquePositions=145, range=(25,65)-(13030,1865), content=(13260.00, 1980.00)
+[王国界面] Research page build complete: nodes=145, elapsedMs=4573.0
+[王国界面] Research graph runtime validation: valid=True, duplicates=0, backwardsEdges=0, missingNodes=0, missingDragForwarders=0, positiveBounds=True, dragSurface=True
+[KingdomPacing] era=Ultra samples=5.0s resourceWait=0.0% researchWait=0.0% productivityBlocked=0.0% populationBlocked=0.0% actionAvailable=100.0%
+]]></output>
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1125" name="ReviewInteractionPlayModeTests" fullname="ReviewInteractionPlayModeTests" classname="ReviewInteractionPlayModeTests" runstate="Runnable" testcasecount="24" result="Passed" start-time="2026-11-04 11:13:00Z" end-time="2026-11-04 11:13:04Z" duration="3.824249" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1132" name="BuildingCapacityShortages_ShowResolvedIconsAndSelectedBatchDeficits" fullname="ReviewInteractionPlayModeTests.BuildingCapacityShortages_ShowResolvedIconsAndSelectedBatchDeficits" methodname="BuildingCapacityShortages_ShowResolvedIconsAndSelectedBatchDeficits" classname="ReviewInteractionPlayModeTests" runstate="Runnable" seed="421607129" result="Passed" start-time="2026-11-04 11:13:00Z" end-time="2026-11-04 11:13:02Z" duration="1.433738" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+          </properties>
+          <output><![CDATA[[王国界面] Canvas configured: mode=ScaleWithScreenSize, reference=(2640.00, 1200.00), match=0
+[王国界面] 复用共享字体：
+[王国界面] Research tree cache warmed: prefabs=19/19, sprites=19/19
+[王国界面] Legacy UI isolated: SafeAreaRoot is the only runtime UI surface
+[王国界面] Development guidance binding deferred until layout: rect=(0.00, 0.00)
+[王国界面] Detail UI rebuilt: legacyChildren=discarded, viewport=(582.00, -302.00), content=(582.00, 1.00), footer=82
+[王国界面] Research queue graphic bound: horizontal drag, ResearchNode prefab, ResearchLine bus/end sprites
+[王国界面] Detail UI v2 bound; legacy detail hierarchy is inactive.
+[KingdomUI] UnsafeAreaTicker screen=640x480 safeArea=(0.00, 0.00) edge=None designWidth=0.0 text=False
+[王国界面] Authored scene shell bound; Detail UI v2 rebuilt and legacy detail UI discarded.
+[王国界面] Detail UI v2 geometry: viewport=(582.00, 178.00), content=(582.00, 178.00)
+[王国界面] Runtime geometry valid: screen=640x480, safeArea=(640.00, 480.00), navigation=(270.00, 348.00), detail=(622.00, 348.00), bottomDelta=0.00, topDelta=0.00
+[王国界面] Panel alignment: navigation=(270.00, 348.00), detail=(622.00, 348.00), bottomDelta=0.00, topDelta=0.00
+[王国界面] Outer page scroll diagnostic: Overview:enabled=True:vertical=True:viewport=(-370.00, 88.00):content=(-370.00, 0.00):position=(0.00, 0.00):normalized=0:raycast=True:eventSystem=False
+[王国界面] TMP runtime diagnostic: reason=initial, name=Title, active=True, enabled=True, valueLength=4, characterCount=0, vertexCount=0, rect=(249.90, 60.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Date, active=True, enabled=True, valueLength=6, characterCount=0, vertexCount=0, rect=(249.90, 40.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Caption, active=True, enabled=True, valueLength=4, characterCount=0, vertexCount=0, rect=(222.00, 50.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Text, active=True, enabled=True, valueLength=2, characterCount=0, vertexCount=0, rect=(198.00, 72.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic summary: reason=initial, total=75, active=25, nonEmpty=24, characters=11, vertices=56, alphaVisible=25, suspicious=22
+[KingdomUI] UnsafeAreaTicker screen=640x480 safeArea=(2640.00, 1980.00) edge=None designWidth=0.0 text=False
+科研“CivilizationPlanning”没有任何效果，必须至少声明一个真实效果。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+[KingdomMilestone] NewGameStarted elapsed=0.00s days=0 population=0 food=300 foodNet=5 wood=60 woodNet=3.047 productivity=0/0 researchPower=10 era=Animal
+[王国界面] BuildResearchTreePage implementation=ResearchTreeSK-IntegerGrid-v1-batched parent=DataRows (UnityEngine.RectTransform) parentRect=(1630.00, 900.00)
+[王国界面] Outer page scroll diagnostic: Research:enabled=False:vertical=False:viewport=(1630.00, 1588.00):content=(1630.00, 1588.00):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Outer page scroll diagnostic: Overview:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 511.45):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Research page warmed and cached before first tab activation
+[王国剧情] New Overview-style Story shell rendered: era=Animal, unlocked=1, height=5446.885
+[王国界面] Outer page scroll diagnostic: Story:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 5419.84):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Outer page scroll diagnostic: Overview:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 511.45):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Story page warmed and cached before first tab activation
+[MusicManager] Addressables catalog contains 56 tracks.
+[王国界面] Authored building rows: visible=9, rowsRect=(1630.00, 720.00)
+[王国界面] Outer page scroll diagnostic: Buildings:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 1728.00):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[KingdomMilestone] FirstResearchQueued elapsed=0.30s days=0 population=0 food=300 foodNet=5 wood=1M woodNet=3.047 productivity=0/0 researchPower=10 era=Animal
+[KingdomMilestone] FirstResearchPaid elapsed=0.30s days=0 population=0 food=300 foodNet=5 wood=1M woodNet=3.047 productivity=0/0 researchPower=10 era=Animal
+[KingdomMilestone] FirstResearchCompleted elapsed=0.30s days=0 population=0 food=300 foodNet=5 wood=1M woodNet=3.047 productivity=0/0 researchPower=10 era=Animal
+[王国界面] Research era block: era=Animal, nodes=18, columns=0-4
+[王国界面] Research era block: era=StoneAge, nodes=17, columns=6-9
+[王国界面] Research era block: era=Medieval, nodes=12, columns=11-14
+[王国界面] Research era block: era=Industrial, nodes=36, columns=16-28
+[王国界面] Research era block: era=Spacer, nodes=47, columns=30-42
+[王国界面] Research era block: era=Ultra, nodes=15, columns=44-51
+[王国界面] Research graph topology candidate: nodes=145, layers=52, rows=31, cycles=0
+[王国界面] Research topology decision: selected=topology-integer-grid, reason=canonical-prerequisite-layout, duplicates=0, backwardsEdges=0, inversions=3427
+[王国界面] Detail content bounds: viewport=(582.00, 1678.00), content=(582.00, 1678.00), rangeY=0.0, flowSection=(514.00, 140.00), requirementSection=(514.00, 178.00), requirementRows=1, active=True, customGestureEnabled=True
+[王国界面] Detail content bounds: viewport=(582.00, 1678.00), content=(582.00, 1678.00), rangeY=0.0, flowSection=(514.00, 140.00), requirementSection=(514.00, 178.00), requirementRows=1, active=True, customGestureEnabled=True
+[王国界面] Detail content bounds: viewport=(582.00, 1678.00), content=(582.00, 1678.00), rangeY=0.0, flowSection=(514.00, 140.00), requirementSection=(514.00, 178.00), requirementRows=1, active=True, customGestureEnabled=True
+[王国界面] Research grid layout: nodes=145, duplicates=0, backwardsEdges=0, intermediateNodeCrossings=0, maxGrid=(51,30), grid=255x60, layoutSource=topology-integer-grid
+[王国界面] Research static shell source=scene: viewport, content, lineLayer, dragSurface; toolbar=standard-prefab-runtime-fallback; runtime creates only data-driven repeated nodes, links and era bands.
+[王国界面] Detail content bounds: viewport=(582.00, 1678.00), content=(582.00, 1678.00), rangeY=0.0, flowSection=(514.00, 140.00), requirementSection=(514.00, 178.00), requirementRows=1, active=True, customGestureEnabled=True
+[KingdomPerf] RefreshUI 12.4ms page=Buildings
+[KingdomMilestone] FirstBuildingBuilt elapsed=0.67s days=0 population=0 food=300 foodNet=5 wood=999.9K woodNet=3.047 productivity=6/0 researchPower=10 era=Animal
+[王国界面] Detail content bounds: viewport=(582.00, 1678.00), content=(582.00, 1678.00), rangeY=0.0, flowSection=(514.00, 140.00), requirementSection=(514.00, 178.00), requirementRows=1, active=True, customGestureEnabled=True
+[王国界面] Detail content bounds: viewport=(582.00, 1678.00), content=(582.00, 1678.00), rangeY=0.0, flowSection=(514.00, 140.00), requirementSection=(514.00, 178.00), requirementRows=1, active=True, customGestureEnabled=True
+[KingdomMilestone] FirstPopulation elapsed=0.87s days=0 population=100 food=300 foodNet=-75 wood=999.9K woodNet=2.5 productivity=6/200 researchPower=10 era=Animal
+[王国界面] Detail content bounds: viewport=(582.00, 1678.00), content=(582.00, 1678.00), rangeY=0.0, flowSection=(514.00, 140.00), requirementSection=(514.00, 178.00), requirementRows=1, active=True, customGestureEnabled=True
+[KingdomPacing] era=Animal samples=1.0s resourceWait=35.3% researchWait=0.0% productivityBlocked=64.7% populationBlocked=0.0% actionAvailable=0.0%
+]]></output>
+        </test-case>
+        <test-case id="1131" name="BuildingQuantity_UpdatesBatchAvailabilityAndClipsCustomInput" fullname="ReviewInteractionPlayModeTests.BuildingQuantity_UpdatesBatchAvailabilityAndClipsCustomInput" methodname="BuildingQuantity_UpdatesBatchAvailabilityAndClipsCustomInput" classname="ReviewInteractionPlayModeTests" runstate="Runnable" seed="355554888" result="Passed" start-time="2026-11-04 11:13:02Z" end-time="2026-11-04 11:13:02Z" duration="0.492034" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+          </properties>
+          <output><![CDATA[[王国界面] Canvas configured: mode=ScaleWithScreenSize, reference=(2640.00, 1200.00), match=0
+[王国界面] 复用共享字体：
+[王国界面] Research tree cache warmed: prefabs=19/19, sprites=19/19
+[王国界面] Legacy UI isolated: SafeAreaRoot is the only runtime UI surface
+[王国界面] Development guidance binding deferred until layout: rect=(0.00, 0.00)
+[王国界面] Detail UI rebuilt: legacyChildren=discarded, viewport=(582.00, -302.00), content=(582.00, 1.00), footer=82
+[王国界面] Research queue graphic bound: horizontal drag, ResearchNode prefab, ResearchLine bus/end sprites
+[王国界面] Detail UI v2 bound; legacy detail hierarchy is inactive.
+[KingdomUI] UnsafeAreaTicker screen=640x480 safeArea=(0.00, 0.00) edge=None designWidth=0.0 text=False
+[王国界面] Authored scene shell bound; Detail UI v2 rebuilt and legacy detail UI discarded.
+[王国界面] Detail UI v2 geometry: viewport=(582.00, 178.00), content=(582.00, 178.00)
+[王国界面] Runtime geometry valid: screen=640x480, safeArea=(640.00, 480.00), navigation=(270.00, 348.00), detail=(622.00, 348.00), bottomDelta=0.00, topDelta=0.00
+[王国界面] Panel alignment: navigation=(270.00, 348.00), detail=(622.00, 348.00), bottomDelta=0.00, topDelta=0.00
+[王国界面] Outer page scroll diagnostic: Overview:enabled=True:vertical=True:viewport=(-370.00, 88.00):content=(-370.00, 0.00):position=(0.00, 0.00):normalized=0:raycast=True:eventSystem=False
+[王国界面] TMP runtime diagnostic: reason=initial, name=Title, active=True, enabled=True, valueLength=4, characterCount=0, vertexCount=0, rect=(249.90, 60.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Date, active=True, enabled=True, valueLength=6, characterCount=0, vertexCount=0, rect=(249.90, 40.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Caption, active=True, enabled=True, valueLength=4, characterCount=0, vertexCount=0, rect=(222.00, 50.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Text, active=True, enabled=True, valueLength=2, characterCount=0, vertexCount=0, rect=(198.00, 72.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic summary: reason=initial, total=75, active=23, nonEmpty=22, characters=11, vertices=56, alphaVisible=23, suspicious=20
+[KingdomUI] UnsafeAreaTicker screen=640x480 safeArea=(2640.00, 1980.00) edge=None designWidth=0.0 text=False
+科研“CivilizationPlanning”没有任何效果，必须至少声明一个真实效果。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+[KingdomMilestone] NewGameStarted elapsed=0.00s days=0 population=0 food=300 foodNet=5 wood=60 woodNet=3.047 productivity=0/0 researchPower=10 era=Animal
+[王国界面] BuildResearchTreePage implementation=ResearchTreeSK-IntegerGrid-v1-batched parent=DataRows (UnityEngine.RectTransform) parentRect=(1630.00, 900.00)
+[王国界面] Outer page scroll diagnostic: Research:enabled=False:vertical=False:viewport=(1630.00, 1588.00):content=(1630.00, 1588.00):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Outer page scroll diagnostic: Overview:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 511.45):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Research page warmed and cached before first tab activation
+[王国剧情] New Overview-style Story shell rendered: era=Animal, unlocked=1, height=5446.885
+[王国界面] Outer page scroll diagnostic: Story:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 5419.84):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Outer page scroll diagnostic: Overview:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 511.45):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Story page warmed and cached before first tab activation
+[MusicManager] Addressables catalog contains 56 tracks.
+[王国界面] Authored building rows: visible=1, rowsRect=(1630.00, 720.00)
+[王国界面] Outer page scroll diagnostic: Buildings:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 192.00):position=(0.00, 0.00):normalized=0:raycast=True:eventSystem=True
+[王国界面] Detail content bounds: viewport=(582.00, 1678.00), content=(582.00, 1678.00), rangeY=0.0, flowSection=(582.00, 1678.00), requirementSection=(514.00, 178.00), requirementRows=1, active=True, customGestureEnabled=True
+[王国界面] Research era block: era=Animal, nodes=18, columns=0-4
+[王国界面] Research era block: era=StoneAge, nodes=17, columns=6-9
+[王国界面] Research era block: era=Medieval, nodes=12, columns=11-14
+[王国界面] Research era block: era=Industrial, nodes=36, columns=16-28
+[王国界面] Research era block: era=Spacer, nodes=47, columns=30-42
+[王国界面] Research era block: era=Ultra, nodes=15, columns=44-51
+[王国界面] Research graph topology candidate: nodes=145, layers=52, rows=31, cycles=0
+[王国界面] Research topology decision: selected=topology-integer-grid, reason=canonical-prerequisite-layout, duplicates=0, backwardsEdges=0, inversions=3427
+[王国界面] Research grid layout: nodes=145, duplicates=0, backwardsEdges=0, intermediateNodeCrossings=0, maxGrid=(51,30), grid=255x60, layoutSource=topology-integer-grid
+[王国界面] Research static shell source=scene: viewport, content, lineLayer, dragSurface; toolbar=standard-prefab-runtime-fallback; runtime creates only data-driven repeated nodes, links and era bands.
+[KingdomPacing] era=Animal samples=0.1s resourceWait=0.0% researchWait=0.0% productivityBlocked=100.0% populationBlocked=0.0% actionAvailable=0.0%
+]]></output>
+        </test-case>
+        <test-case id="1134" name="OwnedBuildingEfficiency_RemainsInDetailsWhileTheCardShowsPurchaseStatus" fullname="ReviewInteractionPlayModeTests.OwnedBuildingEfficiency_RemainsInDetailsWhileTheCardShowsPurchaseStatus" methodname="OwnedBuildingEfficiency_RemainsInDetailsWhileTheCardShowsPurchaseStatus" classname="ReviewInteractionPlayModeTests" runstate="Runnable" seed="621250444" result="Passed" start-time="2026-11-04 11:13:02Z" end-time="2026-11-04 11:13:03Z" duration="0.493762" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+          </properties>
+          <output><![CDATA[[王国界面] Canvas configured: mode=ScaleWithScreenSize, reference=(2640.00, 1200.00), match=0
+[王国界面] 复用共享字体：
+[王国界面] Research tree cache warmed: prefabs=19/19, sprites=19/19
+[王国界面] Legacy UI isolated: SafeAreaRoot is the only runtime UI surface
+[王国界面] Development guidance binding deferred until layout: rect=(0.00, 0.00)
+[王国界面] Detail UI rebuilt: legacyChildren=discarded, viewport=(582.00, -302.00), content=(582.00, 1.00), footer=82
+[王国界面] Research queue graphic bound: horizontal drag, ResearchNode prefab, ResearchLine bus/end sprites
+[王国界面] Detail UI v2 bound; legacy detail hierarchy is inactive.
+[KingdomUI] UnsafeAreaTicker screen=640x480 safeArea=(0.00, 0.00) edge=None designWidth=0.0 text=False
+[王国界面] Authored scene shell bound; Detail UI v2 rebuilt and legacy detail UI discarded.
+[王国界面] Detail UI v2 geometry: viewport=(582.00, 178.00), content=(582.00, 178.00)
+[王国界面] Runtime geometry valid: screen=640x480, safeArea=(640.00, 480.00), navigation=(270.00, 348.00), detail=(622.00, 348.00), bottomDelta=0.00, topDelta=0.00
+[王国界面] Panel alignment: navigation=(270.00, 348.00), detail=(622.00, 348.00), bottomDelta=0.00, topDelta=0.00
+[王国界面] Outer page scroll diagnostic: Overview:enabled=True:vertical=True:viewport=(-370.00, 88.00):content=(-370.00, 0.00):position=(0.00, 0.00):normalized=0:raycast=True:eventSystem=False
+[王国界面] TMP runtime diagnostic: reason=initial, name=Title, active=True, enabled=True, valueLength=4, characterCount=0, vertexCount=0, rect=(249.90, 60.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Date, active=True, enabled=True, valueLength=6, characterCount=0, vertexCount=0, rect=(249.90, 40.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Caption, active=True, enabled=True, valueLength=4, characterCount=0, vertexCount=0, rect=(222.00, 50.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Text, active=True, enabled=True, valueLength=2, characterCount=0, vertexCount=0, rect=(198.00, 72.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic summary: reason=initial, total=75, active=23, nonEmpty=22, characters=11, vertices=56, alphaVisible=23, suspicious=20
+[KingdomUI] UnsafeAreaTicker screen=640x480 safeArea=(2640.00, 1980.00) edge=None designWidth=0.0 text=False
+科研“CivilizationPlanning”没有任何效果，必须至少声明一个真实效果。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+[KingdomMilestone] NewGameStarted elapsed=0.00s days=0 population=0 food=300 foodNet=5 wood=60 woodNet=3.047 productivity=0/0 researchPower=10 era=Animal
+[王国界面] BuildResearchTreePage implementation=ResearchTreeSK-IntegerGrid-v1-batched parent=DataRows (UnityEngine.RectTransform) parentRect=(1630.00, 900.00)
+[王国界面] Outer page scroll diagnostic: Research:enabled=False:vertical=False:viewport=(1630.00, 1588.00):content=(1630.00, 1588.00):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Outer page scroll diagnostic: Overview:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 511.45):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Research page warmed and cached before first tab activation
+[王国剧情] New Overview-style Story shell rendered: era=Animal, unlocked=1, height=5446.885
+[王国界面] Outer page scroll diagnostic: Story:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 5419.84):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Outer page scroll diagnostic: Overview:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 511.45):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Story page warmed and cached before first tab activation
+[MusicManager] Addressables catalog contains 56 tracks.
+[王国界面] Authored building rows: visible=1, rowsRect=(1630.00, 720.00)
+[王国界面] Outer page scroll diagnostic: Buildings:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 192.00):position=(0.00, 0.00):normalized=0:raycast=True:eventSystem=True
+[王国界面] Detail content bounds: viewport=(582.00, 1678.00), content=(582.00, 1678.00), rangeY=0.0, flowSection=(582.00, 1678.00), requirementSection=(514.00, 178.00), requirementRows=1, active=True, customGestureEnabled=True
+[王国界面] Detail content bounds: viewport=(582.00, 1678.00), content=(582.00, 1678.00), rangeY=0.0, flowSection=(582.00, 1678.00), requirementSection=(514.00, 178.00), requirementRows=1, active=True, customGestureEnabled=True
+[KingdomPacing] era=Animal samples=0.0s resourceWait=0.0% researchWait=0.0% productivityBlocked=100.0% populationBlocked=0.0% actionAvailable=0.0%
+]]></output>
+        </test-case>
+        <test-case id="1126" name="UiHotPaths_RecordMaxCardsAndResourceDetails" fullname="ReviewInteractionPlayModeTests.UiHotPaths_RecordMaxCardsAndResourceDetails" methodname="UiHotPaths_RecordMaxCardsAndResourceDetails" classname="ReviewInteractionPlayModeTests" runstate="Runnable" seed="2060476503" result="Passed" start-time="2026-11-04 11:13:03Z" end-time="2026-11-04 11:13:04Z" duration="1.398960" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="Category" value="Performance" />
+          </properties>
+          <output><![CDATA[[王国界面] Canvas configured: mode=ScaleWithScreenSize, reference=(2640.00, 1200.00), match=0
+[王国界面] 复用共享字体：
+[王国界面] Research tree cache warmed: prefabs=19/19, sprites=19/19
+[王国界面] Legacy UI isolated: SafeAreaRoot is the only runtime UI surface
+[王国界面] Development guidance binding deferred until layout: rect=(0.00, 0.00)
+[王国界面] Detail UI rebuilt: legacyChildren=discarded, viewport=(582.00, -302.00), content=(582.00, 1.00), footer=82
+[王国界面] Research queue graphic bound: horizontal drag, ResearchNode prefab, ResearchLine bus/end sprites
+[王国界面] Detail UI v2 bound; legacy detail hierarchy is inactive.
+[KingdomUI] UnsafeAreaTicker screen=640x480 safeArea=(0.00, 0.00) edge=None designWidth=0.0 text=False
+[王国界面] Authored scene shell bound; Detail UI v2 rebuilt and legacy detail UI discarded.
+[王国界面] Detail UI v2 geometry: viewport=(582.00, 178.00), content=(582.00, 178.00)
+[王国界面] Runtime geometry valid: screen=640x480, safeArea=(640.00, 480.00), navigation=(270.00, 348.00), detail=(622.00, 348.00), bottomDelta=0.00, topDelta=0.00
+[王国界面] Panel alignment: navigation=(270.00, 348.00), detail=(622.00, 348.00), bottomDelta=0.00, topDelta=0.00
+[王国界面] Outer page scroll diagnostic: Overview:enabled=True:vertical=True:viewport=(-370.00, 88.00):content=(-370.00, 0.00):position=(0.00, 0.00):normalized=0:raycast=True:eventSystem=False
+[王国界面] TMP runtime diagnostic: reason=initial, name=Title, active=True, enabled=True, valueLength=4, characterCount=0, vertexCount=0, rect=(249.90, 60.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Date, active=True, enabled=True, valueLength=6, characterCount=0, vertexCount=0, rect=(249.90, 40.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=1, characterCount=0, vertexCount=0, rect=(66.00, 35.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Caption, active=True, enabled=True, valueLength=4, characterCount=0, vertexCount=0, rect=(222.00, 50.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Text, active=True, enabled=True, valueLength=2, characterCount=0, vertexCount=0, rect=(198.00, 72.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic summary: reason=initial, total=75, active=23, nonEmpty=22, characters=11, vertices=56, alphaVisible=23, suspicious=20
+[KingdomUI] UnsafeAreaTicker screen=640x480 safeArea=(2640.00, 1980.00) edge=None designWidth=0.0 text=False
+科研“CivilizationPlanning”没有任何效果，必须至少声明一个真实效果。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+[KingdomMilestone] NewGameStarted elapsed=0.00s days=0 population=0 food=300 foodNet=5 wood=60 woodNet=3.047 productivity=0/0 researchPower=10 era=Animal
+[王国界面] BuildResearchTreePage implementation=ResearchTreeSK-IntegerGrid-v1-batched parent=DataRows (UnityEngine.RectTransform) parentRect=(1630.00, 900.00)
+[王国界面] Outer page scroll diagnostic: Research:enabled=False:vertical=False:viewport=(1630.00, 1588.00):content=(1630.00, 1588.00):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Outer page scroll diagnostic: Overview:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 511.45):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Research page warmed and cached before first tab activation
+[王国剧情] New Overview-style Story shell rendered: era=Animal, unlocked=1, height=5446.885
+[王国界面] Outer page scroll diagnostic: Story:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 5419.84):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Outer page scroll diagnostic: Overview:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 511.45):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Story page warmed and cached before first tab activation
+[MusicManager] Addressables catalog contains 56 tracks.
+[王国界面] Authored building rows: visible=71, rowsRect=(1630.00, 720.00)
+[王国界面] Outer page scroll diagnostic: Buildings:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 13632.00):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[KingdomMilestone] FirstBuildingBuilt elapsed=0.53s days=0 population=0 food=300 foodNet=1.634K wood=1B woodNet=-36.6 productivity=60.08K/0 researchPower=10 era=Archotech
+[KingdomMilestone] FirstResearchQueued elapsed=0.53s days=0 population=0 food=300 foodNet=1.634K wood=1B woodNet=-36.6 productivity=60.08K/0 researchPower=10 era=Archotech
+[KingdomMilestone] FirstResearchPaid elapsed=0.53s days=0 population=0 food=300 foodNet=1.634K wood=1B woodNet=-36.6 productivity=60.08K/0 researchPower=10 era=Archotech
+[KingdomMilestone] FirstResearchCompleted elapsed=0.53s days=0 population=0 food=300 foodNet=1.634K wood=1B woodNet=-36.6 productivity=60.08K/0 researchPower=10 era=Archotech
+[KingdomMilestone] FirstProductionChain elapsed=0.53s days=0 population=0 food=300 foodNet=1.634K wood=1B woodNet=-36.6 productivity=60.08K/0 researchPower=10 era=Archotech
+[KingdomMilestone] StoneAgeReached elapsed=0.53s days=0 population=0 food=300 foodNet=1.634K wood=1B woodNet=-36.6 productivity=60.08K/0 researchPower=10 era=Archotech
+[KingdomMilestone] MedievalReached elapsed=0.53s days=0 population=0 food=300 foodNet=1.634K wood=1B woodNet=-36.6 productivity=60.08K/0 researchPower=10 era=Archotech
+[KingdomMilestone] IndustrialReached elapsed=0.53s days=0 population=0 food=300 foodNet=1.634K wood=1B woodNet=-36.6 productivity=60.08K/0 researchPower=10 era=Archotech
+[KingdomPacing] era=Animal samples=0.0s resourceWait=0.0% researchWait=0.0% productivityBlocked=100.0% populationBlocked=0.0% actionAvailable=0.0%
+[王国界面] Research era block: era=Animal, nodes=18, columns=0-4
+[王国界面] Research era block: era=StoneAge, nodes=17, columns=6-9
+[王国界面] Research era block: era=Medieval, nodes=12, columns=11-14
+[王国界面] Research era block: era=Industrial, nodes=36, columns=16-28
+[王国界面] Research era block: era=Spacer, nodes=47, columns=30-42
+[王国界面] Research era block: era=Ultra, nodes=15, columns=44-51
+[王国界面] Research graph topology candidate: nodes=145, layers=52, rows=31, cycles=0
+[王国界面] Research topology decision: selected=topology-integer-grid, reason=canonical-prerequisite-layout, duplicates=0, backwardsEdges=0, inversions=3427
+[HotPathPerf2] building-max-cards medianMs=3.571110 iterations=10 batches=7 controlledFixture=true
+[王国界面] Authored resource rows: visible=33, rowsRect=(1630.00, 720.00)
+[王国界面] Outer page scroll diagnostic: Resources:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 4752.00):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[KingdomMilestone] FirstResourceDetailViewed elapsed=0.93s days=0 population=0 food=300 foodNet=1.634K wood=1B woodNet=-36.6 productivity=60.08K/0 researchPower=10 era=Archotech
+[王国界面] Research grid layout: nodes=145, duplicates=0, backwardsEdges=0, intermediateNodeCrossings=0, maxGrid=(51,30), grid=255x60, layoutSource=topology-integer-grid
+[王国界面] Research static shell source=scene: viewport, content, lineLayer, dragSurface; toolbar=standard-prefab-runtime-fallback; runtime creates only data-driven repeated nodes, links and era bands.
+[HotPathPerf2] resource-detail-sources medianMs=0.056345 iterations=20 batches=7 controlledFixture=true
+[KingdomPacing] era=Archotech samples=0.9s resourceWait=0.0% researchWait=0.0% productivityBlocked=100.0% populationBlocked=0.0% actionAvailable=0.0%
+]]></output>
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

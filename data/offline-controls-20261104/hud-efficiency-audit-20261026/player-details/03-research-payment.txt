@@ -1,0 +1,24 @@
+自适应舰队后勤
+技术等级: 极致时代
+研究点需求: 15T
+
+为受损运输节点准备替代路线，让一次意外不会切断远征的补给。
+
+研究前置
+  ✓ <link="research:SelfRepairingFleetArchitecture"><u>舰队自修复架构</u></link>
+  ✓ <link="research:AutonomousMatterAssembly"><u>自主物质组装</u></link>
+  ✓ <link="research:InterstellarResourceCoordination"><u>星际资源协同</u></link>
+
+效果
+  远征补给成本 ×0.72
+
+
+研究支付需求
+幽影合金
+<mspace=0.6em>380K</mspace><pos=48%> <color=#C74F47FF><mspace=0.6em>(0)</mspace></color>
+复合材料
+<mspace=0.6em>300K</mspace><pos=48%> <color=#5EB894FF><mspace=0.6em>(12.35M)</mspace></color>
+相位材料
+<mspace=0.6em>240K</mspace><pos=48%> <color=#5EB894FF><mspace=0.6em>(12.35M)</mspace></color>
+电子元件
+<mspace=0.6em>220K</mspace><pos=48%> <color=#5EB894FF><mspace=0.6em>(12.35M)</mspace></color>

@@ -1,0 +1,109 @@
+ M .codex/handoffs/2026-10-24-player-experience-qa-handoff.md
+ M Assets/Resources/Datas/Building/Industrial/AdvancedCeramicsPlant.asset
+ M Assets/Resources/Datas/Building/Industrial/AdvancedMetalRefinery.asset
+ M Assets/Resources/Datas/Building/Industrial/AdvancedMetalSmelter.asset
+ M Assets/Resources/Datas/Building/Industrial/BuildingMaterialsComplex.asset
+ M Assets/Resources/Datas/Building/Industrial/CentralPowerStation.asset
+ M Assets/Resources/Datas/Building/Industrial/ChemicalPlant.asset
+ M Assets/Resources/Datas/Building/Industrial/CokeOven.asset
+ M Assets/Resources/Datas/Building/Industrial/IndustrialCarbonizationRetort.asset
+ M Assets/Resources/Datas/Building/Industrial/IndustrialHabitationComplex.asset
+ M Assets/Resources/Datas/Building/Industrial/IndustrialMetalSmelter.asset
+ M Assets/Resources/Datas/Building/Industrial/IndustrialOilExtractionComplex.asset
+ M Assets/Resources/Datas/Building/Industrial/IndustrialStoneworks.asset
+ M Assets/Resources/Datas/Building/Industrial/IntegratedMetalMine.asset
+ M Assets/Resources/Datas/Building/Industrial/IntegratedPetrochemicalComplex.asset
+ M Assets/Resources/Datas/Building/Industrial/MachineFactory.asset
+ M Assets/Resources/Datas/Building/Industrial/MechanizedCoalMine.asset
+ M Assets/Resources/Datas/Building/Industrial/MechanizedLumberyard.asset
+ M Assets/Resources/Datas/Building/Industrial/MechanizedTextileMill.asset
+ M Assets/Resources/Datas/Building/Industrial/OilDerrick.asset
+ M Assets/Resources/Datas/Building/Industrial/OilRefinery.asset
+ M Assets/Resources/Datas/Building/Industrial/PlantingField.asset
+ M Assets/Resources/Datas/Building/Industrial/RailHub.asset
+ M Assets/Resources/Datas/Building/Industrial/SteamPlant.asset
+ M Assets/Resources/Datas/Building/Industrial/TitaniumAlloySmelter.asset
+ M Assets/Resources/Datas/Building/Industrial/University.asset
+ M Assets/Resources/Datas/Building/Industrial/WireMill.asset
+ M Assets/Resources/Script/Manager/BuildingManager.cs
+ M Assets/Resources/Script/Manager/ProgressionModifierManager.cs
+ M Assets/Resources/Script/Manager/SimulationManager.cs
+ M Assets/Resources/Script/UI/KingdomUIRoot.AuthoredRows.cs
+ M Assets/Resources/Script/UI/KingdomUIRoot.DetailPanel.cs
+ M Assets/Resources/Script/UI/KingdomUIRoot.LiveRefresh.cs
+ M Assets/Resources/Script/UI/KingdomUIRoot.OfflineAcceleration.cs
+ M Assets/Resources/Script/UI/KingdomUIRoot.PageRows.cs
+ M Assets/Resources/Script/UI/KingdomUIRoot.ResearchTree.cs
+ M Assets/Resources/Script/UI/KingdomUIRoot.cs
+ M Assets/Resources/UI/Kingdom/EraCards/Animal/KingdomUIBuildingCard.prefab
+ M Assets/Resources/UI/Kingdom/EraCards/Archotech/KingdomUIBuildingCard.prefab
+ M Assets/Resources/UI/Kingdom/EraCards/Industrial/KingdomUIBuildingCard.prefab
+ M Assets/Resources/UI/Kingdom/EraCards/Medieval/KingdomUIBuildingCard.prefab
+ M Assets/Resources/UI/Kingdom/EraCards/Spacer/KingdomUIBuildingCard.prefab
+ M Assets/Resources/UI/Kingdom/EraCards/StoneAge/KingdomUIBuildingCard.prefab
+ M Assets/Resources/UI/Kingdom/EraCards/Ultra/KingdomUIBuildingCard.prefab
+ M Assets/Resources/UI/Kingdom/KingdomUIBuildingCard.prefab
+ M Assets/Resources/UI/Kingdom/KingdomUIResearchNode.prefab
+ M Assets/Resources/UI/Kingdom/KingdomUIRoot.prefab
+ M Assets/Tests/Editor/C6IndustrialContentTests.cs
+ M Assets/Tests/Editor/ContentProgressionValidatorTests.cs
+ M Assets/Tests/Editor/EconomyIntegrationRegressionTests.cs
+ M Assets/Tests/Editor/OfflineProgressSummaryTests.cs
+ M Assets/Tests/Editor/P40UiConfigurationTests.cs
+ M Assets/Tests/PlayMode/EarlyGameUiExperiencePlayModeTests.cs
+ M Assets/Tests/PlayMode/KingdomPlayModeTests.cs
+ M Assets/Tests/PlayMode/ReviewInteractionPlayModeTests.cs
+ M tools/NewEconomySimulator/SimulationCore.cs
+ M tools/NewEconomySimulator/Tests/ValidationSuite.cs
+ M tools/codex/content-closure-check.ps1
+?? .codex/handoffs/2026-11-09-building-recommendation-star-handoff.md
+?? .workbuddy-ai/memory/
+?? Assets/Resources/Art/UI/Status/BuildingRecommendationStar.png
+?? Assets/Resources/Art/UI/Status/BuildingRecommendationStar.png.meta
+?? data/building-detail-compact-20261026/
+?? data/content-closure-static.md
+?? data/experience-20261023/
+?? data/industrial-feedback-20261110/
+?? data/offline-controls-20261104/deterministic.json
+?? data/offline-controls-20261104/edit-final.xml
+?? data/offline-controls-20261104/edit.xml
+?? data/offline-controls-20261104/frame-evidence/
+?? data/offline-controls-20261104/hud-efficiency-audit-20261026/
+?? data/offline-controls-20261104/layout-verified.xml
+?? data/offline-controls-20261104/play-final.xml
+?? data/offline-controls-20261104/play-verified.xml
+?? data/offline-controls-20261104/play.xml
+?? data/offline-controls-20261104/player-qa-fixes-20261025/
+?? data/performance-20261104/closure-after-console.txt
+?? data/performance-20261104/closure-after.md
+?? data/performance-20261104/closure-before.md
+?? data/performance-20261104/runtime-after-errors.txt
+?? data/performance-20261104/runtime-before-errors.txt
+?? data/performance-20261104/runtime-before.xml
+?? data/performance-20261104/runtime-verified-errors.txt
+?? data/performance-20261104/runtime-verified.xml
+?? data/performance-20261104/sector-test-artifacts/
+?? data/performance-20261104/simulator-after.txt
+?? data/performance-20261104/simulator-before.txt
+?? data/performance-20261104/ui-after-errors.txt
+?? data/performance-20261104/ui-after.xml
+?? data/performance-20261104/ui-before-errors.txt
+?? data/performance-20261104/ui-before.xml
+?? data/performance-overview-20261104/
+?? data/performance-round2-20261104/edit-after-errors.txt
+?? data/performance-round2-20261104/edit-after.xml
+?? data/performance-round2-20261104/edit-before-errors.txt
+?? data/performance-round2-20261104/edit-before.xml
+?? data/performance-round2-20261104/edit-intermediate-errors.txt
+?? data/performance-round2-20261104/edit-intermediate.xml
+?? data/performance-round2-20261104/font-before.backup
+?? data/performance-round2-20261104/play-after-errors.txt
+?? data/performance-round2-20261104/play-after.xml
+?? data/performance-round2-20261104/play-before-errors.txt
+?? data/performance-round2-20261104/play-before.xml
+?? data/performance-round2-20261104/play-building-verified-errors.txt
+?? data/performance-round2-20261104/play-building-verified.xml
+?? data/performance-round2-20261104/play-final-errors.txt
+?? data/performance-round2-20261104/play-final.xml
+?? data/performance-round2-20261104/play-gpu-runner.txt
+?? data/performance-round2-20261104/play-gpu.xml

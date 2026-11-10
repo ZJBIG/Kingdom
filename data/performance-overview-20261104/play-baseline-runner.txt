@@ -1,0 +1,2 @@
+Started: 2026-11-04T21:58:00.1491469+08:00 Command: D:\Unity\Hub\Editor\2022.3.62f3c1\Editor\Unity.exe -batchmode -force-d3d11 -projectPath D:\GitHub\Kingdom -runTests -testPlatform PlayMode -testFilter ReviewInteractionPlayModeTests.UiHotPaths_RecordMaxCardsAndResourceDetails -testResults D:\GitHub\Kingdom\data\performance-overview-20261104\play-baseline.xml -logFile D:\GitHub\Kingdom\data\performance-overview-20261104\play-baseline.log
+UnityExitCode=0 Result=Passed Total=1 Passed=1 Failed=0 Skipped=0

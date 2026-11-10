@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="70" result="Passed" total="70" passed="70" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:29Z" duration="1.128006">
+  <test-suite type="TestSuite" id="2318" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="1136" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:29Z" duration="1.128006" total="70" passed="70" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="3626" name="Assembly-CSharp-Editor.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="1135" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:29Z" duration="1.105790" total="70" passed="70" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="24632" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestFixture" id="2570" name="FlowEfficiencyTests" fullname="FlowEfficiencyTests" classname="FlowEfficiencyTests" runstate="Runnable" testcasecount="17" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.363845" total="17" passed="17" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="ParameterizedMethod" id="2574" name="BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues" fullname="FlowEfficiencyTests.BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues" classname="FlowEfficiencyTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.029826" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2571" name="BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues(-9.0d)" fullname="FlowEfficiencyTests.BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues(-9.0d)" methodname="BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues" classname="FlowEfficiencyTests" runstate="Runnable" seed="220307919" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.022289" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2572" name="BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues(0.0d)" fullname="FlowEfficiencyTests.BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues(0.0d)" methodname="BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues" classname="FlowEfficiencyTests" runstate="Runnable" seed="258295611" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.000280" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2573" name="BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues(9.0d)" fullname="FlowEfficiencyTests.BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues(9.0d)" methodname="BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues" classname="FlowEfficiencyTests" runstate="Runnable" seed="84722978" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.000143" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="2583" name="FlowSatisfaction_UsesProductionAgainstDemandWithoutInventory" fullname="FlowEfficiencyTests.FlowSatisfaction_UsesProductionAgainstDemandWithoutInventory" methodname="FlowSatisfaction_UsesProductionAgainstDemandWithoutInventory" classname="FlowEfficiencyTests" runstate="Runnable" seed="66571840" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.005088" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2584" name="HappinessCurveIsMonotonicAndBounded" fullname="FlowEfficiencyTests.HappinessCurveIsMonotonicAndBounded" methodname="HappinessCurveIsMonotonicAndBounded" classname="FlowEfficiencyTests" runstate="Runnable" seed="790856349" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.008645" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2586" name="HappinessOwnsFoodShortagePenalty" fullname="FlowEfficiencyTests.HappinessOwnsFoodShortagePenalty" methodname="HappinessOwnsFoodShortagePenalty" classname="FlowEfficiencyTests" runstate="Runnable" seed="832780659" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.000527" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2589" name="HappinessWithZeroPopulationIsSafe" fullname="FlowEfficiencyTests.HappinessWithZeroPopulationIsSafe" methodname="HappinessWithZeroPopulationIsSafe" classname="FlowEfficiencyTests" runstate="Runnable" seed="1397154912" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.000445" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2587" name="MedicalHappinessBonusOnlyAppliesWhenFoodIsAvailable" fullname="FlowEfficiencyTests.MedicalHappinessBonusOnlyAppliesWhenFoodIsAvailable" methodname="MedicalHappinessBonusOnlyAppliesWhenFoodIsAvailable" classname="FlowEfficiencyTests" runstate="Runnable" seed="1947471664" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.000417" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2588" name="MedicalHappinessBonusSharesTheExistingUpperBound" fullname="FlowEfficiencyTests.MedicalHappinessBonusSharesTheExistingUpperBound" methodname="MedicalHappinessBonusSharesTheExistingUpperBound" classname="FlowEfficiencyTests" runstate="Runnable" seed="817702465" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.000213" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="2582" name="MigratedBuildingUsesOneAuthoredSignedContribution" fullname="FlowEfficiencyTests.MigratedBuildingUsesOneAuthoredSignedContribution" classname="FlowEfficiencyTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.306300" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2575" name="MigratedBuildingUsesOneAuthoredSignedContribution(&quot;DeepSpaceRelay&quot;,False,-23.0d)" fullname="FlowEfficiencyTests.MigratedBuildingUsesOneAuthoredSignedContribution(&quot;DeepSpaceRelay&quot;,False,-23.0d)" methodname="MigratedBuildingUsesOneAuthoredSignedContribution" classname="FlowEfficiencyTests" runstate="Runnable" seed="382833405" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.304022" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2576" name="MigratedBuildingUsesOneAuthoredSignedContribution(&quot;EarthMoonLogisticsHub&quot;,False,240.0d)" fullname="FlowEfficiencyTests.MigratedBuildingUsesOneAuthoredSignedContribution(&quot;EarthMoonLogisticsHub&quot;,False,240.0d)" methodname="MigratedBuildingUsesOneAuthoredSignedContribution" classname="FlowEfficiencyTests" runstate="Runnable" seed="2122861411" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.000126" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2577" name="MigratedBuildingUsesOneAuthoredSignedContribution(&quot;OrbitalResourceExtractionArray&quot;,False,1200.0d)" fullname="FlowEfficiencyTests.MigratedBuildingUsesOneAuthoredSignedContribution(&quot;OrbitalResourceExtractionArray&quot;,False,1200.0d)" methodname="MigratedBuildingUsesOneAuthoredSignedContribution" classname="FlowEfficiencyTests" runstate="Runnable" seed="847664701" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.000063" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2578" name="MigratedBuildingUsesOneAuthoredSignedContribution(&quot;OrbitalStation&quot;,False,180.0d)" fullname="FlowEfficiencyTests.MigratedBuildingUsesOneAuthoredSignedContribution(&quot;OrbitalStation&quot;,False,180.0d)" methodname="MigratedBuildingUsesOneAuthoredSignedContribution" classname="FlowEfficiencyTests" runstate="Runnable" seed="190999372" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.000059" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2579" name="MigratedBuildingUsesOneAuthoredSignedContribution(&quot;ThunderGatePropellantWorks&quot;,False,-38.666666666667d)" fullname="FlowEfficiencyTests.MigratedBuildingUsesOneAuthoredSignedContribution(&quot;ThunderGatePropellantWorks&quot;,False,-38.666666666667d)" methodname="MigratedBuildingUsesOneAuthoredSignedContribution" classname="FlowEfficiencyTests" runstate="Runnable" seed="97911548" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.000064" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2580" name="MigratedBuildingUsesOneAuthoredSignedContribution(&quot;AutonomousMatterFabricator&quot;,False,3000.0d)" fullname="FlowEfficiencyTests.MigratedBuildingUsesOneAuthoredSignedContribution(&quot;AutonomousMatterFabricator&quot;,False,3000.0d)" methodname="MigratedBuildingUsesOneAuthoredSignedContribution" classname="FlowEfficiencyTests" runstate="Runnable" seed="1825163123" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.000057" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2581" name="MigratedBuildingUsesOneAuthoredSignedContribution(&quot;PhaseEnergyArray&quot;,True,1410.0d)" fullname="FlowEfficiencyTests.MigratedBuildingUsesOneAuthoredSignedContribution(&quot;PhaseEnergyArray&quot;,True,1410.0d)" methodname="MigratedBuildingUsesOneAuthoredSignedContribution" classname="FlowEfficiencyTests" runstate="Runnable" seed="1796501136" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.000060" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="2585" name="StoredFoodPreventsPrematureHappinessPenalty" fullname="FlowEfficiencyTests.StoredFoodPreventsPrematureHappinessPenalty" methodname="StoredFoodPreventsPrematureHappinessPenalty" classname="FlowEfficiencyTests" runstate="Runnable" seed="1597059376" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.000351" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2590" name="FoodEfficiencyTests" fullname="FoodEfficiencyTests" classname="FoodEfficiencyTests" runstate="Runnable" testcasecount="12" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.014582" total="12" passed="12" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2597" name="EffectiveEfficiency_MultipliesEveryIndependentConstraint" fullname="FoodEfficiencyTests.EffectiveEfficiency_MultipliesEveryIndependentConstraint" methodname="EffectiveEfficiency_MultipliesEveryIndependentConstraint" classname="FoodEfficiencyTests" runstate="Runnable" seed="2081722792" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.000669" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2596" name="EnergyDrivenBuildings_DoNotUseFoodHappinessConstraint" fullname="FoodEfficiencyTests.EnergyDrivenBuildings_DoNotUseFoodHappinessConstraint" methodname="EnergyDrivenBuildings_DoNotUseFoodHappinessConstraint" classname="FoodEfficiencyTests" runstate="Runnable" seed="869013237" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.001027" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2592" name="FarmsRecoverFoodWithoutAdditionalStarvationEfficiencyPenalty" fullname="FoodEfficiencyTests.FarmsRecoverFoodWithoutAdditionalStarvationEfficiencyPenalty" methodname="FarmsRecoverFoodWithoutAdditionalStarvationEfficiencyPenalty" classname="FoodEfficiencyTests" runstate="Runnable" seed="1270538415" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.001001" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2593" name="FoodAvailability_DecreasingSupplyCannotImproveDeficitHappiness" fullname="FoodEfficiencyTests.FoodAvailability_DecreasingSupplyCannotImproveDeficitHappiness" methodname="FoodAvailability_DecreasingSupplyCannotImproveDeficitHappiness" classname="FoodEfficiencyTests" runstate="Runnable" seed="515802077" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.000346" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2595" name="FoodAvailability_UsesInventoryAndPotentialFlow" fullname="FoodEfficiencyTests.FoodAvailability_UsesInventoryAndPotentialFlow" methodname="FoodAvailability_UsesInventoryAndPotentialFlow" classname="FoodEfficiencyTests" runstate="Runnable" seed="214269524" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.001324" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2599" name="GameState_AdvanceFoodDoesNotVersionWhenAmountIsUnchanged" fullname="FoodEfficiencyTests.GameState_AdvanceFoodDoesNotVersionWhenAmountIsUnchanged" methodname="GameState_AdvanceFoodDoesNotVersionWhenAmountIsUnchanged" classname="FoodEfficiencyTests" runstate="Runnable" seed="730669948" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.003089" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2600" name="GameState_FoodFlowIncludesPopulationConsumptionInRuntimeAndHudRate" fullname="FoodEfficiencyTests.GameState_FoodFlowIncludesPopulationConsumptionInRuntimeAndHudRate" methodname="GameState_FoodFlowIncludesPopulationConsumptionInRuntimeAndHudRate" classname="FoodEfficiencyTests" runstate="Runnable" seed="351198045" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.000734" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2601" name="GameState_NoOpDerivedMutationsDoNotIncrementVersion" fullname="FoodEfficiencyTests.GameState_NoOpDerivedMutationsDoNotIncrementVersion" methodname="GameState_NoOpDerivedMutationsDoNotIncrementVersion" classname="FoodEfficiencyTests" runstate="Runnable" seed="1384097512" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.001516" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2602" name="GameState_RepeatedSaveTimestampDoesNotIncrementVersion" fullname="FoodEfficiencyTests.GameState_RepeatedSaveTimestampDoesNotIncrementVersion" methodname="GameState_RepeatedSaveTimestampDoesNotIncrementVersion" classname="FoodEfficiencyTests" runstate="Runnable" seed="2057977374" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.000302" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2591" name="LaborOperatingRatio_TracksSupplyWithoutExceedingFullOperation" fullname="FoodEfficiencyTests.LaborOperatingRatio_TracksSupplyWithoutExceedingFullOperation" methodname="LaborOperatingRatio_TracksSupplyWithoutExceedingFullOperation" classname="FoodEfficiencyTests" runstate="Runnable" seed="711990274" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.000489" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2594" name="NewGameAndDerivedReset_PreserveFoodProductionBaseline" fullname="FoodEfficiencyTests.NewGameAndDerivedReset_PreserveFoodProductionBaseline" methodname="NewGameAndDerivedReset_PreserveFoodProductionBaseline" classname="FoodEfficiencyTests" runstate="Runnable" seed="1043947136" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.000580" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2598" name="ResourceSatisfactionUsesInventoryAndRealizedSameTickProduction" fullname="FoodEfficiencyTests.ResourceSatisfactionUsesInventoryAndRealizedSameTickProduction" methodname="ResourceSatisfactionUsesInventoryAndRealizedSameTickProduction" classname="FoodEfficiencyTests" runstate="Runnable" seed="1660609688" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.000575" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="3120" name="ResourceProductionTreeLayoutTests" fullname="ResourceProductionTreeLayoutTests" classname="ResourceProductionTreeLayoutTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.237984" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="3123" name="AlternativeSourcesSitSideBySide_ParentCenteredAboveThem" fullname="ResourceProductionTreeLayoutTests.AlternativeSourcesSitSideBySide_ParentCenteredAboveThem" methodname="AlternativeSourcesSitSideBySide_ParentCenteredAboveThem" classname="ResourceProductionTreeLayoutTests" runstate="Runnable" seed="314028700" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.010731" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3122" name="AuthoredNodesAndConnectionsProvideFixedGeometry" fullname="ResourceProductionTreeLayoutTests.AuthoredNodesAndConnectionsProvideFixedGeometry" methodname="AuthoredNodesAndConnectionsProvideFixedGeometry" classname="ResourceProductionTreeLayoutTests" runstate="Runnable" seed="1648787015" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.180240" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3124" name="CollapsedSiblingUsesOnlyItsVisibleContour_AndRootCollapseUsesOneNode" fullname="ResourceProductionTreeLayoutTests.CollapsedSiblingUsesOnlyItsVisibleContour_AndRootCollapseUsesOneNode" methodname="CollapsedSiblingUsesOnlyItsVisibleContour_AndRootCollapseUsesOneNode" classname="ResourceProductionTreeLayoutTests" runstate="Runnable" seed="10898129" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.002074" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3125" name="ExpandedDependenciesHaveForwardEdgesAndDoNotOverlap_CollapsingRemovesDescendants" fullname="ResourceProductionTreeLayoutTests.ExpandedDependenciesHaveForwardEdgesAndDoNotOverlap_CollapsingRemovesDescendants" methodname="ExpandedDependenciesHaveForwardEdgesAndDoNotOverlap_CollapsingRemovesDescendants" classname="ResourceProductionTreeLayoutTests" runstate="Runnable" seed="1665808027" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.001002" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3121" name="IndependentProductionPageHasAuthoredNavigationViewportAndTools" fullname="ResourceProductionTreeLayoutTests.IndependentProductionPageHasAuthoredNavigationViewportAndTools" methodname="IndependentProductionPageHasAuthoredNavigationViewportAndTools" classname="ResourceProductionTreeLayoutTests" runstate="Runnable" seed="602819171" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.041628" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="3126" name="ResourceProductionTreeTests" fullname="ResourceProductionTreeTests" classname="ResourceProductionTreeTests" runstate="Runnable" testcasecount="16" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.029960" total="16" passed="16" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="3136" name="ActualOilLoop_ReferencesExistingOil_AndKeepsIndependentStarterSource" fullname="ResourceProductionTreeTests.ActualOilLoop_ReferencesExistingOil_AndKeepsIndependentStarterSource" methodname="ActualOilLoop_ReferencesExistingOil_AndKeepsIndependentStarterSource" classname="ResourceProductionTreeTests" runstate="Runnable" seed="713989669" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.002699" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3132" name="BuildingRootUsesOngoingInputs_AndDoesNotIncludeConstructionMaterials" fullname="ResourceProductionTreeTests.BuildingRootUsesOngoingInputs_AndDoesNotIncludeConstructionMaterials" methodname="BuildingRootUsesOngoingInputs_AndDoesNotIncludeConstructionMaterials" classname="ResourceProductionTreeTests" runstate="Runnable" seed="1268607167" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.001747" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3133" name="BuildingUpgradesAndInputProducersRemainDistinct_AndUpgradeCyclesStop" fullname="ResourceProductionTreeTests.BuildingUpgradesAndInputProducersRemainDistinct_AndUpgradeCyclesStop" methodname="BuildingUpgradesAndInputProducersRemainDistinct_AndUpgradeCyclesStop" classname="ResourceProductionTreeTests" runstate="Runnable" seed="1044486150" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.001526" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3129" name="CollapsedHiddenUnlock_DoesNotInvalidateVisibleGraph_AndReopensCurrentChildren" fullname="ResourceProductionTreeTests.CollapsedHiddenUnlock_DoesNotInvalidateVisibleGraph_AndReopensCurrentChildren" methodname="CollapsedHiddenUnlock_DoesNotInvalidateVisibleGraph_AndReopensCurrentChildren" classname="ResourceProductionTreeTests" runstate="Runnable" seed="207669676" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.001101" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3128" name="CollapsedHistory_RecordsVisibilityPollingCost" fullname="ResourceProductionTreeTests.CollapsedHistory_RecordsVisibilityPollingCost" methodname="CollapsedHistory_RecordsVisibilityPollingCost" classname="ResourceProductionTreeTests" runstate="Runnable" seed="144941704" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.008215" asserts="0">
+          <properties>
+            <property name="Category" value="Performance" />
+          </properties>
+          <output><![CDATA[[HotPathPerf2] production-collapsed medianMs=0.000004 predicateChecksPerRefresh=0.00 cachedDepth=160
+]]></output>
+        </test-case>
+        <test-case id="3135" name="CyclesStopOnlyTheirOwnPath" fullname="ResourceProductionTreeTests.CyclesStopOnlyTheirOwnPath" methodname="CyclesStopOnlyTheirOwnPath" classname="ResourceProductionTreeTests" runstate="Runnable" seed="1511191346" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.000592" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3134" name="MultipleSourcesRemainSeparate_AndOnlyProductionInputsBecomeDependencies" fullname="ResourceProductionTreeTests.MultipleSourcesRemainSeparate_AndOnlyProductionInputsBecomeDependencies" methodname="MultipleSourcesRemainSeparate_AndOnlyProductionInputsBecomeDependencies" classname="ResourceProductionTreeTests" runstate="Runnable" seed="1285512054" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.000518" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3127" name="RealDefinitionsCollapsedHistory_RecordsVisibilityPollingCost" fullname="ResourceProductionTreeTests.RealDefinitionsCollapsedHistory_RecordsVisibilityPollingCost" methodname="RealDefinitionsCollapsedHistory_RecordsVisibilityPollingCost" classname="ResourceProductionTreeTests" runstate="Runnable" seed="935332637" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.002410" asserts="0">
+          <properties>
+            <property name="Category" value="Performance" />
+          </properties>
+          <output><![CDATA[[HotPathPerf2] production-real-collapsed medianMs=0.000003 predicateChecksPerRefresh=0.00 visited=100 pendingLeaves=238 root=RocketFuel controlledAllVisible=true
+]]></output>
+        </test-case>
+        <test-case id="3142" name="ResourceSourcesOrderHigherErasFirst_AndPreserveAuthoredOrderWithinAnEra" fullname="ResourceProductionTreeTests.ResourceSourcesOrderHigherErasFirst_AndPreserveAuthoredOrderWithinAnEra" methodname="ResourceSourcesOrderHigherErasFirst_AndPreserveAuthoredOrderWithinAnEra" classname="ResourceProductionTreeTests" runstate="Runnable" seed="1721166246" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.000573" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3137" name="SectorRecurringProductionAndOneTimeRewardStayDistinct" fullname="ResourceProductionTreeTests.SectorRecurringProductionAndOneTimeRewardStayDistinct" methodname="SectorRecurringProductionAndOneTimeRewardStayDistinct" classname="ResourceProductionTreeTests" runstate="Runnable" seed="1828076178" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.000829" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3139" name="SectorRootFiltersLocalFacilities_AndUnlockRefreshPreservesExpandedSupplyBranches" fullname="ResourceProductionTreeTests.SectorRootFiltersLocalFacilities_AndUnlockRefreshPreservesExpandedSupplyBranches" methodname="SectorRootFiltersLocalFacilities_AndUnlockRefreshPreservesExpandedSupplyBranches" classname="ResourceProductionTreeTests" runstate="Runnable" seed="193474" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.001820" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3140" name="SectorRootKeepsRecurringOutputsAndRewardsSeparate_AndSectorSourcesRemainLeaves" fullname="ResourceProductionTreeTests.SectorRootKeepsRecurringOutputsAndRewardsSeparate_AndSectorSourcesRemainLeaves" methodname="SectorRootKeepsRecurringOutputsAndRewardsSeparate_AndSectorSourcesRemainLeaves" classname="ResourceProductionTreeTests" runstate="Runnable" seed="1837939466" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.001055" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3138" name="SharedInputCanExpandUnderBothAlternativeProducers" fullname="ResourceProductionTreeTests.SharedInputCanExpandUnderBothAlternativeProducers" methodname="SharedInputCanExpandUnderBothAlternativeProducers" classname="ResourceProductionTreeTests" runstate="Runnable" seed="436319439" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.000442" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3141" name="UnlockedLowerSourcesRemainAlongsideHigherTiers_AndKeepCachedExpansion" fullname="ResourceProductionTreeTests.UnlockedLowerSourcesRemainAlongsideHigherTiers_AndKeepCachedExpansion" methodname="UnlockedLowerSourcesRemainAlongsideHigherTiers_AndKeepCachedExpansion" classname="ResourceProductionTreeTests" runstate="Runnable" seed="1758412912" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.000829" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3131" name="UnlockRefreshRevealsCachedBranches_AndPreservesExistingNodesAndExpansion" fullname="ResourceProductionTreeTests.UnlockRefreshRevealsCachedBranches_AndPreservesExistingNodesAndExpansion" methodname="UnlockRefreshRevealsCachedBranches_AndPreservesExistingNodesAndExpansion" classname="ResourceProductionTreeTests" runstate="Runnable" seed="125023901" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.000645" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3130" name="VisibilityFiltersLockedSources_Inputs_Upgrades_AndSectors" fullname="ResourceProductionTreeTests.VisibilityFiltersLockedSources_Inputs_Upgrades_AndSectors" methodname="VisibilityFiltersLockedSources_Inputs_Upgrades_AndSectors" classname="ResourceProductionTreeTests" runstate="Runnable" seed="1405519691" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:28Z" duration="0.001294" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="3143" name="RuntimeHotPathPerformanceTests" fullname="RuntimeHotPathPerformanceTests" classname="RuntimeHotPathPerformanceTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:29Z" duration="0.208521" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="3144" name="BuildingAggregatesMatchAllStatesAfterQuantityAndEnabledChanges" fullname="RuntimeHotPathPerformanceTests.BuildingAggregatesMatchAllStatesAfterQuantityAndEnabledChanges" methodname="BuildingAggregatesMatchAllStatesAfterQuantityAndEnabledChanges" classname="RuntimeHotPathPerformanceTests" runstate="Runnable" seed="1213175372" result="Passed" start-time="2026-11-04 10:56:28Z" end-time="2026-11-04 10:56:29Z" duration="0.025583" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3145" name="HappinessReadsObserveEveryFormulaInputChange" fullname="RuntimeHotPathPerformanceTests.HappinessReadsObserveEveryFormulaInputChange" methodname="HappinessReadsObserveEveryFormulaInputChange" classname="RuntimeHotPathPerformanceTests" runstate="Runnable" seed="1830002142" result="Passed" start-time="2026-11-04 10:56:29Z" end-time="2026-11-04 10:56:29Z" duration="0.004997" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3151" name="MeasureResourceTickAndStrategicFood" fullname="RuntimeHotPathPerformanceTests.MeasureResourceTickAndStrategicFood" methodname="MeasureResourceTickAndStrategicFood" classname="RuntimeHotPathPerformanceTests" runstate="Runnable" seed="1018513139" result="Passed" start-time="2026-11-04 10:56:29Z" end-time="2026-11-04 10:56:29Z" duration="0.030808" asserts="0">
+          <properties />
+          <output><![CDATA[[HotPathPerf] resource-definitions=33
+[HotPathPerf] resource-tick-sparse median_ms=0.002262 median_alloc_bytes=NA iterations=1000 batches=7
+[HotPathPerf] strategic-food-active-campaign median_ms=0.000860 median_alloc_bytes=NA iterations=1000 batches=7
+]]></output>
+        </test-case>
+        <test-case id="3146" name="MeasureSparseBuildingAggregatesHappinessAndCompleteSimulationTicks" fullname="RuntimeHotPathPerformanceTests.MeasureSparseBuildingAggregatesHappinessAndCompleteSimulationTicks" methodname="MeasureSparseBuildingAggregatesHappinessAndCompleteSimulationTicks" classname="RuntimeHotPathPerformanceTests" runstate="Runnable" seed="410837908" result="Passed" start-time="2026-11-04 10:56:29Z" end-time="2026-11-04 10:56:29Z" duration="0.136002" asserts="0">
+          <properties />
+          <output><![CDATA[[HotPathPerf] definitions=79 fixture=WoodHouse5,Farm3,Quarry2 population=10
+[HotPathPerf] building-aggregates median_ms=0.006679 median_alloc_bytes=NA iterations=1000 batches=7
+[HotPathPerf] happiness-reads median_ms=0.000380 median_alloc_bytes=NA iterations=10000 batches=7
+[HotPathPerf] manual-tick median_ms=0.058450 median_alloc_bytes=NA iterations=100 batches=7
+]]></output>
+        </test-case>
+        <test-case id="3147" name="ResourceTickPreservesIdleBalancesAndResumesChangedFlows" fullname="RuntimeHotPathPerformanceTests.ResourceTickPreservesIdleBalancesAndResumesChangedFlows" methodname="ResourceTickPreservesIdleBalancesAndResumesChangedFlows" classname="RuntimeHotPathPerformanceTests" runstate="Runnable" seed="879854994" result="Passed" start-time="2026-11-04 10:56:29Z" end-time="2026-11-04 10:56:29Z" duration="0.002125" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="3150" name="StrategicFoodMatchesFullPreviewForActiveOperations" fullname="RuntimeHotPathPerformanceTests.StrategicFoodMatchesFullPreviewForActiveOperations" classname="RuntimeHotPathPerformanceTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-04 10:56:29Z" end-time="2026-11-04 10:56:29Z" duration="0.007570" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="3148" name="StrategicFoodMatchesFullPreviewForActiveOperations(Surge)" fullname="RuntimeHotPathPerformanceTests.StrategicFoodMatchesFullPreviewForActiveOperations(Surge)" methodname="StrategicFoodMatchesFullPreviewForActiveOperations" classname="RuntimeHotPathPerformanceTests" runstate="Runnable" seed="1837721337" result="Passed" start-time="2026-11-04 10:56:29Z" end-time="2026-11-04 10:56:29Z" duration="0.005363" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="3149" name="StrategicFoodMatchesFullPreviewForActiveOperations(Stable)" fullname="RuntimeHotPathPerformanceTests.StrategicFoodMatchesFullPreviewForActiveOperations(Stable)" methodname="StrategicFoodMatchesFullPreviewForActiveOperations" classname="RuntimeHotPathPerformanceTests" runstate="Runnable" seed="1053275553" result="Passed" start-time="2026-11-04 10:56:29Z" end-time="2026-11-04 10:56:29Z" duration="0.001224" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+      </test-suite>
+      <test-suite type="TestFixture" id="3536" name="UltraProjectManagerTickTests" fullname="UltraProjectManagerTickTests" classname="UltraProjectManagerTickTests" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-11-04 10:56:29Z" end-time="2026-11-04 10:56:29Z" duration="0.117677" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="ParameterizedMethod" id="3548" name="MeasureCompleteUltraTickBranches" fullname="UltraProjectManagerTickTests.MeasureCompleteUltraTickBranches" classname="UltraProjectManagerTickTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-04 10:56:29Z" end-time="2026-11-04 10:56:29Z" duration="0.100911" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="3546" name="MeasureCompleteUltraTickBranches(False)" fullname="UltraProjectManagerTickTests.MeasureCompleteUltraTickBranches(False)" methodname="MeasureCompleteUltraTickBranches" classname="UltraProjectManagerTickTests" runstate="Runnable" seed="37248601" result="Passed" start-time="2026-11-04 10:56:29Z" end-time="2026-11-04 10:56:29Z" duration="0.017293" asserts="0">
+            <properties />
+            <output><![CDATA[[HotPathPerf] ultra-running-tick median_ms=0.007940 median_alloc_bytes=NA iterations=100 batches=7
+]]></output>
+          </test-case>
+          <test-case id="3547" name="MeasureCompleteUltraTickBranches(True)" fullname="UltraProjectManagerTickTests.MeasureCompleteUltraTickBranches(True)" methodname="MeasureCompleteUltraTickBranches" classname="UltraProjectManagerTickTests" runstate="Runnable" seed="373556332" result="Passed" start-time="2026-11-04 10:56:29Z" end-time="2026-11-04 10:56:29Z" duration="0.083128" asserts="0">
+            <properties />
+            <output><![CDATA[[HotPathPerf] ultra-completion-48-search-tick median_ms=0.111058 median_alloc_bytes=NA iterations=100 batches=7
+]]></output>
+          </test-case>
+        </test-suite>
+        <test-case id="3545" name="StageNumbersPreserveDefaultsAndObserveSerializedSourceChanges" fullname="UltraProjectManagerTickTests.StageNumbersPreserveDefaultsAndObserveSerializedSourceChanges" methodname="StageNumbersPreserveDefaultsAndObserveSerializedSourceChanges" classname="UltraProjectManagerTickTests" runstate="Runnable" seed="1585769365" result="Passed" start-time="2026-11-04 10:56:29Z" end-time="2026-11-04 10:56:29Z" duration="0.001732" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3544" name="Tick_CompletionBoundaryCapsContinuousPaymentsAtStageRequirements" fullname="UltraProjectManagerTickTests.Tick_CompletionBoundaryCapsContinuousPaymentsAtStageRequirements" methodname="Tick_CompletionBoundaryCapsContinuousPaymentsAtStageRequirements" classname="UltraProjectManagerTickTests" runstate="Runnable" seed="2132040863" result="Passed" start-time="2026-11-04 10:56:29Z" end-time="2026-11-04 10:56:29Z" duration="0.002522" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3537" name="Tick_PartialAdvancedMaterialSupplyProgressesAndOnlyPausesWhenExhausted" fullname="UltraProjectManagerTickTests.Tick_PartialAdvancedMaterialSupplyProgressesAndOnlyPausesWhenExhausted" methodname="Tick_PartialAdvancedMaterialSupplyProgressesAndOnlyPausesWhenExhausted" classname="UltraProjectManagerTickTests" runstate="Runnable" seed="1768564245" result="Passed" start-time="2026-11-04 10:56:29Z" end-time="2026-11-04 10:56:29Z" duration="0.002021" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="3540" name="Tick_ZeroFoodOrAdvancedMaterialSupplyDoesNotPartiallyCommit" fullname="UltraProjectManagerTickTests.Tick_ZeroFoodOrAdvancedMaterialSupplyDoesNotPartiallyCommit" classname="UltraProjectManagerTickTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-04 10:56:29Z" end-time="2026-11-04 10:56:29Z" duration="0.002944" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="3538" name="Tick_ZeroFoodOrAdvancedMaterialSupplyDoesNotPartiallyCommit(True)" fullname="UltraProjectManagerTickTests.Tick_ZeroFoodOrAdvancedMaterialSupplyDoesNotPartiallyCommit(True)" methodname="Tick_ZeroFoodOrAdvancedMaterialSupplyDoesNotPartiallyCommit" classname="UltraProjectManagerTickTests" runstate="Runnable" seed="651812240" result="Passed" start-time="2026-11-04 10:56:29Z" end-time="2026-11-04 10:56:29Z" duration="0.001439" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="3539" name="Tick_ZeroFoodOrAdvancedMaterialSupplyDoesNotPartiallyCommit(False)" fullname="UltraProjectManagerTickTests.Tick_ZeroFoodOrAdvancedMaterialSupplyDoesNotPartiallyCommit(False)" methodname="Tick_ZeroFoodOrAdvancedMaterialSupplyDoesNotPartiallyCommit" classname="UltraProjectManagerTickTests" runstate="Runnable" seed="1422141430" result="Passed" start-time="2026-11-04 10:56:29Z" end-time="2026-11-04 10:56:29Z" duration="0.000843" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="3543" name="TryResume_AfterSupplyPauseRequiresPositiveSupply" fullname="UltraProjectManagerTickTests.TryResume_AfterSupplyPauseRequiresPositiveSupply" methodname="TryResume_AfterSupplyPauseRequiresPositiveSupply" classname="UltraProjectManagerTickTests" runstate="Runnable" seed="338073933" result="Passed" start-time="2026-11-04 10:56:29Z" end-time="2026-11-04 10:56:29Z" duration="0.001192" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3542" name="TryResume_DoesNotChargeStageStartupFeeAgain" fullname="UltraProjectManagerTickTests.TryResume_DoesNotChargeStageStartupFeeAgain" methodname="TryResume_DoesNotChargeStageStartupFeeAgain" classname="UltraProjectManagerTickTests" runstate="Runnable" seed="1180695858" result="Passed" start-time="2026-11-04 10:56:29Z" end-time="2026-11-04 10:56:29Z" duration="0.003321" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3541" name="TryStartStage_InsufficientStartupMaterialLeavesEveryBalanceAndStateUntouched" fullname="UltraProjectManagerTickTests.TryStartStage_InsufficientStartupMaterialLeavesEveryBalanceAndStateUntouched" methodname="TryStartStage_InsufficientStartupMaterialLeavesEveryBalanceAndStateUntouched" classname="UltraProjectManagerTickTests" runstate="Runnable" seed="1861226963" result="Passed" start-time="2026-11-04 10:56:29Z" end-time="2026-11-04 10:56:29Z" duration="0.001520" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="3568" name="UltraR2EconomyBoundaryTests" fullname="UltraR2EconomyBoundaryTests" classname="UltraR2EconomyBoundaryTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-11-04 10:56:29Z" end-time="2026-11-04 10:56:29Z" duration="0.045334" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="3570" name="OfflineEffectiveTime_IsAdditiveWhenAWindowCrossesRateBoundaries" fullname="UltraR2EconomyBoundaryTests.OfflineEffectiveTime_IsAdditiveWhenAWindowCrossesRateBoundaries" methodname="OfflineEffectiveTime_IsAdditiveWhenAWindowCrossesRateBoundaries" classname="UltraR2EconomyBoundaryTests" runstate="Runnable" seed="558911999" result="Passed" start-time="2026-11-04 10:56:29Z" end-time="2026-11-04 10:56:29Z" duration="0.000426" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3569" name="OfflineEffectiveTime_IsStableAtSixtySecondTwoHourAndEightHourBoundaries" fullname="UltraR2EconomyBoundaryTests.OfflineEffectiveTime_IsStableAtSixtySecondTwoHourAndEightHourBoundaries" methodname="OfflineEffectiveTime_IsStableAtSixtySecondTwoHourAndEightHourBoundaries" classname="UltraR2EconomyBoundaryTests" runstate="Runnable" seed="1519261602" result="Passed" start-time="2026-11-04 10:56:29Z" end-time="2026-11-04 10:56:29Z" duration="0.000237" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3571" name="UltraProject_ManualAndOfflineTicksUseTheSameFullRateProgression" fullname="UltraR2EconomyBoundaryTests.UltraProject_ManualAndOfflineTicksUseTheSameFullRateProgression" methodname="UltraProject_ManualAndOfflineTicksUseTheSameFullRateProgression" classname="UltraR2EconomyBoundaryTests" runstate="Runnable" seed="2099976857" result="Passed" start-time="2026-11-04 10:56:29Z" end-time="2026-11-04 10:56:29Z" duration="0.043458" asserts="0">
+          <properties />
+          <output><![CDATA[[KingdomOffline] seconds=60 slices=1 maxStepMs=1.694 maxSliceMs=19.819
+]]></output>
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

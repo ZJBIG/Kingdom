@@ -1,0 +1,613 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="141" result="Failed(Child)" total="141" passed="137" failed="4" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-10 04:45:39Z" end-time="2026-11-10 04:45:41Z" duration="1.2439135">
+  <test-suite type="TestSuite" id="2350" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="1162" result="Failed" site="Child" start-time="2026-11-10 04:45:39Z" end-time="2026-11-10 04:45:41Z" duration="1.243914" total="141" passed="137" failed="4" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="3690" name="Assembly-CSharp-Editor.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="1161" result="Failed" site="Child" start-time="2026-11-10 04:45:39Z" end-time="2026-11-10 04:45:41Z" duration="1.231252" total="141" passed="137" failed="4" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="11780" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestFixture" id="2351" name="AdvancedMaterialProgressionTests" fullname="AdvancedMaterialProgressionTests" classname="AdvancedMaterialProgressionTests" runstate="Runnable" testcasecount="12" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.323025" total="12" passed="12" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2352" name="AdvancedMaterialsKeepIndustrialInputsAndDistinctOutputs" fullname="AdvancedMaterialProgressionTests.AdvancedMaterialsKeepIndustrialInputsAndDistinctOutputs" methodname="AdvancedMaterialsKeepIndustrialInputsAndDistinctOutputs" classname="AdvancedMaterialProgressionTests" runstate="Runnable" seed="1990588496" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.291620" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2354" name="AdvancedMaterialWorkshopsImproveTheCorrectProductionBuildings" fullname="AdvancedMaterialProgressionTests.AdvancedMaterialWorkshopsImproveTheCorrectProductionBuildings" methodname="AdvancedMaterialWorkshopsImproveTheCorrectProductionBuildings" classname="AdvancedMaterialProgressionTests" runstate="Runnable" seed="1199466386" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.002773" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2357" name="SpacerAdvancedMaterialsKeepSourcesAndDurableSinks" fullname="AdvancedMaterialProgressionTests.SpacerAdvancedMaterialsKeepSourcesAndDurableSinks" methodname="SpacerAdvancedMaterialsKeepSourcesAndDurableSinks" classname="AdvancedMaterialProgressionTests" runstate="Runnable" seed="657055535" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.002077" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2363" name="太空设施必须持续维护生态与后勤" fullname="AdvancedMaterialProgressionTests.太空设施必须持续维护生态与后勤" methodname="太空设施必须持续维护生态与后勤" classname="AdvancedMaterialProgressionTests" runstate="Runnable" seed="630639772" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.004915" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2362" name="太空高级材料必须拥有明确且无生产循环的核心工坊" fullname="AdvancedMaterialProgressionTests.太空高级材料必须拥有明确且无生产循环的核心工坊" methodname="太空高级材料必须拥有明确且无生产循环的核心工坊" classname="AdvancedMaterialProgressionTests" runstate="Runnable" seed="1011225650" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000312" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2360" name="太空高级材料必须进入多个星区行动" fullname="AdvancedMaterialProgressionTests.太空高级材料必须进入多个星区行动" methodname="太空高级材料必须进入多个星区行动" classname="AdvancedMaterialProgressionTests" runstate="Runnable" seed="169443742" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.002320" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2359" name="幽影织物与相位材料必须保持不同的太空职责" fullname="AdvancedMaterialProgressionTests.幽影织物与相位材料必须保持不同的太空职责" methodname="幽影织物与相位材料必须保持不同的太空职责" classname="AdvancedMaterialProgressionTests" runstate="Runnable" seed="238303438" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000270" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2356" name="氯化钛冶金研究负责钛精矿纯化理论" fullname="AdvancedMaterialProgressionTests.氯化钛冶金研究负责钛精矿纯化理论" methodname="氯化钛冶金研究负责钛精矿纯化理论" classname="AdvancedMaterialProgressionTests" runstate="Runnable" seed="595339273" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000220" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2353" name="炸药必须保持工业流程持续消耗而非星际战役成本" fullname="AdvancedMaterialProgressionTests.炸药必须保持工业流程持续消耗而非星际战役成本" methodname="炸药必须保持工业流程持续消耗而非星际战役成本" classname="AdvancedMaterialProgressionTests" runstate="Runnable" seed="644724400" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000733" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2361" name="相位材料只能服务星际时代星区行动" fullname="AdvancedMaterialProgressionTests.相位材料只能服务星际时代星区行动" methodname="相位材料只能服务星际时代星区行动" classname="AdvancedMaterialProgressionTests" runstate="Runnable" seed="296885725" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000347" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2358" name="轨道冶金产物必须进入深空结构与持续工艺" fullname="AdvancedMaterialProgressionTests.轨道冶金产物必须进入深空结构与持续工艺" methodname="轨道冶金产物必须进入深空结构与持续工艺" classname="AdvancedMaterialProgressionTests" runstate="Runnable" seed="504077718" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000251" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2355" name="高级材料研究必须强化对应生产建筑" fullname="AdvancedMaterialProgressionTests.高级材料研究必须强化对应生产建筑" methodname="高级材料研究必须强化对应生产建筑" classname="AdvancedMaterialProgressionTests" runstate="Runnable" seed="1036705563" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000153" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2386" name="BuildingCostGrowthTests" fullname="BuildingCostGrowthTests" classname="BuildingCostGrowthTests" runstate="Runnable" testcasecount="19" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.067235" total="19" passed="19" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2402" name="AgricultureCompletion_MakesFarmAvailableToBuildingMenu" fullname="BuildingCostGrowthTests.AgricultureCompletion_MakesFarmAvailableToBuildingMenu" methodname="AgricultureCompletion_MakesFarmAvailableToBuildingMenu" classname="BuildingCostGrowthTests" runstate="Runnable" seed="928500784" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.013605" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2395" name="AllBuildings_DoNotSerializeTheSameResourceAsProductionAndConsumption" fullname="BuildingCostGrowthTests.AllBuildings_DoNotSerializeTheSameResourceAsProductionAndConsumption" methodname="AllBuildings_DoNotSerializeTheSameResourceAsProductionAndConsumption" classname="BuildingCostGrowthTests" runstate="Runnable" seed="1187731981" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000866" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2394" name="BuildingChain_AllowsMultipleBranchesToShareOneUpgradeTarget" fullname="BuildingCostGrowthTests.BuildingChain_AllowsMultipleBranchesToShareOneUpgradeTarget" methodname="BuildingChain_AllowsMultipleBranchesToShareOneUpgradeTarget" classname="BuildingCostGrowthTests" runstate="Runnable" seed="3733909" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000514" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2398" name="BuildingChain_FourZeroTiersDisplaysOnlyHighestAvailableTier" fullname="BuildingCostGrowthTests.BuildingChain_FourZeroTiersDisplaysOnlyHighestAvailableTier" methodname="BuildingChain_FourZeroTiersDisplaysOnlyHighestAvailableTier" classname="BuildingCostGrowthTests" runstate="Runnable" seed="373207281" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.001766" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2399" name="BuildingChain_KeepsLowerSourceAndShowsHighestZeroTier" fullname="BuildingCostGrowthTests.BuildingChain_KeepsLowerSourceAndShowsHighestZeroTier" methodname="BuildingChain_KeepsLowerSourceAndShowsHighestZeroTier" classname="BuildingCostGrowthTests" runstate="Runnable" seed="1172117630" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.001533" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2400" name="BuildingChain_PreservesNonZeroSourcesAndTargetsHighestAvailableTier" fullname="BuildingCostGrowthTests.BuildingChain_PreservesNonZeroSourcesAndTargetsHighestAvailableTier" methodname="BuildingChain_PreservesNonZeroSourcesAndTargetsHighestAvailableTier" classname="BuildingCostGrowthTests" runstate="Runnable" seed="1023355433" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.001493" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2397" name="BuildingChainIndex_PreservesAllSharedTargetPredecessors" fullname="BuildingCostGrowthTests.BuildingChainIndex_PreservesAllSharedTargetPredecessors" methodname="BuildingChainIndex_PreservesAllSharedTargetPredecessors" classname="BuildingCostGrowthTests" runstate="Runnable" seed="673351666" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.001217" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2396" name="BuildingDefinition_RejectsUnmergedOpposingResourceFlows" fullname="BuildingCostGrowthTests.BuildingDefinition_RejectsUnmergedOpposingResourceFlows" methodname="BuildingDefinition_RejectsUnmergedOpposingResourceFlows" classname="BuildingCostGrowthTests" runstate="Runnable" seed="257610530" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.003314" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2401" name="BuildingManager_ChargesGrowthAndRefundsLastBatch" fullname="BuildingCostGrowthTests.BuildingManager_ChargesGrowthAndRefundsLastBatch" methodname="BuildingManager_ChargesGrowthAndRefundsLastBatch" classname="BuildingCostGrowthTests" runstate="Runnable" seed="1058796177" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.014449" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="2405" name="BuildingTransaction_RejectsSingleUnitChangeThatCannotChangeHugeCount" fullname="BuildingCostGrowthTests.BuildingTransaction_RejectsSingleUnitChangeThatCannotChangeHugeCount" classname="BuildingCostGrowthTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.006502" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2403" name="BuildingTransaction_RejectsSingleUnitChangeThatCannotChangeHugeCount(False)" fullname="BuildingCostGrowthTests.BuildingTransaction_RejectsSingleUnitChangeThatCannotChangeHugeCount(False)" methodname="BuildingTransaction_RejectsSingleUnitChangeThatCannotChangeHugeCount" classname="BuildingCostGrowthTests" runstate="Runnable" seed="440842846" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.004062" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2404" name="BuildingTransaction_RejectsSingleUnitChangeThatCannotChangeHugeCount(True)" fullname="BuildingCostGrowthTests.BuildingTransaction_RejectsSingleUnitChangeThatCannotChangeHugeCount(True)" methodname="BuildingTransaction_RejectsSingleUnitChangeThatCannotChangeHugeCount" classname="BuildingCostGrowthTests" runstate="Runnable" seed="940211512" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000653" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-suite type="ParameterizedMethod" id="2408" name="BuildingUpgrade_RejectsSingleUnitChangeThatCannotChangeEitherHugeCount" fullname="BuildingCostGrowthTests.BuildingUpgrade_RejectsSingleUnitChangeThatCannotChangeEitherHugeCount" classname="BuildingCostGrowthTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.005013" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2406" name="BuildingUpgrade_RejectsSingleUnitChangeThatCannotChangeEitherHugeCount(False)" fullname="BuildingCostGrowthTests.BuildingUpgrade_RejectsSingleUnitChangeThatCannotChangeEitherHugeCount(False)" methodname="BuildingUpgrade_RejectsSingleUnitChangeThatCannotChangeEitherHugeCount" classname="BuildingCostGrowthTests" runstate="Runnable" seed="1932929349" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.003323" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2407" name="BuildingUpgrade_RejectsSingleUnitChangeThatCannotChangeEitherHugeCount(True)" fullname="BuildingCostGrowthTests.BuildingUpgrade_RejectsSingleUnitChangeThatCannotChangeEitherHugeCount(True)" methodname="BuildingUpgrade_RejectsSingleUnitChangeThatCannotChangeEitherHugeCount" classname="BuildingCostGrowthTests" runstate="Runnable" seed="613197369" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000445" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="2387" name="GeometricSeriesCost_UsesOwnedOffset" fullname="BuildingCostGrowthTests.GeometricSeriesCost_UsesOwnedOffset" methodname="GeometricSeriesCost_UsesOwnedOffset" classname="BuildingCostGrowthTests" runstate="Runnable" seed="510823411" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000230" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="2393" name="MaxAffordableGeometricSeries_RemainsFiniteAtHugeCurrency" fullname="BuildingCostGrowthTests.MaxAffordableGeometricSeries_RemainsFiniteAtHugeCurrency" classname="BuildingCostGrowthTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.008686" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2389" name="MaxAffordableGeometricSeries_RemainsFiniteAtHugeCurrency(1.0d)" fullname="BuildingCostGrowthTests.MaxAffordableGeometricSeries_RemainsFiniteAtHugeCurrency(1.0d)" methodname="MaxAffordableGeometricSeries_RemainsFiniteAtHugeCurrency" classname="BuildingCostGrowthTests" runstate="Runnable" seed="2012615774" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.004324" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2390" name="MaxAffordableGeometricSeries_RemainsFiniteAtHugeCurrency(1.14d)" fullname="BuildingCostGrowthTests.MaxAffordableGeometricSeries_RemainsFiniteAtHugeCurrency(1.14d)" methodname="MaxAffordableGeometricSeries_RemainsFiniteAtHugeCurrency" classname="BuildingCostGrowthTests" runstate="Runnable" seed="827602637" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.001688" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2391" name="MaxAffordableGeometricSeries_RemainsFiniteAtHugeCurrency(1.15d)" fullname="BuildingCostGrowthTests.MaxAffordableGeometricSeries_RemainsFiniteAtHugeCurrency(1.15d)" methodname="MaxAffordableGeometricSeries_RemainsFiniteAtHugeCurrency" classname="BuildingCostGrowthTests" runstate="Runnable" seed="1012076480" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000129" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2392" name="MaxAffordableGeometricSeries_RemainsFiniteAtHugeCurrency(1.22d)" fullname="BuildingCostGrowthTests.MaxAffordableGeometricSeries_RemainsFiniteAtHugeCurrency(1.22d)" methodname="MaxAffordableGeometricSeries_RemainsFiniteAtHugeCurrency" classname="BuildingCostGrowthTests" runstate="Runnable" seed="1630145916" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000114" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="2388" name="MaxAffordableGeometricSeries_ReturnsExactBoundary" fullname="BuildingCostGrowthTests.MaxAffordableGeometricSeries_ReturnsExactBoundary" methodname="MaxAffordableGeometricSeries_ReturnsExactBoundary" classname="BuildingCostGrowthTests" runstate="Runnable" seed="1343888102" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000324" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2409" name="BuildingVerticalSliceTests" fullname="BuildingVerticalSliceTests" classname="BuildingVerticalSliceTests" runstate="Runnable" testcasecount="9" result="Failed" site="Child" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.014878" total="9" passed="8" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="2410" name="FoodCapacity_IsLimitedToThePlannedFoodBuildings" fullname="BuildingVerticalSliceTests.FoodCapacity_IsLimitedToThePlannedFoodBuildings" methodname="FoodCapacity_IsLimitedToThePlannedFoodBuildings" classname="BuildingVerticalSliceTests" runstate="Runnable" seed="319337882" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000532" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2412" name="HousingChainScalesCapacityWithoutCreatingFoodCapacity" fullname="BuildingVerticalSliceTests.HousingChainScalesCapacityWithoutCreatingFoodCapacity" methodname="HousingChainScalesCapacityWithoutCreatingFoodCapacity" classname="BuildingVerticalSliceTests" runstate="Runnable" seed="432476526" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.001023" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2413" name="IndustrialAndSpacerHaveDedicatedHousingBuildings" fullname="BuildingVerticalSliceTests.IndustrialAndSpacerHaveDedicatedHousingBuildings" methodname="IndustrialAndSpacerHaveDedicatedHousingBuildings" classname="BuildingVerticalSliceTests" runstate="Runnable" seed="1983556806" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.001996" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2414" name="IndustrialAndSpacerLogisticsNodesProvideFoodBufferWithoutProducingFood" fullname="BuildingVerticalSliceTests.IndustrialAndSpacerLogisticsNodesProvideFoodBufferWithoutProducingFood" methodname="IndustrialAndSpacerLogisticsNodesProvideFoodBufferWithoutProducingFood" classname="BuildingVerticalSliceTests" runstate="Runnable" seed="1614484312" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000413" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2411" name="WoodHouse_IsTheZeroProductivityCostStartingPopulationBootstrap" fullname="BuildingVerticalSliceTests.WoodHouse_IsTheZeroProductivityCostStartingPopulationBootstrap" methodname="WoodHouse_IsTheZeroProductivityCostStartingPopulationBootstrap" classname="BuildingVerticalSliceTests" runstate="Runnable" seed="1350737111" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000284" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2416" name="太空住宅必须同时承担人口容量与持续运营成本" fullname="BuildingVerticalSliceTests.太空住宅必须同时承担人口容量与持续运营成本" methodname="太空住宅必须同时承担人口容量与持续运营成本" classname="BuildingVerticalSliceTests" runstate="Runnable" seed="1071535990" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000426" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2417" name="太空住宅维护剖面必须由生态补给主导且不增加普通资源容量" fullname="BuildingVerticalSliceTests.太空住宅维护剖面必须由生态补给主导且不增加普通资源容量" methodname="太空住宅维护剖面必须由生态补给主导且不增加普通资源容量" classname="BuildingVerticalSliceTests" runstate="Runnable" seed="1068262124" result="Failed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.004116" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[  Expected: greater than 1080
+  But was:  650
+]]></message>
+            <stack-trace><![CDATA[at BuildingVerticalSliceTests.太空住宅维护剖面必须由生态补给主导且不增加普通资源容量 () [0x00054] in D:\GitHub\Kingdom\Assets\Tests\Editor\BuildingVerticalSliceTests.cs:152
+]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="2418" name="工业与太空住宅必须使用符合时代的建造材料" fullname="BuildingVerticalSliceTests.工业与太空住宅必须使用符合时代的建造材料" methodname="工业与太空住宅必须使用符合时代的建造材料" classname="BuildingVerticalSliceTests" runstate="Runnable" seed="766544659" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000556" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2415" name="工业住宅必须区分居住理论实体工坊与建筑落地" fullname="BuildingVerticalSliceTests.工业住宅必须区分居住理论实体工坊与建筑落地" methodname="工业住宅必须区分居住理论实体工坊与建筑落地" classname="BuildingVerticalSliceTests" runstate="Runnable" seed="180159951" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000573" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2423" name="C6IndustrialClosureAuditTests" fullname="C6IndustrialClosureAuditTests" classname="C6IndustrialClosureAuditTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.014791" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2424" name="C604_NewGameReachesIndustrialAndTheWholeIndustrialLayer" fullname="C6IndustrialClosureAuditTests.C604_NewGameReachesIndustrialAndTheWholeIndustrialLayer" methodname="C604_NewGameReachesIndustrialAndTheWholeIndustrialLayer" classname="C6IndustrialClosureAuditTests" runstate="Runnable" seed="373309252" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.012152" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2425" name="C604_PowerAndLogisticsRatesRemainDerivedOutsideSaveDtos" fullname="C6IndustrialClosureAuditTests.C604_PowerAndLogisticsRatesRemainDerivedOutsideSaveDtos" methodname="C604_PowerAndLogisticsRatesRemainDerivedOutsideSaveDtos" classname="C6IndustrialClosureAuditTests" runstate="Runnable" seed="238704954" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000877" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2426" name="C6IndustrialContentTests" fullname="C6IndustrialContentTests" classname="C6IndustrialContentTests" runstate="Runnable" testcasecount="61" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.033149" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2440" name="AdvancedMetalRefiningUpgradeKeepsOneInventoryAndProductivityEfficiency" fullname="C6IndustrialContentTests.AdvancedMetalRefiningUpgradeKeepsOneInventoryAndProductivityEfficiency" methodname="AdvancedMetalRefiningUpgradeKeepsOneInventoryAndProductivityEfficiency" classname="C6IndustrialContentTests" runstate="Runnable" seed="1751324632" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.001031" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2463" name="C606_IndustrialPowerAndLogisticsRolesRemainDistinct" fullname="C6IndustrialContentTests.C606_IndustrialPowerAndLogisticsRolesRemainDistinct" methodname="C606_IndustrialPowerAndLogisticsRolesRemainDistinct" classname="C6IndustrialContentTests" runstate="Runnable" seed="247781055" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000588" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2431" name="IndustrialFootprintsRequireAMaterialShareOfTheAvailableLand" fullname="C6IndustrialContentTests.IndustrialFootprintsRequireAMaterialShareOfTheAvailableLand" methodname="IndustrialFootprintsRequireAMaterialShareOfTheAvailableLand" classname="C6IndustrialContentTests" runstate="Runnable" seed="1283326157" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000991" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2432" name="IndustrialRefiningHasMaterialLossAndPreservesTheSteelUpgrade" fullname="C6IndustrialContentTests.IndustrialRefiningHasMaterialLossAndPreservesTheSteelUpgrade" methodname="IndustrialRefiningHasMaterialLossAndPreservesTheSteelUpgrade" classname="C6IndustrialContentTests" runstate="Runnable" seed="1973162841" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000321" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2488" name="ContentProgressionValidatorTests" fullname="ContentProgressionValidatorTests" classname="ContentProgressionValidatorTests" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.163865" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="ParameterizedMethod" id="2494" name="ChemicalPlant_RocketFuelGatePreservesClosureAndRejectsSelfFunding" fullname="ContentProgressionValidatorTests.ChemicalPlant_RocketFuelGatePreservesClosureAndRejectsSelfFunding" classname="ContentProgressionValidatorTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.004400" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2492" name="ChemicalPlant_RocketFuelGatePreservesClosureAndRejectsSelfFunding(False)" fullname="ContentProgressionValidatorTests.ChemicalPlant_RocketFuelGatePreservesClosureAndRejectsSelfFunding(False)" methodname="ChemicalPlant_RocketFuelGatePreservesClosureAndRejectsSelfFunding" classname="ContentProgressionValidatorTests" runstate="Runnable" seed="83068769" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.002678" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2493" name="ChemicalPlant_RocketFuelGatePreservesClosureAndRejectsSelfFunding(True)" fullname="ContentProgressionValidatorTests.ChemicalPlant_RocketFuelGatePreservesClosureAndRejectsSelfFunding(True)" methodname="ChemicalPlant_RocketFuelGatePreservesClosureAndRejectsSelfFunding" classname="ContentProgressionValidatorTests" runstate="Runnable" seed="351915900" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000401" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="2497" name="EveryReleasedResource_HasSourceAndSink" fullname="ContentProgressionValidatorTests.EveryReleasedResource_HasSourceAndSink" methodname="EveryReleasedResource_HasSourceAndSink" classname="ContentProgressionValidatorTests" runstate="Runnable" seed="2110526200" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.009344" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2490" name="IndustrialProduction_DoesNotGrantOutputsWithoutAllContinuousInputs" fullname="ContentProgressionValidatorTests.IndustrialProduction_DoesNotGrantOutputsWithoutAllContinuousInputs" methodname="IndustrialProduction_DoesNotGrantOutputsWithoutAllContinuousInputs" classname="ContentProgressionValidatorTests" runstate="Runnable" seed="375944249" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000667" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2495" name="MainProgression_ReachesMedievalWithoutInjectedResources" fullname="ContentProgressionValidatorTests.MainProgression_ReachesMedievalWithoutInjectedResources" methodname="MainProgression_ReachesMedievalWithoutInjectedResources" classname="ContentProgressionValidatorTests" runstate="Runnable" seed="1543566581" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.009475" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2491" name="MainProgression_ReachesUltraWithContinuousInputSources" fullname="ContentProgressionValidatorTests.MainProgression_ReachesUltraWithContinuousInputSources" methodname="MainProgression_ReachesUltraWithContinuousInputSources" classname="ContentProgressionValidatorTests" runstate="Runnable" seed="2053837235" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.009690" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2489" name="ResearchCosts_HaveAProducerWithinTheirPrerequisiteClosure" fullname="ContentProgressionValidatorTests.ResearchCosts_HaveAProducerWithinTheirPrerequisiteClosure" methodname="ResearchCosts_HaveAProducerWithinTheirPrerequisiteClosure" classname="ContentProgressionValidatorTests" runstate="Runnable" seed="345755297" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.124794" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2496" name="ResourcesWithoutProducersOrConsumers_AreReportedIndividually" fullname="ContentProgressionValidatorTests.ResourcesWithoutProducersOrConsumers_AreReportedIndividually" methodname="ResourcesWithoutProducersOrConsumers_AreReportedIndividually" classname="ContentProgressionValidatorTests" runstate="Runnable" seed="652096715" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.001478" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2525" name="EconomyIntegrationRegressionTests" fullname="EconomyIntegrationRegressionTests" classname="EconomyIntegrationRegressionTests" runstate="Runnable" testcasecount="54" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.223533" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="ParameterizedMethod" id="2529" name="ChemicalPlant_RocketFuelWaitsForOrbitalEngineeringAndStartsInExistingPlant" fullname="EconomyIntegrationRegressionTests.ChemicalPlant_RocketFuelWaitsForOrbitalEngineeringAndStartsInExistingPlant" classname="EconomyIntegrationRegressionTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.073797" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2527" name="ChemicalPlant_RocketFuelWaitsForOrbitalEngineeringAndStartsInExistingPlant(False)" fullname="EconomyIntegrationRegressionTests.ChemicalPlant_RocketFuelWaitsForOrbitalEngineeringAndStartsInExistingPlant(False)" methodname="ChemicalPlant_RocketFuelWaitsForOrbitalEngineeringAndStartsInExistingPlant" classname="EconomyIntegrationRegressionTests" runstate="Runnable" seed="125285466" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.056968" asserts="0">
+            <properties />
+            <output><![CDATA[[KingdomPerf] ManualTick 23.2ms: building=13.6ms, game=1.5ms, resource=0.9ms, sectors=2.8ms, research=4.3ms, activeBuildings=4, efficiencyPasses=1
+]]></output>
+          </test-case>
+          <test-case id="2528" name="ChemicalPlant_RocketFuelWaitsForOrbitalEngineeringAndStartsInExistingPlant(True)" fullname="EconomyIntegrationRegressionTests.ChemicalPlant_RocketFuelWaitsForOrbitalEngineeringAndStartsInExistingPlant(True)" methodname="ChemicalPlant_RocketFuelWaitsForOrbitalEngineeringAndStartsInExistingPlant" classname="EconomyIntegrationRegressionTests" runstate="Runnable" seed="31238758" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.013053" asserts="0">
+            <properties />
+            <output><![CDATA[[KingdomOffline] seconds=1 slices=1 maxStepMs=1.29 maxSliceMs=2.111
+[KingdomOffline] seconds=1 slices=1 maxStepMs=0.116 maxSliceMs=0.812
+]]></output>
+          </test-case>
+        </test-suite>
+        <test-case id="2538" name="EmptyOilChainCanRestartFromANewMaterialFreeWellAfterAllOldWellsWereUpgraded" fullname="EconomyIntegrationRegressionTests.EmptyOilChainCanRestartFromANewMaterialFreeWellAfterAllOldWellsWereUpgraded" methodname="EmptyOilChainCanRestartFromANewMaterialFreeWellAfterAllOldWellsWereUpgraded" classname="EconomyIntegrationRegressionTests" runstate="Runnable" seed="2033841871" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.009808" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2540" name="FinalIndustrialChains_UpgradeTransactionsAndSaveJsonRemainValid" fullname="EconomyIntegrationRegressionTests.FinalIndustrialChains_UpgradeTransactionsAndSaveJsonRemainValid" methodname="FinalIndustrialChains_UpgradeTransactionsAndSaveJsonRemainValid" classname="EconomyIntegrationRegressionTests" runstate="Runnable" seed="73985224" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.023076" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="2544" name="FinalMaterialChain_SixOperationStatesRetainAuthoredFlows" fullname="EconomyIntegrationRegressionTests.FinalMaterialChain_SixOperationStatesRetainAuthoredFlows" classname="EconomyIntegrationRegressionTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.085737" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2541" name="FinalMaterialChain_SixOperationStatesRetainAuthoredFlows(&quot;MachineFactory&quot;)" fullname="EconomyIntegrationRegressionTests.FinalMaterialChain_SixOperationStatesRetainAuthoredFlows(&quot;MachineFactory&quot;)" methodname="FinalMaterialChain_SixOperationStatesRetainAuthoredFlows" classname="EconomyIntegrationRegressionTests" runstate="Runnable" seed="733243515" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.042120" asserts="0">
+            <properties />
+            <output><![CDATA[MachineFactory/before-unlock: Machinery production=50.706, consumption=1525.875, delta=-1449.816, sourceMultiplier=2.16 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1
+MachineFactory/before-unlock: Engine production=10.1412, consumption=821.625, delta=-806.4132, sourceMultiplier=2.16 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1
+MachineFactory/before-unlock: Composite production=31.640544, consumption=0, delta=47.460816, sourceMultiplier=2.16 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1.3
+MachineFactory/before-unlock: source=2, orbital=0, hub=0, FoodDelta=4235000, FoodNet=10555114.105, FoodCapLoss=6320114.105, territory=260184, productivity=162160, orbitalPrerequisites=[DeepSpaceIndustrialIntegration], hubPrerequisites=[TitaniumAlloyEngineering,AutonomousOrbitalMining,OrbitalVacuumMetallurgy,IntegratedMetalResourceDevelopment,PhantomMaterials,PhaseMaterialEngineering]
+MachineFactory/unlocked-retained: Machinery production=50.706, consumption=1525.875, delta=-1449.816, sourceMultiplier=2.16 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1
+MachineFactory/unlocked-retained: Engine production=10.1412, consumption=821.625, delta=-806.4132, sourceMultiplier=2.16 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1
+MachineFactory/unlocked-retained: Composite production=31.640544, consumption=0, delta=47.460816, sourceMultiplier=2.16 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1.3
+MachineFactory/unlocked-retained: source=2, orbital=0, hub=0, FoodDelta=0, FoodNet=10555114.105, FoodCapLoss=10555114.105, territory=260184, productivity=162160, orbitalPrerequisites=[DeepSpaceIndustrialIntegration], hubPrerequisites=[TitaniumAlloyEngineering,AutonomousOrbitalMining,OrbitalVacuumMetallurgy,IntegratedMetalResourceDevelopment,PhantomMaterials,PhaseMaterialEngineering]
+MachineFactory/partial-upgrade: Machinery production=53.523, consumption=1525.875, delta=-1445.5905, sourceMultiplier=2.16 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1
+MachineFactory/partial-upgrade: Engine production=10.7046, consumption=821.625, delta=-805.5681, sourceMultiplier=2.16 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1
+MachineFactory/partial-upgrade: Composite production=30.468672, consumption=0, delta=45.703008, sourceMultiplier=2.16 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1.3
+MachineFactory/partial-upgrade: source=1, orbital=1, hub=0, FoodDelta=0, FoodNet=10555114.105, FoodCapLoss=10555114.105, territory=260532, productivity=162440, orbitalPrerequisites=[DeepSpaceIndustrialIntegration], hubPrerequisites=[TitaniumAlloyEngineering,AutonomousOrbitalMining,OrbitalVacuumMetallurgy,IntegratedMetalResourceDevelopment,PhantomMaterials,PhaseMaterialEngineering]
+MachineFactory/all-upgraded: Machinery production=56.34, consumption=1525.875, delta=-1441.365, sourceMultiplier=2.16 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1
+MachineFactory/all-upgraded: Engine production=11.268, consumption=821.625, delta=-804.723, sourceMultiplier=2.16 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1
+MachineFactory/all-upgraded: Composite production=29.2968, consumption=0, delta=43.9452, sourceMultiplier=2.16 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1.3
+MachineFactory/all-upgraded: source=0, orbital=2, hub=0, FoodDelta=0, FoodNet=10555114.105, FoodCapLoss=10555114.105, territory=260880, productivity=162720, orbitalPrerequisites=[DeepSpaceIndustrialIntegration], hubPrerequisites=[TitaniumAlloyEngineering,AutonomousOrbitalMining,OrbitalVacuumMetallurgy,IntegratedMetalResourceDevelopment,PhantomMaterials,PhaseMaterialEngineering]
+MachineFactory/last-old-factory-dismantled: Machinery production=104.7924, consumption=1525.875, delta=-1368.6864, sourceMultiplier=2.16 *1, orbitalMultiplier=1 *1, hubMultiplier=2.79 *1, globalMultiplier=1
+MachineFactory/last-old-factory-dismantled: Engine production=20.95848, consumption=821.625, delta=-790.18728, sourceMultiplier=2.16 *1, orbitalMultiplier=1 *1, hubMultiplier=2.79 *1, globalMultiplier=1
+MachineFactory/last-old-factory-dismantled: Composite production=61.303554, consumption=0, delta=91.955331, sourceMultiplier=2.16 *1, orbitalMultiplier=1 *1, hubMultiplier=2.79 *1, globalMultiplier=1.3
+MachineFactory/last-old-factory-dismantled: source=0, orbital=0, hub=1, FoodDelta=0, FoodNet=10555090.105, FoodCapLoss=10555090.105, territory=268000, productivity=178000, orbitalPrerequisites=[DeepSpaceIndustrialIntegration], hubPrerequisites=[TitaniumAlloyEngineering,AutonomousOrbitalMining,OrbitalVacuumMetallurgy,IntegratedMetalResourceDevelopment,PhantomMaterials,PhaseMaterialEngineering]
+MachineFactory/v1-restored: Machinery production=104.7924, consumption=1525.875, delta=-1368.6864, sourceMultiplier=2.16 *1, orbitalMultiplier=1 *1, hubMultiplier=2.79 *1, globalMultiplier=1
+MachineFactory/v1-restored: Engine production=20.95848, consumption=821.625, delta=-790.18728, sourceMultiplier=2.16 *1, orbitalMultiplier=1 *1, hubMultiplier=2.79 *1, globalMultiplier=1
+MachineFactory/v1-restored: Composite production=61.303554, consumption=0, delta=91.955331, sourceMultiplier=2.16 *1, orbitalMultiplier=1 *1, hubMultiplier=2.79 *1, globalMultiplier=1.3
+MachineFactory/v1-restored: source=0, orbital=0, hub=1, FoodDelta=0, FoodNet=10555090.105, FoodCapLoss=10555090.105, territory=268000, productivity=178000, orbitalPrerequisites=[DeepSpaceIndustrialIntegration], hubPrerequisites=[TitaniumAlloyEngineering,AutonomousOrbitalMining,OrbitalVacuumMetallurgy,IntegratedMetalResourceDevelopment,PhantomMaterials,PhaseMaterialEngineering]
+]]></output>
+          </test-case>
+          <test-case id="2542" name="FinalMaterialChain_SixOperationStatesRetainAuthoredFlows(&quot;WireMill&quot;)" fullname="EconomyIntegrationRegressionTests.FinalMaterialChain_SixOperationStatesRetainAuthoredFlows(&quot;WireMill&quot;)" methodname="FinalMaterialChain_SixOperationStatesRetainAuthoredFlows" classname="EconomyIntegrationRegressionTests" runstate="Runnable" seed="1276341174" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.018776" asserts="0">
+            <properties />
+            <output><![CDATA[WireMill/before-unlock: CopperWire production=44.36775, consumption=0, delta=66.551625, sourceMultiplier=1.35 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1
+WireMill/before-unlock: Electronics production=10.1412, consumption=0, delta=15.2118, sourceMultiplier=1.35 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1
+WireMill/before-unlock: source=2, orbital=0, hub=0, FoodDelta=4235000, FoodNet=10555114.105, FoodCapLoss=6320114.105, territory=260136, productivity=162140, orbitalPrerequisites=[OrbitalPowerTransmission], hubPrerequisites=[TitaniumAlloyEngineering,AutonomousOrbitalMining,OrbitalVacuumMetallurgy,IntegratedMetalResourceDevelopment,PhantomMaterials,PhaseMaterialEngineering]
+WireMill/unlocked-retained: CopperWire production=44.36775, consumption=0, delta=66.551625, sourceMultiplier=1.35 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1
+WireMill/unlocked-retained: Electronics production=10.1412, consumption=0, delta=15.2118, sourceMultiplier=1.35 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1
+WireMill/unlocked-retained: source=2, orbital=0, hub=0, FoodDelta=0, FoodNet=10555114.105, FoodCapLoss=10555114.105, territory=260136, productivity=162140, orbitalPrerequisites=[OrbitalPowerTransmission], hubPrerequisites=[TitaniumAlloyEngineering,AutonomousOrbitalMining,OrbitalVacuumMetallurgy,IntegratedMetalResourceDevelopment,PhantomMaterials,PhaseMaterialEngineering]
+WireMill/partial-upgrade: CopperWire production=73.828875, consumption=0, delta=110.743313, sourceMultiplier=1.35 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1
+WireMill/partial-upgrade: Electronics production=16.8081, consumption=0, delta=25.21215, sourceMultiplier=1.35 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1
+WireMill/partial-upgrade: source=1, orbital=1, hub=0, FoodDelta=0, FoodNet=10555114.105, FoodCapLoss=10555114.105, territory=260448, productivity=162430, orbitalPrerequisites=[OrbitalPowerTransmission], hubPrerequisites=[TitaniumAlloyEngineering,AutonomousOrbitalMining,OrbitalVacuumMetallurgy,IntegratedMetalResourceDevelopment,PhantomMaterials,PhaseMaterialEngineering]
+WireMill/all-upgraded: CopperWire production=103.29, consumption=0, delta=154.935, sourceMultiplier=1.35 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1
+WireMill/all-upgraded: Electronics production=23.475, consumption=0, delta=35.2125, sourceMultiplier=1.35 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1
+WireMill/all-upgraded: source=0, orbital=2, hub=0, FoodDelta=0, FoodNet=10555114.105, FoodCapLoss=10555114.105, territory=260760, productivity=162720, orbitalPrerequisites=[OrbitalPowerTransmission], hubPrerequisites=[TitaniumAlloyEngineering,AutonomousOrbitalMining,OrbitalVacuumMetallurgy,IntegratedMetalResourceDevelopment,PhantomMaterials,PhaseMaterialEngineering]
+WireMill/last-old-factory-dismantled: CopperWire production=146.70936, consumption=0, delta=220.06404, sourceMultiplier=1.35 *1, orbitalMultiplier=1 *1, hubMultiplier=2.79 *1, globalMultiplier=1
+WireMill/last-old-factory-dismantled: Electronics production=36.67734, consumption=0, delta=55.01601, sourceMultiplier=1.35 *1, orbitalMultiplier=1 *1, hubMultiplier=2.79 *1, globalMultiplier=1
+WireMill/last-old-factory-dismantled: source=0, orbital=0, hub=1, FoodDelta=0, FoodNet=10555090.105, FoodCapLoss=10555090.105, territory=268000, productivity=178000, orbitalPrerequisites=[OrbitalPowerTransmission], hubPrerequisites=[TitaniumAlloyEngineering,AutonomousOrbitalMining,OrbitalVacuumMetallurgy,IntegratedMetalResourceDevelopment,PhantomMaterials,PhaseMaterialEngineering]
+WireMill/v1-restored: CopperWire production=146.70936, consumption=0, delta=220.06404, sourceMultiplier=1.35 *1, orbitalMultiplier=1 *1, hubMultiplier=2.79 *1, globalMultiplier=1
+WireMill/v1-restored: Electronics production=36.67734, consumption=0, delta=55.01601, sourceMultiplier=1.35 *1, orbitalMultiplier=1 *1, hubMultiplier=2.79 *1, globalMultiplier=1
+WireMill/v1-restored: source=0, orbital=0, hub=1, FoodDelta=0, FoodNet=10555090.105, FoodCapLoss=10555090.105, territory=268000, productivity=178000, orbitalPrerequisites=[OrbitalPowerTransmission], hubPrerequisites=[TitaniumAlloyEngineering,AutonomousOrbitalMining,OrbitalVacuumMetallurgy,IntegratedMetalResourceDevelopment,PhantomMaterials,PhaseMaterialEngineering]
+]]></output>
+          </test-case>
+          <test-case id="2543" name="FinalMaterialChain_SixOperationStatesRetainAuthoredFlows(&quot;BuildingMaterialsComplex&quot;)" fullname="EconomyIntegrationRegressionTests.FinalMaterialChain_SixOperationStatesRetainAuthoredFlows(&quot;BuildingMaterialsComplex&quot;)" methodname="FinalMaterialChain_SixOperationStatesRetainAuthoredFlows" classname="EconomyIntegrationRegressionTests" runstate="Runnable" seed="737653282" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.022733" asserts="0">
+            <properties />
+            <output><![CDATA[BuildingMaterialsComplex/before-unlock: Glass production=65.73, consumption=0, delta=98.595, sourceMultiplier=1.75 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1
+BuildingMaterialsComplex/before-unlock: Ceramic production=19.719, consumption=0, delta=29.5785, sourceMultiplier=1.75 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1
+BuildingMaterialsComplex/before-unlock: Concrete production=115.0275, consumption=0, delta=172.54125, sourceMultiplier=1.75 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1
+BuildingMaterialsComplex/before-unlock: source=2, orbital=0, hub=0, FoodDelta=4235000, FoodNet=10555114.105, FoodCapLoss=6320114.105, territory=260200, productivity=162240, orbitalPrerequisites=[OrbitalEngineering], hubPrerequisites=[TitaniumAlloyEngineering,AutonomousOrbitalMining,OrbitalVacuumMetallurgy,IntegratedMetalResourceDevelopment,PhantomMaterials,PhaseMaterialEngineering]
+BuildingMaterialsComplex/unlocked-retained: Glass production=65.73, consumption=0, delta=98.595, sourceMultiplier=1.75 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1
+BuildingMaterialsComplex/unlocked-retained: Ceramic production=19.719, consumption=0, delta=29.5785, sourceMultiplier=1.75 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1
+BuildingMaterialsComplex/unlocked-retained: Concrete production=115.0275, consumption=0, delta=172.54125, sourceMultiplier=1.75 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1
+BuildingMaterialsComplex/unlocked-retained: source=2, orbital=0, hub=0, FoodDelta=0, FoodNet=10555114.105, FoodCapLoss=10555114.105, territory=260200, productivity=162240, orbitalPrerequisites=[OrbitalEngineering], hubPrerequisites=[TitaniumAlloyEngineering,AutonomousOrbitalMining,OrbitalVacuumMetallurgy,IntegratedMetalResourceDevelopment,PhantomMaterials,PhaseMaterialEngineering]
+BuildingMaterialsComplex/partial-upgrade: Glass production=61.035, consumption=0, delta=91.5525, sourceMultiplier=1.75 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1
+BuildingMaterialsComplex/partial-upgrade: Ceramic production=19.2495, consumption=0, delta=28.87425, sourceMultiplier=1.75 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1
+BuildingMaterialsComplex/partial-upgrade: Concrete production=104.46375, consumption=0, delta=156.695625, sourceMultiplier=1.75 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1
+BuildingMaterialsComplex/partial-upgrade: source=1, orbital=1, hub=0, FoodDelta=0, FoodNet=10555114.105, FoodCapLoss=10555114.105, territory=260520, productivity=162600, orbitalPrerequisites=[OrbitalEngineering], hubPrerequisites=[TitaniumAlloyEngineering,AutonomousOrbitalMining,OrbitalVacuumMetallurgy,IntegratedMetalResourceDevelopment,PhantomMaterials,PhaseMaterialEngineering]
+BuildingMaterialsComplex/all-upgraded: Glass production=56.34, consumption=0, delta=84.51, sourceMultiplier=1.75 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1
+BuildingMaterialsComplex/all-upgraded: Ceramic production=18.78, consumption=0, delta=28.17, sourceMultiplier=1.75 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1
+BuildingMaterialsComplex/all-upgraded: Concrete production=93.9, consumption=0, delta=140.85, sourceMultiplier=1.75 *1, orbitalMultiplier=1 *1, hubMultiplier=2.59 *1, globalMultiplier=1
+BuildingMaterialsComplex/all-upgraded: source=0, orbital=2, hub=0, FoodDelta=0, FoodNet=10555114.105, FoodCapLoss=10555114.105, territory=260840, productivity=162960, orbitalPrerequisites=[OrbitalEngineering], hubPrerequisites=[TitaniumAlloyEngineering,AutonomousOrbitalMining,OrbitalVacuumMetallurgy,IntegratedMetalResourceDevelopment,PhantomMaterials,PhaseMaterialEngineering]
+BuildingMaterialsComplex/last-old-factory-dismantled: Glass production=125.75088, consumption=0, delta=188.62632, sourceMultiplier=1.75 *1, orbitalMultiplier=1 *1, hubMultiplier=2.79 *1, globalMultiplier=1
+BuildingMaterialsComplex/last-old-factory-dismantled: Ceramic production=41.91696, consumption=0, delta=62.87544, sourceMultiplier=1.75 *1, orbitalMultiplier=1 *1, hubMultiplier=2.79 *1, globalMultiplier=1
+BuildingMaterialsComplex/last-old-factory-dismantled: Concrete production=209.5848, consumption=0, delta=314.3772, sourceMultiplier=1.75 *1, orbitalMultiplier=1 *1, hubMultiplier=2.79 *1, globalMultiplier=1
+BuildingMaterialsComplex/last-old-factory-dismantled: source=0, orbital=0, hub=1, FoodDelta=0, FoodNet=10555090.105, FoodCapLoss=10555090.105, territory=268000, productivity=178000, orbitalPrerequisites=[OrbitalEngineering], hubPrerequisites=[TitaniumAlloyEngineering,AutonomousOrbitalMining,OrbitalVacuumMetallurgy,IntegratedMetalResourceDevelopment,PhantomMaterials,PhaseMaterialEngineering]
+BuildingMaterialsComplex/v1-restored: Glass production=125.75088, consumption=0, delta=188.62632, sourceMultiplier=1.75 *1, orbitalMultiplier=1 *1, hubMultiplier=2.79 *1, globalMultiplier=1
+BuildingMaterialsComplex/v1-restored: Ceramic production=41.91696, consumption=0, delta=62.87544, sourceMultiplier=1.75 *1, orbitalMultiplier=1 *1, hubMultiplier=2.79 *1, globalMultiplier=1
+BuildingMaterialsComplex/v1-restored: Concrete production=209.5848, consumption=0, delta=314.3772, sourceMultiplier=1.75 *1, orbitalMultiplier=1 *1, hubMultiplier=2.79 *1, globalMultiplier=1
+BuildingMaterialsComplex/v1-restored: source=0, orbital=0, hub=1, FoodDelta=0, FoodNet=10555090.105, FoodCapLoss=10555090.105, territory=268000, productivity=178000, orbitalPrerequisites=[OrbitalEngineering], hubPrerequisites=[TitaniumAlloyEngineering,AutonomousOrbitalMining,OrbitalVacuumMetallurgy,IntegratedMetalResourceDevelopment,PhantomMaterials,PhaseMaterialEngineering]
+]]></output>
+          </test-case>
+        </test-suite>
+        <test-case id="2526" name="MachineFactory_CompletedResearchAllowsConstructionWithoutPrecisionTooling" fullname="EconomyIntegrationRegressionTests.MachineFactory_CompletedResearchAllowsConstructionWithoutPrecisionTooling" methodname="MachineFactory_CompletedResearchAllowsConstructionWithoutPrecisionTooling" classname="EconomyIntegrationRegressionTests" runstate="Runnable" seed="971213455" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.002503" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2539" name="PhantomSupplyCanBeRebuiltAfterItsLastFactoryWasUpgraded" fullname="EconomyIntegrationRegressionTests.PhantomSupplyCanBeRebuiltAfterItsLastFactoryWasUpgraded" methodname="PhantomSupplyCanBeRebuiltAfterItsLastFactoryWasUpgraded" classname="EconomyIntegrationRegressionTests" runstate="Runnable" seed="1147473014" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.007739" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2612" name="FlowEfficiencyTests" fullname="FlowEfficiencyTests" classname="FlowEfficiencyTests" runstate="Runnable" testcasecount="17" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.036327" total="17" passed="17" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="ParameterizedMethod" id="2616" name="BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues" fullname="FlowEfficiencyTests.BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues" classname="FlowEfficiencyTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.006001" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2613" name="BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues(-9.0d)" fullname="FlowEfficiencyTests.BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues(-9.0d)" methodname="BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues" classname="FlowEfficiencyTests" runstate="Runnable" seed="897470113" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000998" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2614" name="BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues(0.0d)" fullname="FlowEfficiencyTests.BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues(0.0d)" methodname="BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues" classname="FlowEfficiencyTests" runstate="Runnable" seed="1329697617" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000176" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2615" name="BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues(9.0d)" fullname="FlowEfficiencyTests.BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues(9.0d)" methodname="BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues" classname="FlowEfficiencyTests" runstate="Runnable" seed="1003956105" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000107" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="2625" name="FlowSatisfaction_UsesProductionAgainstDemandWithoutInventory" fullname="FlowEfficiencyTests.FlowSatisfaction_UsesProductionAgainstDemandWithoutInventory" methodname="FlowSatisfaction_UsesProductionAgainstDemandWithoutInventory" classname="FlowEfficiencyTests" runstate="Runnable" seed="1811340619" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.001049" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2626" name="HappinessCurveIsMonotonicAndBounded" fullname="FlowEfficiencyTests.HappinessCurveIsMonotonicAndBounded" methodname="HappinessCurveIsMonotonicAndBounded" classname="FlowEfficiencyTests" runstate="Runnable" seed="475951459" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000489" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2628" name="HappinessOwnsFoodShortagePenalty" fullname="FlowEfficiencyTests.HappinessOwnsFoodShortagePenalty" methodname="HappinessOwnsFoodShortagePenalty" classname="FlowEfficiencyTests" runstate="Runnable" seed="1206395921" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000295" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2631" name="HappinessWithZeroPopulationIsSafe" fullname="FlowEfficiencyTests.HappinessWithZeroPopulationIsSafe" methodname="HappinessWithZeroPopulationIsSafe" classname="FlowEfficiencyTests" runstate="Runnable" seed="1240145157" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000190" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2629" name="MedicalHappinessBonusOnlyAppliesWhenFoodIsAvailable" fullname="FlowEfficiencyTests.MedicalHappinessBonusOnlyAppliesWhenFoodIsAvailable" methodname="MedicalHappinessBonusOnlyAppliesWhenFoodIsAvailable" classname="FlowEfficiencyTests" runstate="Runnable" seed="1947608873" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000367" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2630" name="MedicalHappinessBonusSharesTheExistingUpperBound" fullname="FlowEfficiencyTests.MedicalHappinessBonusSharesTheExistingUpperBound" methodname="MedicalHappinessBonusSharesTheExistingUpperBound" classname="FlowEfficiencyTests" runstate="Runnable" seed="1841634754" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000194" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="2624" name="MigratedBuildingUsesOneAuthoredSignedContribution" fullname="FlowEfficiencyTests.MigratedBuildingUsesOneAuthoredSignedContribution" classname="FlowEfficiencyTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.010729" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2617" name="MigratedBuildingUsesOneAuthoredSignedContribution(&quot;DeepSpaceRelay&quot;,False,-23.0d)" fullname="FlowEfficiencyTests.MigratedBuildingUsesOneAuthoredSignedContribution(&quot;DeepSpaceRelay&quot;,False,-23.0d)" methodname="MigratedBuildingUsesOneAuthoredSignedContribution" classname="FlowEfficiencyTests" runstate="Runnable" seed="1362166908" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000680" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2618" name="MigratedBuildingUsesOneAuthoredSignedContribution(&quot;EarthMoonLogisticsHub&quot;,False,240.0d)" fullname="FlowEfficiencyTests.MigratedBuildingUsesOneAuthoredSignedContribution(&quot;EarthMoonLogisticsHub&quot;,False,240.0d)" methodname="MigratedBuildingUsesOneAuthoredSignedContribution" classname="FlowEfficiencyTests" runstate="Runnable" seed="793908892" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000080" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2619" name="MigratedBuildingUsesOneAuthoredSignedContribution(&quot;OrbitalResourceExtractionArray&quot;,False,1200.0d)" fullname="FlowEfficiencyTests.MigratedBuildingUsesOneAuthoredSignedContribution(&quot;OrbitalResourceExtractionArray&quot;,False,1200.0d)" methodname="MigratedBuildingUsesOneAuthoredSignedContribution" classname="FlowEfficiencyTests" runstate="Runnable" seed="1405168013" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000059" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2620" name="MigratedBuildingUsesOneAuthoredSignedContribution(&quot;OrbitalStation&quot;,False,180.0d)" fullname="FlowEfficiencyTests.MigratedBuildingUsesOneAuthoredSignedContribution(&quot;OrbitalStation&quot;,False,180.0d)" methodname="MigratedBuildingUsesOneAuthoredSignedContribution" classname="FlowEfficiencyTests" runstate="Runnable" seed="1028319775" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000059" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2621" name="MigratedBuildingUsesOneAuthoredSignedContribution(&quot;ThunderGatePropellantWorks&quot;,False,-38.666666666667d)" fullname="FlowEfficiencyTests.MigratedBuildingUsesOneAuthoredSignedContribution(&quot;ThunderGatePropellantWorks&quot;,False,-38.666666666667d)" methodname="MigratedBuildingUsesOneAuthoredSignedContribution" classname="FlowEfficiencyTests" runstate="Runnable" seed="128787141" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000059" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2622" name="MigratedBuildingUsesOneAuthoredSignedContribution(&quot;AutonomousMatterFabricator&quot;,False,3000.0d)" fullname="FlowEfficiencyTests.MigratedBuildingUsesOneAuthoredSignedContribution(&quot;AutonomousMatterFabricator&quot;,False,3000.0d)" methodname="MigratedBuildingUsesOneAuthoredSignedContribution" classname="FlowEfficiencyTests" runstate="Runnable" seed="877430415" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000063" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2623" name="MigratedBuildingUsesOneAuthoredSignedContribution(&quot;PhaseEnergyArray&quot;,True,1410.0d)" fullname="FlowEfficiencyTests.MigratedBuildingUsesOneAuthoredSignedContribution(&quot;PhaseEnergyArray&quot;,True,1410.0d)" methodname="MigratedBuildingUsesOneAuthoredSignedContribution" classname="FlowEfficiencyTests" runstate="Runnable" seed="890440888" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000060" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="2627" name="StoredFoodPreventsPrematureHappinessPenalty" fullname="FlowEfficiencyTests.StoredFoodPreventsPrematureHappinessPenalty" methodname="StoredFoodPreventsPrematureHappinessPenalty" classname="FlowEfficiencyTests" runstate="Runnable" seed="936529209" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000396" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2645" name="GlobalEconomyDefinitionTests" fullname="GlobalEconomyDefinitionTests" classname="GlobalEconomyDefinitionTests" runstate="Runnable" testcasecount="15" result="Failed" site="Child" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:41Z" duration="0.083055" total="15" passed="12" failed="3" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="2651" name="BuildingsOwnAndUseAllPrerequisites" fullname="GlobalEconomyDefinitionTests.BuildingsOwnAndUseAllPrerequisites" methodname="BuildingsOwnAndUseAllPrerequisites" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="639319166" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.005386" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2648" name="EditorReconfigurationInvalidatesResourcePairCaches" fullname="GlobalEconomyDefinitionTests.EditorReconfigurationInvalidatesResourcePairCaches" methodname="EditorReconfigurationInvalidatesResourcePairCaches" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="609363104" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.001832" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2655" name="EveryResearchAndWorkshopEffectHasAValidTarget" fullname="GlobalEconomyDefinitionTests.EveryResearchAndWorkshopEffectHasAValidTarget" methodname="EveryResearchAndWorkshopEffectHasAValidTarget" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="1600626790" result="Failed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.002281" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[  CivilizationPlanning
+  Expected: True
+  But was:  False
+]]></message>
+            <stack-trace><![CDATA[at GlobalEconomyDefinitionTests.EveryResearchAndWorkshopEffectHasAValidTarget () [0x00037] in D:\GitHub\Kingdom\Assets\Tests\Editor\GlobalEconomyDefinitionTests.cs:241
+]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="2652" name="EveryWorkshopUpgradeHasAnEffectAndReferencedBuildingsAreDiscoverable" fullname="GlobalEconomyDefinitionTests.EveryWorkshopUpgradeHasAnEffectAndReferencedBuildingsAreDiscoverable" methodname="EveryWorkshopUpgradeHasAnEffectAndReferencedBuildingsAreDiscoverable" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="883759229" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.008372" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2659" name="IntegratedDependencyGraphIsReachable" fullname="GlobalEconomyDefinitionTests.IntegratedDependencyGraphIsReachable" methodname="IntegratedDependencyGraphIsReachable" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="1663573606" result="Failed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.001926" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[  科研“CivilizationPlanning”没有任何效果，必须至少声明一个真实效果。
+  Expected: True
+  But was:  False
+]]></message>
+            <stack-trace><![CDATA[at GlobalEconomyDefinitionTests.IntegratedDependencyGraphIsReachable () [0x00000] in D:\GitHub\Kingdom\Assets\Tests\Editor\GlobalEconomyDefinitionTests.cs:444
+]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="2646" name="MetalDefinitions_UseSemanticNamesAndDistinctArtwork" fullname="GlobalEconomyDefinitionTests.MetalDefinitions_UseSemanticNamesAndDistinctArtwork" methodname="MetalDefinitions_UseSemanticNamesAndDistinctArtwork" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="777959959" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.002086" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2649" name="ProductivityGrantsAreReservedForPopulationBuildings" fullname="GlobalEconomyDefinitionTests.ProductivityGrantsAreReservedForPopulationBuildings" methodname="ProductivityGrantsAreReservedForPopulationBuildings" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="1171124095" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000413" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2647" name="ResourcePairDefinitionViewsReuseTheirCachedLists" fullname="GlobalEconomyDefinitionTests.ResourcePairDefinitionViewsReuseTheirCachedLists" methodname="ResourcePairDefinitionViewsReuseTheirCachedLists" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="1080883198" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.000884" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2650" name="定义序列化字段必须使用字符串数值且统一采用每秒变化率" fullname="GlobalEconomyDefinitionTests.定义序列化字段必须使用字符串数值且统一采用每秒变化率" methodname="定义序列化字段必须使用字符串数值且统一采用每秒变化率" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="1486212683" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.015734" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2654" name="建筑不能重复声明完全相同的资源产出" fullname="GlobalEconomyDefinitionTests.建筑不能重复声明完全相同的资源产出" methodname="建筑不能重复声明完全相同的资源产出" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="2079218543" result="Failed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.002460" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[  建筑 ThunderGatePropellantWorks 与另一个建筑重复声明了完全相同的资源产出 RocketFuel=32。
+  Expected: True
+  But was:  False
+]]></message>
+            <stack-trace><![CDATA[at GlobalEconomyDefinitionTests.建筑不能重复声明完全相同的资源产出 () [0x00108] in D:\GitHub\Kingdom\Assets\Tests\Editor\GlobalEconomyDefinitionTests.cs:228
+]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="2658" name="所有效果类型都必须有运行时支持分支" fullname="GlobalEconomyDefinitionTests.所有效果类型都必须有运行时支持分支" methodname="所有效果类型都必须有运行时支持分支" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="1139873979" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:40Z" duration="0.017810" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2660" name="所有资源都必须有来源和多个真实消费节点" fullname="GlobalEconomyDefinitionTests.所有资源都必须有来源和多个真实消费节点" methodname="所有资源都必须有来源和多个真实消费节点" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="2072948311" result="Passed" start-time="2026-11-10 04:45:40Z" end-time="2026-11-10 04:45:41Z" duration="0.007000" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2657" name="每个工坊不能重复声明同一效果目标" fullname="GlobalEconomyDefinitionTests.每个工坊不能重复声明同一效果目标" methodname="每个工坊不能重复声明同一效果目标" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="1527746827" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000992" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2653" name="每个建筑都必须承担明确的独立职责" fullname="GlobalEconomyDefinitionTests.每个建筑都必须承担明确的独立职责" methodname="每个建筑都必须承担明确的独立职责" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="179437704" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000608" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2656" name="每个研究不能重复声明同一效果目标" fullname="GlobalEconomyDefinitionTests.每个研究不能重复声明同一效果目标" methodname="每个研究不能重复声明同一效果目标" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="238822711" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000771" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2946" name="LateFactoryConsolidationTests" fullname="LateFactoryConsolidationTests" classname="LateFactoryConsolidationTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.004288" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2947" name="OrbitalProcessingRetainsItsIndustrialFeedstocks" fullname="LateFactoryConsolidationTests.OrbitalProcessingRetainsItsIndustrialFeedstocks" methodname="OrbitalProcessingRetainsItsIndustrialFeedstocks" classname="LateFactoryConsolidationTests" runstate="Runnable" seed="261732172" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000489" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2950" name="SpacerEcologyRemainsASeparateFoodAndBiomassMechanism" fullname="LateFactoryConsolidationTests.SpacerEcologyRemainsASeparateFoodAndBiomassMechanism" methodname="SpacerEcologyRemainsASeparateFoodAndBiomassMechanism" classname="LateFactoryConsolidationTests" runstate="Runnable" seed="70368627" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000268" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2949" name="SpacerMaterialChainsConvergeOnOneComprehensiveFactory" fullname="LateFactoryConsolidationTests.SpacerMaterialChainsConvergeOnOneComprehensiveFactory" methodname="SpacerMaterialChainsConvergeOnOneComprehensiveFactory" classname="LateFactoryConsolidationTests" runstate="Runnable" seed="574217304" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000901" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2948" name="UltraAssemblyRequiresIndustrialThroughputForAdvancedMaterials" fullname="LateFactoryConsolidationTests.UltraAssemblyRequiresIndustrialThroughputForAdvancedMaterials" methodname="UltraAssemblyRequiresIndustrialThroughputForAdvancedMaterials" classname="LateFactoryConsolidationTests" runstate="Runnable" seed="1675406346" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000647" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="3151" name="ResourceContinuityTests" fullname="ResourceContinuityTests" classname="ResourceContinuityTests" runstate="Runnable" testcasecount="32" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.018764" total="32" passed="32" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="3167" name="BasicMineralsReachLaterErasThroughDurableIntermediateMaterials" fullname="ResourceContinuityTests.BasicMineralsReachLaterErasThroughDurableIntermediateMaterials" methodname="BasicMineralsReachLaterErasThroughDurableIntermediateMaterials" classname="ResourceContinuityTests" runstate="Runnable" seed="915555281" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.001027" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3161" name="ChemicalPlantIsAvailableBeforeDeepOilDrilling" fullname="ResourceContinuityTests.ChemicalPlantIsAvailableBeforeDeepOilDrilling" methodname="ChemicalPlantIsAvailableBeforeDeepOilDrilling" classname="ResourceContinuityTests" runstate="Runnable" seed="991747194" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000861" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3171" name="FullOrbitalHabitatCanBeSupportedByOrbitalAgriculture" fullname="ResourceContinuityTests.FullOrbitalHabitatCanBeSupportedByOrbitalAgriculture" methodname="FullOrbitalHabitatCanBeSupportedByOrbitalAgriculture" classname="ResourceContinuityTests" runstate="Runnable" seed="2025567932" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000457" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3166" name="IndustrialIntermediateMineralsEnterTheirMatchingPhysicalWorkshops" fullname="ResourceContinuityTests.IndustrialIntermediateMineralsEnterTheirMatchingPhysicalWorkshops" methodname="IndustrialIntermediateMineralsEnterTheirMatchingPhysicalWorkshops" classname="ResourceContinuityTests" runstate="Runnable" seed="1455383331" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000321" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3172" name="OrbitalStationUsesMuchMoreBiomassThanTitaniumAlloy" fullname="ResourceContinuityTests.OrbitalStationUsesMuchMoreBiomassThanTitaniumAlloy" methodname="OrbitalStationUsesMuchMoreBiomassThanTitaniumAlloy" classname="ResourceContinuityTests" runstate="Runnable" seed="522749090" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000422" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3154" name="中古时代转型研究必须拥有冶炼前置并消耗石砖与布料" fullname="ResourceContinuityTests.中古时代转型研究必须拥有冶炼前置并消耗石砖与布料" methodname="中古时代转型研究必须拥有冶炼前置并消耗石砖与布料" classname="ResourceContinuityTests" runstate="Runnable" seed="383770337" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000404" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3160" name="化学品必须进入低温推进剂实体工艺" fullname="ResourceContinuityTests.化学品必须进入低温推进剂实体工艺" methodname="化学品必须进入低温推进剂实体工艺" classname="ResourceContinuityTests" runstate="Runnable" seed="414062338" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000153" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3163" name="原油必须通过炼油链继续服务太空推进系统" fullname="ResourceContinuityTests.原油必须通过炼油链继续服务太空推进系统" methodname="原油必须通过炼油链继续服务太空推进系统" classname="ResourceContinuityTests" runstate="Runnable" seed="849141617" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000344" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3158" name="基础金属必须进入轨道电力硬件的跨时代链条" fullname="ResourceContinuityTests.基础金属必须进入轨道电力硬件的跨时代链条" methodname="基础金属必须进入轨道电力硬件的跨时代链条" classname="ResourceContinuityTests" runstate="Runnable" seed="1581768935" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000209" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3165" name="基础金属矿必须通过统一冶炼进入跨时代材料链" fullname="ResourceContinuityTests.基础金属矿必须通过统一冶炼进入跨时代材料链" methodname="基础金属矿必须通过统一冶炼进入跨时代材料链" classname="ResourceContinuityTests" runstate="Runnable" seed="1006701213" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000175" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3170" name="太空居住链的基础生物质用量必须显著高于高级材料" fullname="ResourceContinuityTests.太空居住链的基础生物质用量必须显著高于高级材料" methodname="太空居住链的基础生物质用量必须显著高于高级材料" classname="ResourceContinuityTests" runstate="Runnable" seed="1894936989" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000599" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3174" name="太空建筑必须使用高级材料持续维护并保持多重去向" fullname="ResourceContinuityTests.太空建筑必须使用高级材料持续维护并保持多重去向" methodname="太空建筑必须使用高级材料持续维护并保持多重去向" classname="ResourceContinuityTests" runstate="Runnable" seed="193530594" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000939" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3156" name="太空资源必须在太空建造前拥有工业来源" fullname="ResourceContinuityTests.太空资源必须在太空建造前拥有工业来源" methodname="太空资源必须在太空建造前拥有工业来源" classname="ResourceContinuityTests" runstate="Runnable" seed="1696364469" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000176" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3157" name="工业中间矿物必须连接到太空长期材料链" fullname="ResourceContinuityTests.工业中间矿物必须连接到太空长期材料链" methodname="工业中间矿物必须连接到太空长期材料链" classname="ResourceContinuityTests" runstate="Runnable" seed="1918060207" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000189" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3182" name="工业中间资源必须继续支撑太空设施与后期工坊" fullname="ResourceContinuityTests.工业中间资源必须继续支撑太空设施与后期工坊" methodname="工业中间资源必须继续支撑太空设施与后期工坊" classname="ResourceContinuityTests" runstate="Runnable" seed="866040282" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000260" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3178" name="工业住宅必须持续维护混凝土骨架" fullname="ResourceContinuityTests.工业住宅必须持续维护混凝土骨架" methodname="工业住宅必须持续维护混凝土骨架" classname="ResourceContinuityTests" runstate="Runnable" seed="1340425045" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000152" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3177" name="工业住宅必须持续维护钢结构" fullname="ResourceContinuityTests.工业住宅必须持续维护钢结构" methodname="工业住宅必须持续维护钢结构" classname="ResourceContinuityTests" runstate="Runnable" seed="364297653" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000147" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3179" name="工业建筑承担持续投入并保留油井启动来源" fullname="ResourceContinuityTests.工业建筑承担持续投入并保留油井启动来源" methodname="工业建筑承担持续投入并保留油井启动来源" classname="ResourceContinuityTests" runstate="Runnable" seed="191482221" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000647" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3162" name="工业核心资源必须延续到太空建筑研究与工坊" fullname="ResourceContinuityTests.工业核心资源必须延续到太空建筑研究与工坊" methodname="工业核心资源必须延续到太空建筑研究与工坊" classname="ResourceContinuityTests" runstate="Runnable" seed="1174046597" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000286" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3180" name="每个资源都必须同时拥有来源与消费去向" fullname="ResourceContinuityTests.每个资源都必须同时拥有来源与消费去向" methodname="每个资源都必须同时拥有来源与消费去向" classname="ResourceContinuityTests" runstate="Runnable" seed="670403842" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000749" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3176" name="炸药应作为工业与远征中的持续消耗资源" fullname="ResourceContinuityTests.炸药应作为工业与远征中的持续消耗资源" methodname="炸药应作为工业与远征中的持续消耗资源" classname="ResourceContinuityTests" runstate="Runnable" seed="584921659" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000215" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3183" name="焦炭必须进入太空幽影材料制造的持续工艺" fullname="ResourceContinuityTests.焦炭必须进入太空幽影材料制造的持续工艺" methodname="焦炭必须进入太空幽影材料制造的持续工艺" classname="ResourceContinuityTests" runstate="Runnable" seed="824489632" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000190" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3164" name="煤炭必须通过焦化链服务太空幽影材料" fullname="ResourceContinuityTests.煤炭必须通过焦化链服务太空幽影材料" methodname="煤炭必须通过焦化链服务太空幽影材料" classname="ResourceContinuityTests" runstate="Runnable" seed="839002337" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000150" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3159" name="玻璃必须进入轨道热管理工坊" fullname="ResourceContinuityTests.玻璃必须进入轨道热管理工坊" methodname="玻璃必须进入轨道热管理工坊" classname="ResourceContinuityTests" runstate="Runnable" seed="1668432242" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000200" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3181" name="生物质必须同时覆盖生态医疗居住与远征消耗" fullname="ResourceContinuityTests.生物质必须同时覆盖生态医疗居住与远征消耗" methodname="生物质必须同时覆盖生态医疗居住与远征消耗" classname="ResourceContinuityTests" runstate="Runnable" seed="1360060832" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000335" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3168" name="生物质必须进入太空居住的建筑研究与工坊链" fullname="ResourceContinuityTests.生物质必须进入太空居住的建筑研究与工坊链" methodname="生物质必须进入太空居住的建筑研究与工坊链" classname="ResourceContinuityTests" runstate="Runnable" seed="2084665877" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000252" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3169" name="纤维采集地必须在工业时代升级为同时产粮的种植田" fullname="ResourceContinuityTests.纤维采集地必须在工业时代升级为同时产粮的种植田" methodname="纤维采集地必须在工业时代升级为同时产粮的种植田" classname="ResourceContinuityTests" runstate="Runnable" seed="2031797810" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000522" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3152" name="资源变化率统一按秒结算" fullname="ResourceContinuityTests.资源变化率统一按秒结算" methodname="资源变化率统一按秒结算" classname="ResourceContinuityTests" runstate="Runnable" seed="1180361022" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000314" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3173" name="轨道空间站必须使用高级金属材料并持续维护" fullname="ResourceContinuityTests.轨道空间站必须使用高级金属材料并持续维护" methodname="轨道空间站必须使用高级金属材料并持续维护" classname="ResourceContinuityTests" runstate="Runnable" seed="1945935601" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000208" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3153" name="铝土矿必须进入铝冶金研究与后续冶炼链" fullname="ResourceContinuityTests.铝土矿必须进入铝冶金研究与后续冶炼链" methodname="铝土矿必须进入铝冶金研究与后续冶炼链" classname="ResourceContinuityTests" runstate="Runnable" seed="634091886" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000146" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3175" name="陶瓷仍然是跨时代工业与深空材料" fullname="ResourceContinuityTests.陶瓷仍然是跨时代工业与深空材料" methodname="陶瓷仍然是跨时代工业与深空材料" classname="ResourceContinuityTests" runstate="Runnable" seed="783960785" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000331" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3155" name="食物与基础材料链必须保留后续时代用途" fullname="ResourceContinuityTests.食物与基础材料链必须保留后续时代用途" methodname="食物与基础材料链必须保留后续时代用途" classname="ResourceContinuityTests" runstate="Runnable" seed="699992642" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000144" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="3589" name="UltraContentSliceTests" fullname="UltraContentSliceTests" classname="UltraContentSliceTests" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.016064" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="3594" name="UltraBuildingsConsumeRoleSpecificSupportFlows" fullname="UltraContentSliceTests.UltraBuildingsConsumeRoleSpecificSupportFlows" methodname="UltraBuildingsConsumeRoleSpecificSupportFlows" classname="UltraContentSliceTests" runstate="Runnable" seed="1520916836" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000661" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3592" name="UltraBuildingsHaveDistinctResearchAndPowerRoles" fullname="UltraContentSliceTests.UltraBuildingsHaveDistinctResearchAndPowerRoles" methodname="UltraBuildingsHaveDistinctResearchAndPowerRoles" classname="UltraContentSliceTests" runstate="Runnable" seed="604500777" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000938" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3591" name="UltraCivilizationEngineeringHasExactlyThreeOrderedStagesWithValidCosts" fullname="UltraContentSliceTests.UltraCivilizationEngineeringHasExactlyThreeOrderedStagesWithValidCosts" methodname="UltraCivilizationEngineeringHasExactlyThreeOrderedStagesWithValidCosts" classname="UltraContentSliceTests" runstate="Runnable" seed="286171348" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.002786" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3595" name="UltraContentReusesExistingStrategicResources" fullname="UltraContentSliceTests.UltraContentReusesExistingStrategicResources" methodname="UltraContentReusesExistingStrategicResources" classname="UltraContentSliceTests" runstate="Runnable" seed="2067762617" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000681" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3593" name="UltraHasOneIntegratedFactoryWithUniqueStrategicMaterialOutputs" fullname="UltraContentSliceTests.UltraHasOneIntegratedFactoryWithUniqueStrategicMaterialOutputs" methodname="UltraHasOneIntegratedFactoryWithUniqueStrategicMaterialOutputs" classname="UltraContentSliceTests" runstate="Runnable" seed="575897529" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000957" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3597" name="UltraResearchDeepensCampaignContinuitySupplyAndCasualtyMechanisms" fullname="UltraContentSliceTests.UltraResearchDeepensCampaignContinuitySupplyAndCasualtyMechanisms" methodname="UltraResearchDeepensCampaignContinuitySupplyAndCasualtyMechanisms" classname="UltraContentSliceTests" runstate="Runnable" seed="1197288478" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000982" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3596" name="UltraResearchExtendsExpeditionFleetAndOccupationMechanisms" fullname="UltraContentSliceTests.UltraResearchExtendsExpeditionFleetAndOccupationMechanisms" methodname="UltraResearchExtendsExpeditionFleetAndOccupationMechanisms" classname="UltraContentSliceTests" runstate="Runnable" seed="1339943326" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000442" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3590" name="UltraResearchFormsAReachablePostSingularityChain" fullname="UltraContentSliceTests.UltraResearchFormsAReachablePostSingularityChain" methodname="UltraResearchFormsAReachablePostSingularityChain" classname="UltraContentSliceTests" runstate="Runnable" seed="1338327283" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000486" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3598" name="UltraResearchSupportsMegastructureEnergyEcologyAndProductivity" fullname="UltraContentSliceTests.UltraResearchSupportsMegastructureEnergyEcologyAndProductivity" methodname="UltraResearchSupportsMegastructureEnergyEcologyAndProductivity" classname="UltraContentSliceTests" runstate="Runnable" seed="968249529" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000483" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3599" name="UltraWorkshopsExtendCapabilityMechanismsWithoutAddingFactories" fullname="UltraContentSliceTests.UltraWorkshopsExtendCapabilityMechanismsWithoutAddingFactories" methodname="UltraWorkshopsExtendCapabilityMechanismsWithoutAddingFactories" classname="UltraContentSliceTests" runstate="Runnable" seed="75246151" result="Passed" start-time="2026-11-10 04:45:41Z" end-time="2026-11-10 04:45:41Z" duration="0.000629" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

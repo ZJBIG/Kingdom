@@ -1,0 +1,103 @@
+diff --git a/Assets/Resources/Script/UI/KingdomUIRoot.AuthoredRows.cs b/Assets/Resources/Script/UI/KingdomUIRoot.AuthoredRows.cs
+index 4496e8e..abf058d 100644
+--- a/Assets/Resources/Script/UI/KingdomUIRoot.AuthoredRows.cs
++++ b/Assets/Resources/Script/UI/KingdomUIRoot.AuthoredRows.cs
+@@ -225,6 +225,7 @@ public sealed partial class KingdomUIRoot
+             SetBuildingActionButtonState(deconstructButton, hasAmount);
+             buildingDeconstructButtons[building] = deconstructButton;
+             buildingAmountLabels[building] = row.transform.Find("Amount")?.GetComponent<TMP_Text>();
++            buildingRowGraphics[building] = cardButton.targetGraphic;
+             buildingEffectLabels[building] = row.transform.Find("Effect")?.GetComponent<TMP_Text>();
+         }
+         lastBuildingDisplaySignature = BuildBuildingDisplaySignature().ToString();
+diff --git a/Assets/Resources/Script/UI/KingdomUIRoot.LiveRefresh.cs b/Assets/Resources/Script/UI/KingdomUIRoot.LiveRefresh.cs
+index 189ce85..46caea0 100644
+--- a/Assets/Resources/Script/UI/KingdomUIRoot.LiveRefresh.cs
++++ b/Assets/Resources/Script/UI/KingdomUIRoot.LiveRefresh.cs
+@@ -333,7 +333,7 @@ public sealed partial class KingdomUIRoot
+             float branchStart = Time.realtimeSinceStartup;
+             long liveValuesAllocatedStart = GC.GetAllocatedBytesForCurrentThread();
+ #endif
+-            RefreshLiveCardValues();
++            RefreshLiveCardValues(true);
+             if (populatedPage == "Production") RefreshProductionVisibilityIfNeeded();
+ #if UNITY_EDITOR
+             uiRefreshAllocatedBytes += Math.Max(0L, GC.GetAllocatedBytesForCurrentThread() - liveValuesAllocatedStart);
+@@ -1407,6 +1407,7 @@ public sealed partial class KingdomUIRoot
+     public void RefreshAutomaticUIForEditor() => RefreshUI(false);
+     public void RefreshTopInfoForEditor() => RefreshTopInfo();
+     public void RefreshLiveCardValuesForEditor() => RefreshLiveCardValues();
++    public void RefreshLiveCardValuesForEditor(bool onlyVisible) => RefreshLiveCardValues(onlyVisible);
+     public void EnqueueRecentNoticeForEditor(string notice) => EnqueueRecentNotice(notice);
+ #endif
+ 
+@@ -1645,17 +1646,23 @@ public sealed partial class KingdomUIRoot
+         storyObservedEraInitialized = false;
+     }
+ 
+-    private void RefreshLiveCardValues()
++    private void RefreshLiveCardValues(bool onlyVisible = false)
+     {
+         // These dictionaries contain rows from pages that are not currently
+         // visible. Formatting every building/resource on every live tick
+         // creates avoidable ExpantaNum strings and TMP dirties, especially
+         // while the research graph owns a touch gesture.
+         if (populatedPage == "Buildings" && BuildingManager.Instance != null)
++        {
++            onlyVisible &= !buildingLiveValuesNeedFullRefresh;
+             foreach (KeyValuePair<BuildingDef, TMP_Text> pair in buildingAmountLabels)
+                 if (pair.Value != null)
+                     if (BuildingManager.Instance.States.TryGetValue(pair.Key, out BuildingState state))
+                     {
++                        // A clipped label does not mean that the whole card is outside the viewport.
++                        if (onlyVisible && buildingRowGraphics.TryGetValue(pair.Key, out Graphic rowGraphic) &&
++                            rowGraphic != null && rowGraphic.canvasRenderer.cull)
++                            continue;
+                         buildingActionUpgradeModes.TryGetValue(pair.Key, out bool upgrade);
+                         ExpantaNum actionQuantity = GetSelectedBuildingActionQuantity(pair.Key, upgrade, out bool available);
+                         SetTextIfChanged(pair.Value, StableNumber(state.Amount.ToGameString()));
+@@ -1676,6 +1683,8 @@ public sealed partial class KingdomUIRoot
+                                 available);
+                         }
+                     }
++            buildingLiveValuesNeedFullRefresh = false;
++        }
+         ResourceManager resourceManager = ResourceManager.Instance;
+         if (resourceManager == null)
+             return;
+diff --git a/Assets/Resources/Script/UI/KingdomUIRoot.cs b/Assets/Resources/Script/UI/KingdomUIRoot.cs
+index a7445e1..1aaae2f 100644
+--- a/Assets/Resources/Script/UI/KingdomUIRoot.cs
++++ b/Assets/Resources/Script/UI/KingdomUIRoot.cs
+@@ -169,6 +169,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
+     private readonly Dictionary<BuildingQuantityMode, Button> buildingQuantityButtons = new();
+     private readonly Dictionary<string, RectTransform> pages = new();
+     private readonly Dictionary<BuildingDef, TMP_Text> buildingAmountLabels = new();
++    private readonly Dictionary<BuildingDef, Graphic> buildingRowGraphics = new();
+     private readonly Dictionary<BuildingDef, TMP_Text> buildingEffectLabels = new();
+     private readonly Dictionary<BuildingDef, Button> buildingDeconstructButtons = new();
+     private readonly Dictionary<BuildingDef, Button> buildingActionButtons = new();
+@@ -176,6 +177,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
+     private readonly Dictionary<Button, Outline> buildingActionButtonOutlines = new();
+     private readonly Dictionary<BuildingDef, bool> buildingActionUpgradeModes = new();
+     private string lastBuildingDisplaySignature;
++    private bool buildingLiveValuesNeedFullRefresh;
+     private readonly Dictionary<ResourceDef, TMP_Text> resourceAmountLabels = new();
+     private readonly Dictionary<ResourceDef, TMP_Text> resourceChangeLabels = new();
+     private readonly HashSet<string> visibleResourceIds = new(StringComparer.OrdinalIgnoreCase);
+@@ -643,6 +645,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
+             Canvas.ForceUpdateCanvases();
+         if (name == "Buildings")
+         {
++            buildingLiveValuesNeedFullRefresh = true;
+             BuildBuildingControls(pageHost.parent.Find("PageTool"));
+             RefreshBuildingQuantityHeader();
+         }
+@@ -897,6 +900,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
+             case "Buildings":
+                 if (buildingRowsBuilt) break;
+                 buildingAmountLabels.Clear();
++                buildingRowGraphics.Clear();
+                 buildingEffectLabels.Clear();
+                 buildingDeconstructButtons.Clear();
+                 buildingActionButtons.Clear();

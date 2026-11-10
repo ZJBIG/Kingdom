@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="32" result="Failed(Child)" total="32" passed="31" failed="1" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:09Z" duration="0.8911421">
+  <test-suite type="TestSuite" id="2317" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="1135" result="Failed" site="Child" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:09Z" duration="0.891142" total="32" passed="31" failed="1" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="3624" name="Assembly-CSharp-Editor.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="1134" result="Failed" site="Child" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:09Z" duration="0.870282" total="32" passed="31" failed="1" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="8024" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestFixture" id="3125" name="ResourceProductionTreeTests" fullname="ResourceProductionTreeTests" classname="ResourceProductionTreeTests" runstate="Runnable" testcasecount="15" result="Failed" site="Child" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:08Z" duration="0.358419" total="15" passed="14" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="3134" name="ActualOilLoop_ReferencesExistingOil_AndKeepsIndependentStarterSource" fullname="ResourceProductionTreeTests.ActualOilLoop_ReferencesExistingOil_AndKeepsIndependentStarterSource" methodname="ActualOilLoop_ReferencesExistingOil_AndKeepsIndependentStarterSource" classname="ResourceProductionTreeTests" runstate="Runnable" seed="1283569833" result="Passed" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:08Z" duration="0.311194" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3130" name="BuildingRootUsesOngoingInputs_AndDoesNotIncludeConstructionMaterials" fullname="ResourceProductionTreeTests.BuildingRootUsesOngoingInputs_AndDoesNotIncludeConstructionMaterials" methodname="BuildingRootUsesOngoingInputs_AndDoesNotIncludeConstructionMaterials" classname="ResourceProductionTreeTests" runstate="Runnable" seed="487363265" result="Passed" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:08Z" duration="0.007815" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3131" name="BuildingUpgradesAndInputProducersRemainDistinct_AndUpgradeCyclesStop" fullname="ResourceProductionTreeTests.BuildingUpgradesAndInputProducersRemainDistinct_AndUpgradeCyclesStop" methodname="BuildingUpgradesAndInputProducersRemainDistinct_AndUpgradeCyclesStop" classname="ResourceProductionTreeTests" runstate="Runnable" seed="297795572" result="Passed" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:08Z" duration="0.001497" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3127" name="CollapsedHiddenUnlock_DoesNotInvalidateVisibleGraph_AndReopensCurrentChildren" fullname="ResourceProductionTreeTests.CollapsedHiddenUnlock_DoesNotInvalidateVisibleGraph_AndReopensCurrentChildren" methodname="CollapsedHiddenUnlock_DoesNotInvalidateVisibleGraph_AndReopensCurrentChildren" classname="ResourceProductionTreeTests" runstate="Runnable" seed="374351572" result="Failed" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:08Z" duration="0.007315" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[  An unlock below a collapsed branch must not rebuild the displayed graph.
+  Expected: False
+  But was:  True
+]]></message>
+            <stack-trace><![CDATA[at ResourceProductionTreeTests.CollapsedHiddenUnlock_DoesNotInvalidateVisibleGraph_AndReopensCurrentChildren () [0x00108] in D:\GitHub\Kingdom\Assets\Tests\Editor\ResourceProductionTreeTests.cs:55
+]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="3126" name="CollapsedHistory_RecordsVisibilityPollingCost" fullname="ResourceProductionTreeTests.CollapsedHistory_RecordsVisibilityPollingCost" methodname="CollapsedHistory_RecordsVisibilityPollingCost" classname="ResourceProductionTreeTests" runstate="Runnable" seed="1895206821" result="Passed" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:08Z" duration="0.008813" asserts="0">
+          <properties>
+            <property name="Category" value="Performance" />
+          </properties>
+          <output><![CDATA[[HotPathPerf2] production-collapsed medianMs=0.003769 predicateChecksPerRefresh=160.00 cachedDepth=160
+]]></output>
+        </test-case>
+        <test-case id="3133" name="CyclesStopOnlyTheirOwnPath" fullname="ResourceProductionTreeTests.CyclesStopOnlyTheirOwnPath" methodname="CyclesStopOnlyTheirOwnPath" classname="ResourceProductionTreeTests" runstate="Runnable" seed="1129688148" result="Passed" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:08Z" duration="0.000437" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3132" name="MultipleSourcesRemainSeparate_AndOnlyProductionInputsBecomeDependencies" fullname="ResourceProductionTreeTests.MultipleSourcesRemainSeparate_AndOnlyProductionInputsBecomeDependencies" methodname="MultipleSourcesRemainSeparate_AndOnlyProductionInputsBecomeDependencies" classname="ResourceProductionTreeTests" runstate="Runnable" seed="939713649" result="Passed" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:08Z" duration="0.000449" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3140" name="ResourceSourcesOrderHigherErasFirst_AndPreserveAuthoredOrderWithinAnEra" fullname="ResourceProductionTreeTests.ResourceSourcesOrderHigherErasFirst_AndPreserveAuthoredOrderWithinAnEra" methodname="ResourceSourcesOrderHigherErasFirst_AndPreserveAuthoredOrderWithinAnEra" classname="ResourceProductionTreeTests" runstate="Runnable" seed="567591111" result="Passed" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:08Z" duration="0.000405" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3135" name="SectorRecurringProductionAndOneTimeRewardStayDistinct" fullname="ResourceProductionTreeTests.SectorRecurringProductionAndOneTimeRewardStayDistinct" methodname="SectorRecurringProductionAndOneTimeRewardStayDistinct" classname="ResourceProductionTreeTests" runstate="Runnable" seed="1168732511" result="Passed" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:08Z" duration="0.000902" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3137" name="SectorRootFiltersLocalFacilities_AndUnlockRefreshPreservesExpandedSupplyBranches" fullname="ResourceProductionTreeTests.SectorRootFiltersLocalFacilities_AndUnlockRefreshPreservesExpandedSupplyBranches" methodname="SectorRootFiltersLocalFacilities_AndUnlockRefreshPreservesExpandedSupplyBranches" classname="ResourceProductionTreeTests" runstate="Runnable" seed="457365645" result="Passed" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:08Z" duration="0.001575" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3138" name="SectorRootKeepsRecurringOutputsAndRewardsSeparate_AndSectorSourcesRemainLeaves" fullname="ResourceProductionTreeTests.SectorRootKeepsRecurringOutputsAndRewardsSeparate_AndSectorSourcesRemainLeaves" methodname="SectorRootKeepsRecurringOutputsAndRewardsSeparate_AndSectorSourcesRemainLeaves" classname="ResourceProductionTreeTests" runstate="Runnable" seed="1377452491" result="Passed" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:08Z" duration="0.001353" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3136" name="SharedInputCanExpandUnderBothAlternativeProducers" fullname="ResourceProductionTreeTests.SharedInputCanExpandUnderBothAlternativeProducers" methodname="SharedInputCanExpandUnderBothAlternativeProducers" classname="ResourceProductionTreeTests" runstate="Runnable" seed="1431333476" result="Passed" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:08Z" duration="0.000445" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3139" name="UnlockedLowerSourcesRemainAlongsideHigherTiers_AndKeepCachedExpansion" fullname="ResourceProductionTreeTests.UnlockedLowerSourcesRemainAlongsideHigherTiers_AndKeepCachedExpansion" methodname="UnlockedLowerSourcesRemainAlongsideHigherTiers_AndKeepCachedExpansion" classname="ResourceProductionTreeTests" runstate="Runnable" seed="1485473902" result="Passed" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:08Z" duration="0.000702" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3129" name="UnlockRefreshRevealsCachedBranches_AndPreservesExistingNodesAndExpansion" fullname="ResourceProductionTreeTests.UnlockRefreshRevealsCachedBranches_AndPreservesExistingNodesAndExpansion" methodname="UnlockRefreshRevealsCachedBranches_AndPreservesExistingNodesAndExpansion" classname="ResourceProductionTreeTests" runstate="Runnable" seed="2106684862" result="Passed" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:08Z" duration="0.000592" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3128" name="VisibilityFiltersLockedSources_Inputs_Upgrades_AndSectors" fullname="ResourceProductionTreeTests.VisibilityFiltersLockedSources_Inputs_Upgrades_AndSectors" methodname="VisibilityFiltersLockedSources_Inputs_Upgrades_AndSectors" classname="ResourceProductionTreeTests" runstate="Runnable" seed="125206542" result="Passed" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:08Z" duration="0.001269" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="3141" name="RuntimeHotPathPerformanceTests" fullname="RuntimeHotPathPerformanceTests" classname="RuntimeHotPathPerformanceTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:08Z" duration="0.301661" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="3142" name="BuildingAggregatesMatchAllStatesAfterQuantityAndEnabledChanges" fullname="RuntimeHotPathPerformanceTests.BuildingAggregatesMatchAllStatesAfterQuantityAndEnabledChanges" methodname="BuildingAggregatesMatchAllStatesAfterQuantityAndEnabledChanges" classname="RuntimeHotPathPerformanceTests" runstate="Runnable" seed="1618266783" result="Passed" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:08Z" duration="0.023922" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3143" name="HappinessReadsObserveEveryFormulaInputChange" fullname="RuntimeHotPathPerformanceTests.HappinessReadsObserveEveryFormulaInputChange" methodname="HappinessReadsObserveEveryFormulaInputChange" classname="RuntimeHotPathPerformanceTests" runstate="Runnable" seed="386567167" result="Passed" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:08Z" duration="0.004036" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3149" name="MeasureResourceTickAndStrategicFood" fullname="RuntimeHotPathPerformanceTests.MeasureResourceTickAndStrategicFood" methodname="MeasureResourceTickAndStrategicFood" classname="RuntimeHotPathPerformanceTests" runstate="Runnable" seed="1030172137" result="Passed" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:08Z" duration="0.130133" asserts="0">
+          <properties />
+          <output><![CDATA[[HotPathPerf] resource-tick-sparse median_ms=0.008011 median_alloc_bytes=NA iterations=1000 batches=7
+[HotPathPerf] strategic-food-active-campaign median_ms=0.008964 median_alloc_bytes=NA iterations=1000 batches=7
+]]></output>
+        </test-case>
+        <test-case id="3144" name="MeasureSparseBuildingAggregatesHappinessAndCompleteSimulationTicks" fullname="RuntimeHotPathPerformanceTests.MeasureSparseBuildingAggregatesHappinessAndCompleteSimulationTicks" methodname="MeasureSparseBuildingAggregatesHappinessAndCompleteSimulationTicks" classname="RuntimeHotPathPerformanceTests" runstate="Runnable" seed="1708759214" result="Passed" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:08Z" duration="0.136273" asserts="0">
+          <properties />
+          <output><![CDATA[[HotPathPerf] definitions=79 fixture=WoodHouse5,Farm3,Quarry2 population=10
+[HotPathPerf] building-aggregates median_ms=0.006199 median_alloc_bytes=NA iterations=1000 batches=7
+[HotPathPerf] happiness-reads median_ms=0.000361 median_alloc_bytes=NA iterations=10000 batches=7
+[HotPathPerf] manual-tick median_ms=0.063244 median_alloc_bytes=NA iterations=100 batches=7
+]]></output>
+        </test-case>
+        <test-case id="3145" name="ResourceTickPreservesIdleBalancesAndResumesChangedFlows" fullname="RuntimeHotPathPerformanceTests.ResourceTickPreservesIdleBalancesAndResumesChangedFlows" methodname="ResourceTickPreservesIdleBalancesAndResumesChangedFlows" classname="RuntimeHotPathPerformanceTests" runstate="Runnable" seed="1042650235" result="Passed" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:08Z" duration="0.002403" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="3148" name="StrategicFoodMatchesFullPreviewForActiveOperations" fullname="RuntimeHotPathPerformanceTests.StrategicFoodMatchesFullPreviewForActiveOperations" classname="RuntimeHotPathPerformanceTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:08Z" duration="0.003411" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="3146" name="StrategicFoodMatchesFullPreviewForActiveOperations(Surge)" fullname="RuntimeHotPathPerformanceTests.StrategicFoodMatchesFullPreviewForActiveOperations(Surge)" methodname="StrategicFoodMatchesFullPreviewForActiveOperations" classname="RuntimeHotPathPerformanceTests" runstate="Runnable" seed="634632551" result="Passed" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:08Z" duration="0.001416" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="3147" name="StrategicFoodMatchesFullPreviewForActiveOperations(Stable)" fullname="RuntimeHotPathPerformanceTests.StrategicFoodMatchesFullPreviewForActiveOperations(Stable)" methodname="StrategicFoodMatchesFullPreviewForActiveOperations" classname="RuntimeHotPathPerformanceTests" runstate="Runnable" seed="650377285" result="Passed" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:08Z" duration="0.001063" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+      </test-suite>
+      <test-suite type="TestFixture" id="3534" name="UltraProjectManagerTickTests" fullname="UltraProjectManagerTickTests" classname="UltraProjectManagerTickTests" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:09Z" duration="0.183207" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="ParameterizedMethod" id="3546" name="MeasureCompleteUltraTickBranches" fullname="UltraProjectManagerTickTests.MeasureCompleteUltraTickBranches" classname="UltraProjectManagerTickTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:09Z" duration="0.165992" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="3544" name="MeasureCompleteUltraTickBranches(False)" fullname="UltraProjectManagerTickTests.MeasureCompleteUltraTickBranches(False)" methodname="MeasureCompleteUltraTickBranches" classname="UltraProjectManagerTickTests" runstate="Runnable" seed="506431333" result="Passed" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:08Z" duration="0.019045" asserts="0">
+            <properties />
+            <output><![CDATA[[HotPathPerf] ultra-running-tick median_ms=0.010079 median_alloc_bytes=NA iterations=100 batches=7
+]]></output>
+          </test-case>
+          <test-case id="3545" name="MeasureCompleteUltraTickBranches(True)" fullname="UltraProjectManagerTickTests.MeasureCompleteUltraTickBranches(True)" methodname="MeasureCompleteUltraTickBranches" classname="UltraProjectManagerTickTests" runstate="Runnable" seed="1263813521" result="Passed" start-time="2026-11-04 05:56:08Z" end-time="2026-11-04 05:56:09Z" duration="0.146394" asserts="0">
+            <properties />
+            <output><![CDATA[[HotPathPerf] ultra-completion-48-search-tick median_ms=0.197030 median_alloc_bytes=NA iterations=100 batches=7
+]]></output>
+          </test-case>
+        </test-suite>
+        <test-case id="3543" name="StageNumbersPreserveDefaultsAndObserveSerializedSourceChanges" fullname="UltraProjectManagerTickTests.StageNumbersPreserveDefaultsAndObserveSerializedSourceChanges" methodname="StageNumbersPreserveDefaultsAndObserveSerializedSourceChanges" classname="UltraProjectManagerTickTests" runstate="Runnable" seed="1198486991" result="Passed" start-time="2026-11-04 05:56:09Z" end-time="2026-11-04 05:56:09Z" duration="0.001668" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3542" name="Tick_CompletionBoundaryCapsContinuousPaymentsAtStageRequirements" fullname="UltraProjectManagerTickTests.Tick_CompletionBoundaryCapsContinuousPaymentsAtStageRequirements" methodname="Tick_CompletionBoundaryCapsContinuousPaymentsAtStageRequirements" classname="UltraProjectManagerTickTests" runstate="Runnable" seed="205350026" result="Passed" start-time="2026-11-04 05:56:09Z" end-time="2026-11-04 05:56:09Z" duration="0.002650" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3535" name="Tick_PartialAdvancedMaterialSupplyProgressesAndOnlyPausesWhenExhausted" fullname="UltraProjectManagerTickTests.Tick_PartialAdvancedMaterialSupplyProgressesAndOnlyPausesWhenExhausted" methodname="Tick_PartialAdvancedMaterialSupplyProgressesAndOnlyPausesWhenExhausted" classname="UltraProjectManagerTickTests" runstate="Runnable" seed="1223959438" result="Passed" start-time="2026-11-04 05:56:09Z" end-time="2026-11-04 05:56:09Z" duration="0.002050" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="3538" name="Tick_ZeroFoodOrAdvancedMaterialSupplyDoesNotPartiallyCommit" fullname="UltraProjectManagerTickTests.Tick_ZeroFoodOrAdvancedMaterialSupplyDoesNotPartiallyCommit" classname="UltraProjectManagerTickTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-04 05:56:09Z" end-time="2026-11-04 05:56:09Z" duration="0.003563" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="3536" name="Tick_ZeroFoodOrAdvancedMaterialSupplyDoesNotPartiallyCommit(True)" fullname="UltraProjectManagerTickTests.Tick_ZeroFoodOrAdvancedMaterialSupplyDoesNotPartiallyCommit(True)" methodname="Tick_ZeroFoodOrAdvancedMaterialSupplyDoesNotPartiallyCommit" classname="UltraProjectManagerTickTests" runstate="Runnable" seed="1287132508" result="Passed" start-time="2026-11-04 05:56:09Z" end-time="2026-11-04 05:56:09Z" duration="0.001383" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="3537" name="Tick_ZeroFoodOrAdvancedMaterialSupplyDoesNotPartiallyCommit(False)" fullname="UltraProjectManagerTickTests.Tick_ZeroFoodOrAdvancedMaterialSupplyDoesNotPartiallyCommit(False)" methodname="Tick_ZeroFoodOrAdvancedMaterialSupplyDoesNotPartiallyCommit" classname="UltraProjectManagerTickTests" runstate="Runnable" seed="1851842498" result="Passed" start-time="2026-11-04 05:56:09Z" end-time="2026-11-04 05:56:09Z" duration="0.000905" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="3541" name="TryResume_AfterSupplyPauseRequiresPositiveSupply" fullname="UltraProjectManagerTickTests.TryResume_AfterSupplyPauseRequiresPositiveSupply" methodname="TryResume_AfterSupplyPauseRequiresPositiveSupply" classname="UltraProjectManagerTickTests" runstate="Runnable" seed="2104593503" result="Passed" start-time="2026-11-04 05:56:09Z" end-time="2026-11-04 05:56:09Z" duration="0.001259" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3540" name="TryResume_DoesNotChargeStageStartupFeeAgain" fullname="UltraProjectManagerTickTests.TryResume_DoesNotChargeStageStartupFeeAgain" methodname="TryResume_DoesNotChargeStageStartupFeeAgain" classname="UltraProjectManagerTickTests" runstate="Runnable" seed="788272131" result="Passed" start-time="2026-11-04 05:56:09Z" end-time="2026-11-04 05:56:09Z" duration="0.003210" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3539" name="TryStartStage_InsufficientStartupMaterialLeavesEveryBalanceAndStateUntouched" fullname="UltraProjectManagerTickTests.TryStartStage_InsufficientStartupMaterialLeavesEveryBalanceAndStateUntouched" methodname="TryStartStage_InsufficientStartupMaterialLeavesEveryBalanceAndStateUntouched" classname="UltraProjectManagerTickTests" runstate="Runnable" seed="2021333132" result="Passed" start-time="2026-11-04 05:56:09Z" end-time="2026-11-04 05:56:09Z" duration="0.001309" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

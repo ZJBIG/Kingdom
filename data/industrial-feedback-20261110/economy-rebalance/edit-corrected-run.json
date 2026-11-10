@@ -1,0 +1,23 @@
+{
+  "executable": "D:/Unity/Hub/Editor/2022.3.62f3c1/Editor/Unity.exe",
+  "pid": 5528,
+  "startUtc": "2026-11-10T05:12:40.3527494Z",
+  "endUtc": "2026-11-10T05:13:12.6437706Z",
+  "exitCode": 2,
+  "timedOut": false,
+  "command": [
+    "-batchmode",
+    "-force-d3d11",
+    "-projectPath",
+    "D:/GitHub/Kingdom",
+    "-runTests",
+    "-testPlatform",
+    "EditMode",
+    "-testFilter",
+    "C6IndustrialContentTests;LateFactoryConsolidationTests;ResourceContinuityTests;EconomyIntegrationRegressionTests;BuildingCostGrowthTests;ContentProgressionValidatorTests;C6IndustrialClosureAuditTests;GlobalEconomyDefinitionTests;BuildingVerticalSliceTests;FlowEfficiencyTests;AdvancedMaterialProgressionTests;UltraContentSliceTests;SpaceProgressionTests",
+    "-testResults",
+    "D:/GitHub/Kingdom/data/industrial-feedback-20261110/economy-rebalance/edit-corrected.xml",
+    "-logFile",
+    "D:/GitHub/Kingdom/data/industrial-feedback-20261110/economy-rebalance/edit-corrected.log"
+  ]
+}
