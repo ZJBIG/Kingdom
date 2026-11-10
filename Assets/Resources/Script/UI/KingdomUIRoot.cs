@@ -169,6 +169,8 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private readonly Dictionary<BuildingQuantityMode, Button> buildingQuantityButtons = new();
     private readonly Dictionary<string, RectTransform> pages = new();
     private readonly Dictionary<BuildingDef, TMP_Text> buildingAmountLabels = new();
+    private readonly Dictionary<BuildingDef, Graphic> buildingRowGraphics = new();
+    private readonly Dictionary<BuildingDef, Image> buildingRecommendationStars = new();
     private readonly Dictionary<BuildingDef, TMP_Text> buildingEffectLabels = new();
     private readonly Dictionary<BuildingDef, Button> buildingDeconstructButtons = new();
     private readonly Dictionary<BuildingDef, Button> buildingActionButtons = new();
@@ -176,6 +178,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private readonly Dictionary<Button, Outline> buildingActionButtonOutlines = new();
     private readonly Dictionary<BuildingDef, bool> buildingActionUpgradeModes = new();
     private string lastBuildingDisplaySignature;
+    private bool buildingLiveValuesNeedFullRefresh;
     private readonly Dictionary<ResourceDef, TMP_Text> resourceAmountLabels = new();
     private readonly Dictionary<ResourceDef, TMP_Text> resourceChangeLabels = new();
     private readonly HashSet<string> visibleResourceIds = new(StringComparer.OrdinalIgnoreCase);
@@ -643,6 +646,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
             Canvas.ForceUpdateCanvases();
         if (name == "Buildings")
         {
+            buildingLiveValuesNeedFullRefresh = true;
             BuildBuildingControls(pageHost.parent.Find("PageTool"));
             RefreshBuildingQuantityHeader();
         }
@@ -897,6 +901,8 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
             case "Buildings":
                 if (buildingRowsBuilt) break;
                 buildingAmountLabels.Clear();
+                buildingRowGraphics.Clear();
+                buildingRecommendationStars.Clear();
                 buildingEffectLabels.Clear();
                 buildingDeconstructButtons.Clear();
                 buildingActionButtons.Clear();

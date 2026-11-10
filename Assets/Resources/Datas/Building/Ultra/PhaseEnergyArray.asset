@@ -49,11 +49,11 @@ MonoBehaviour:
   resourceGenerationRates: []
   resourceConsumptionRates:
   - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
-    amount: "0.06"
+    amount: "0.4"
   - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    amount: "0.05"
+    amount: "1.2"
   - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
-    amount: "0.04"
+    amount: "0.2"
   requiredResearch:
   - {fileID: 11400000, guid: 7f9c2e4a6b8d4013a5c7e9f102b4d6e8, type: 2}
   - {fileID: 11400000, guid: a91c4e6d2b7f4a80b3e5d1c9f6a2e7b4, type: 2}

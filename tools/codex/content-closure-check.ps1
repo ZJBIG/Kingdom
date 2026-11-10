@@ -268,16 +268,19 @@ do {
         }
     }
     foreach ($building in $definitions | Where-Object Kind -eq 'Building') {
-        if ($availableBuildings.Contains($building.Id) -or $building.Tech -gt $tech) { continue }
+        if ($building.Tech -gt $tech) { continue }
         if ($building.RequiresInterior -and ($building.Sector.Count -ne 1 -or
             -not $exploredInteriors.Contains($building.Sector[0]))) { continue }
         if ((Contains-All $completed $building.RequiredResearch) -and
             (Contains-All $purchased $building.RequiredUpgrades) -and
             (Contains-All $resources $building.Costs) -and
             (Contains-All $resources $building.Consumes)) {
-            [void]$availableBuildings.Add($building.Id)
-            foreach ($output in $building.Generates) { [void]$resources.Add($output) }
-            $changed = $true
+            if ($availableBuildings.Add($building.Id)) { $changed = $true }
+            foreach ($output in $building.Generates) {
+                if ($building.Id -eq 'ChemicalPlant' -and $output -eq 'RocketFuel' -and
+                    -not $completed.Contains('OrbitalEngineering')) { continue }
+                if ($resources.Add($output)) { $changed = $true }
+            }
         }
     }
 } while ($changed)

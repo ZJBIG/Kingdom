@@ -600,10 +600,23 @@ public class BuildingManager : Singleton<BuildingManager>
 
         // Material-free resource and utility sources must remain buildable:
         // their upgrades can depend on the very supplies needed to restart them.
-        return building.ResourceConsumptionRates.Count == 0 &&
+        if (building.ResourceConsumptionRates.Count == 0 &&
             (building.ResourceGenerationRates.Count > 0 || building.FoodProductionRate > ExpantaNum.Zero ||
              building.PowerContribution > ExpantaNum.Zero || building.LogisticsContribution > ExpantaNum.Zero) &&
-            highest.ResourceConsumptionRates.Count > 0;
+            highest.ResourceConsumptionRates.Count > 0)
+            return true;
+
+        // Keep upstream factories buildable when their successor consumes their output.
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> generation = building.ResourceGenerationRates;
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> consumption = highest.ResourceConsumptionRates;
+        for (int i = 0; i < generation.Count; i++)
+        {
+            if (generation[i].Second <= ExpantaNum.Zero) continue;
+            for (int j = 0; j < consumption.Count; j++)
+                if (generation[i].First == consumption[j].First && consumption[j].Second > ExpantaNum.Zero)
+                    return true;
+        }
+        return false;
     }
 
     private BuildingDef FindHighestUnlockedTier(BuildingDef building)
@@ -662,10 +675,11 @@ public class BuildingManager : Singleton<BuildingManager>
         if (TryGetStateByStableId(building, out BuildingState state) && state.Amount > ExpantaNum.Zero)
             return true;
 
-        if (!ArePrerequisitesMet(building, out _))
+        if (!ArePrerequisitesMet(building, out BuildFailure failure) &&
+            failure != BuildFailure.WorkshopPrerequisiteIncomplete)
             return false;
 
-        return CanConstructNew(building);
+        return IsHighestUnlockedChainTier(ResolveBuildingDefinition(building));
 
     }
 

@@ -107,14 +107,24 @@ public sealed class KingdomPlayModeTests
         Assert.That(toolbar.gameObject.activeInHierarchy, Is.True);
         TMP_Text remaining = toolbar.Find("RemainingTime").GetComponent<TMP_Text>();
         Assert.That(remaining.text, Does.Contain("09:40:"));
-        string[] names = { "Normal", "Speed5", "Speed20", "Speed1000" };
-        int[] speeds = { 1, 5, 20, 1000 };
+        string[] names = { "Normal", "Speed5", "Speed20" };
+        int[] speeds = { 1, 5, 20 };
+        int[] consumptions = { 0, 200, 500 };
+        Assert.That(toolbar.Find("Speed1000"), Is.Null, "The removed acceleration mode has no authored control.");
+        Assert.That(toolbar.GetComponentsInChildren<Button>(true), Has.Length.EqualTo(speeds.Length),
+            "The toolbar has exactly one button for each supported mode.");
         Rect previous = default;
         Rect parent = ((RectTransform)toolbar).rect;
         for (int i = 0; i < names.Length; i++)
         {
             Button button = toolbar.Find(names[i]).GetComponent<Button>();
             Assert.That(button.IsInteractable(), Is.True);
+            if (i > 0)
+            {
+                string label = button.GetComponentInChildren<TMP_Text>().text;
+                Assert.That(label, Does.StartWith(speeds[i] + "×\n"));
+                Assert.That(label, Does.EndWith(consumptions[i] + "×"), "The displayed consumption matches the configured rate.");
+            }
             button.onClick.Invoke();
             Assert.That(SimulationManager.Instance.AccelerationMultiplier, Is.EqualTo(speeds[i]), "The selected mode is an exact protocol value.");
             RectTransform rect = button.GetComponent<RectTransform>();
@@ -240,6 +250,87 @@ public sealed class KingdomPlayModeTests
         Assert.That(resources.GetAmount(DataBase<ResourceDef>.Find("Machinery")),
             Is.GreaterThan(ExpantaNum.Zero),
             "The first machinery must not require upstream facilities built with machinery.");
+    }
+
+    [UnityTest]
+    public IEnumerator LateFactories_PayInputsStopOnShortageAndResume()
+    {
+        yield return LoadIsolatedNewGame();
+        GameManager game = GameManager.Instance;
+        ResourceManager resources = ResourceManager.Instance;
+        BuildingManager buildings = BuildingManager.Instance;
+        ResearchManager research = ResearchManager.Instance;
+        WorkshopManager workshop = WorkshopManager.Instance;
+        SimulationManager simulation = SimulationManager.Instance;
+        simulation.SetRunning(false);
+        // Controlled production/transaction fixture, not natural era progression.
+        game.State.ResetDerivedEconomyForEditor(new ExpantaNum("1e9"));
+        game.State.AdjustFoodCapacityForEditor(new ExpantaNum("1e9"));
+        game.State.RestoreCoreForEditor(0, TechLevel.Ultra, new ExpantaNum("1e9"), 0L);
+        game.State.RestorePopulationCapacityExactForEditor(new ExpantaNum(100000), ExpantaNum.Zero);
+        game.State.RestorePopulationForEditor(new ExpantaNum(100000));
+        foreach (ResearchDef definition in DataBase<ResearchDef>.All)
+        {
+            Dictionary<ResourceDef, ExpantaNum> paid = new();
+            foreach (Pair<ResourceDef, ExpantaNum> requirement in definition.ResourceRequirements)
+                paid[requirement.First] = requirement.Second;
+            ResearchState state = research.GetState(definition);
+            state.RestoreForEditor(state.BaseCost, true, true, paid);
+        }
+        foreach (WorkshopUpgradeState state in workshop.States.Values)
+            state.SetPurchasedForEditor(true);
+        BuildingDef[] factories = new[] { "OrbitalWireWorks", "OrbitalBuildingMaterialsWorks", "AutonomousMatterFabricator" }
+            .Select(id => DataBase<BuildingDef>.Find(id)).ToArray();
+        BuildingDef hub = DataBase<BuildingDef>.Find("OrbitalResourceExtractionArray");
+        WorkshopUpgradeDef gate = hub.RequiredWorkshopUpgrades.First(upgrade =>
+            factories.All(factory => !factory.RequiredWorkshopUpgrades.Contains(upgrade)));
+        workshop.States[gate].SetPurchasedForEditor(false);
+        ProgressionModifierManager.Rebuild(research.States.Values.ToArray(), workshop.States.Values.ToArray());
+        buildings.RefreshBuildingChainAvailability();
+        foreach ((string id, int count) in new[] { ("CentralPowerStation", 100), ("Caravanserai", 1000) })
+            buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(DataBase<BuildingDef>.Find(id)), new ExpantaNum(count));
+
+        foreach (BuildingDef factory in factories)
+        {
+            foreach (ResourceDef resource in DataBase<ResourceDef>.All)
+                resources.SetAmount(resource, new ExpantaNum("1e8"));
+            Assert.That(buildings.TryBuild(factory, ExpantaNum.One, out BuildFailure failure), Is.True,
+                factory.Id + ": " + failure);
+            foreach (Pair<ResourceDef, ExpantaNum> output in factory.ResourceGenerationRates)
+                resources.SetAmount(output.First, ExpantaNum.Zero);
+            Dictionary<ResourceDef, ExpantaNum> before = factory.ResourceConsumptionRates.ToDictionary(
+                input => input.First, input => resources.GetAmount(input.First));
+            simulation.ManualTick(1d);
+            Assert.That(buildings.GetState(factory).Efficiency, Is.GreaterThan(ExpantaNum.Zero), factory.Id);
+            foreach (Pair<ResourceDef, ExpantaNum> input in factory.ResourceConsumptionRates)
+            {
+                ResourceState state = resources.GetState(input.First);
+                ExpantaNum expected = before[input.First] + state.ProductionRate - state.ConsumptionRate;
+                Assert.That(resources.GetAmount(input.First).ToDouble(),
+                    Is.EqualTo(expected.ToDouble()).Within(0.02d), factory.Id + " paid " + input.First.Id);
+                Assert.That(resources.GetAmount(input.First), Is.LessThan(before[input.First]),
+                    factory.Id + " consumes " + input.First.Id);
+            }
+            foreach (Pair<ResourceDef, ExpantaNum> output in factory.ResourceGenerationRates)
+                Assert.That(resources.GetAmount(output.First), Is.GreaterThan(ExpantaNum.Zero), factory.Id + " produced " + output.First.Id);
+
+            ResourceDef missing = factory.ResourceConsumptionRates[0].First;
+            resources.SetAmount(missing, ExpantaNum.Zero);
+            Dictionary<ResourceDef, ExpantaNum> outputsBefore = factory.ResourceGenerationRates.ToDictionary(
+                output => output.First, output => resources.GetAmount(output.First));
+            simulation.ManualTick(1d);
+            Assert.That(buildings.GetState(factory).Efficiency, Is.LessThanOrEqualTo(ExpantaNum.Zero), factory.Id);
+            Assert.That(resources.GetAmount(missing), Is.GreaterThanOrEqualTo(ExpantaNum.Zero));
+            foreach (KeyValuePair<ResourceDef, ExpantaNum> output in outputsBefore)
+                Assert.That(resources.GetAmount(output.Key).ToDouble(),
+                    Is.EqualTo(output.Value.ToDouble()).Within(1e-6d), factory.Id + " cannot produce unpaid " + output.Key.Id);
+            resources.SetAmount(missing, new ExpantaNum("1e8"));
+            simulation.ManualTick(1d);
+            foreach (KeyValuePair<ResourceDef, ExpantaNum> output in outputsBefore)
+                Assert.That(resources.GetAmount(output.Key), Is.GreaterThan(output.Value), factory.Id + " resumed " + output.Key.Id);
+            Debug.Log($"LATE_FACTORY_SUPPLY_PASS {factory.Id}: inputs={factory.ResourceConsumptionRates.Count}, efficiency={buildings.GetState(factory).Efficiency}");
+            Assert.That(buildings.TryDeconstruct(factory, ExpantaNum.One, out _), Is.True);
+        }
     }
 
     [UnityTest]

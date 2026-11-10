@@ -1148,6 +1148,8 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
         {
             if (!state.GetResearchState(research.Id).Completed)
                 continue;
+            modifiers.ChemicalRocketFuelUnlocked |= string.Equals(
+                research.Id, "OrbitalEngineering", StringComparison.OrdinalIgnoreCase);
             var allowCombat = definitions.TechIndex(research.TechLevel) >=
                 definitions.TechIndex("Spacer");
             foreach (var effect in research.Effects)
@@ -1647,6 +1649,7 @@ internal sealed class SimulationModifiers
     public ExpantaNum CampaignSupplyCostMultiplier { get; private set; } = ExpantaNum.One;
     public ExpantaNum CampaignCasualtyMultiplier { get; private set; } = ExpantaNum.One;
     public ExpantaNum DeconstructionReturnRate { get; private set; }
+    public bool ChemicalRocketFuelUnlocked { get; internal set; }
 
     public ExpantaNum BuildingProductionMultiplier(string buildingId) =>
         GlobalBuildingProductionMultiplier * Get(buildingProduction, buildingId);
@@ -1656,6 +1659,10 @@ internal sealed class SimulationModifiers
 
     public ExpantaNum BuildingResourceProductionMultiplier(string buildingId, string resourceId)
     {
+        if (!ChemicalRocketFuelUnlocked &&
+            string.Equals(buildingId, "ChemicalPlant", StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(resourceId, "RocketFuel", StringComparison.OrdinalIgnoreCase))
+            return ExpantaNum.Zero;
         if (!buildingResourceProduction.TryGetValue(buildingId, out var resources) ||
             !resources.TryGetValue(resourceId, out var multiplier))
             return ExpantaNum.One;

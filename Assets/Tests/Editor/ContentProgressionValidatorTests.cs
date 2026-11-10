@@ -28,6 +28,9 @@ public sealed class ContentProgressionValidatorTests
                 bool hasProducer = false;
                 foreach (BuildingDef building in buildings)
                 {
+                    if (building.Id == "ChemicalPlant" && cost.First.Id == "RocketFuel" &&
+                        !ancestors.Contains(DataBase<ResearchDef>.Find("OrbitalEngineering")))
+                        continue;
                     if (!BuildingPrerequisitesAvailable(building, ancestors, accessibleEra,
                             new HashSet<WorkshopUpgradeDef>()))
                         continue;
@@ -130,6 +133,51 @@ public sealed class ContentProgressionValidatorTests
             result.FormatFailureReport());
         Assert.That(result.UnreachableResearch, Is.Empty, result.FormatFailureReport());
         Assert.That(result.UnreachableBuildings, Is.Empty, result.FormatFailureReport());
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public void ChemicalPlant_RocketFuelGatePreservesClosureAndRejectsSelfFunding(bool requiresFuelToUnlock)
+    {
+        BuildingDef plant = UnityEngine.Object.Instantiate(DataBase<BuildingDef>.Find("ChemicalPlant"));
+        ResearchDef orbital = UnityEngine.Object.Instantiate(DataBase<ResearchDef>.Find("OrbitalEngineering"));
+        try
+        {
+            plant.SetRequiredResearchForEditor(new List<ResearchDef>());
+            plant.SetRequiredWorkshopUpgradesForEditor(new List<WorkshopUpgradeDef>());
+            orbital.SetPrerequisitesForEditor(new List<ResearchDef>());
+            orbital.SetResourceRequirementsForEditor(new List<Pair<ResourceDef, ExpantaNum>>
+            {
+                new(DataBase<ResourceDef>.Find(requiresFuelToUnlock ? "RocketFuel" : "Chemical"), ExpantaNum.One)
+            });
+            var startingResources = new List<string>();
+            foreach (Pair<ResourceDef, ExpantaNum> cost in plant.ResourceRequirements)
+                startingResources.Add(cost.First.Id);
+            foreach (Pair<ResourceDef, ExpantaNum> input in plant.ResourceConsumptionRates)
+                startingResources.Add(input.First.Id);
+            ProgressionAuditResult result = ContentProgressionAudit.Run(
+                DataBase<ResourceDef>.All, new[] { plant }, new[] { orbital },
+                startingResources, TechLevel.Industrial);
+
+            Assert.That(result.ResourcesWithoutSource, Does.Not.Contain("Chemical"));
+            Assert.That(result.ResourcesWithoutSource, Does.Not.Contain("Explosives"));
+            if (requiresFuelToUnlock)
+            {
+                Assert.That(result.UnreachableResearch, Does.Contain(orbital.Id));
+                Assert.That(result.ResourcesWithoutSource, Does.Contain("RocketFuel"));
+            }
+            else
+            {
+                Assert.That(result.UnreachableResearch, Is.Empty, result.FormatFailureReport());
+                Assert.That(result.ResourcesWithoutSource, Does.Not.Contain("RocketFuel"),
+                    "Research must release the gated output of an already reachable plant.");
+            }
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(plant);
+            UnityEngine.Object.DestroyImmediate(orbital);
+        }
     }
 
     [Test]
@@ -261,7 +309,14 @@ public static class ContentProgressionAudit
 
                 if (reachableBuildings.Add(building.Id))
                     changed = true;
-                AddPairs(building.ResourceGenerationRates, reachableResources, sourceResources);
+                foreach (Pair<ResourceDef, ExpantaNum> output in building.ResourceGenerationRates)
+                {
+                    if (output.First == null || building.Id == "ChemicalPlant" &&
+                        output.First.Id == "RocketFuel" && !completedResearch.Contains("OrbitalEngineering"))
+                        continue;
+                    changed |= reachableResources.Add(output.First.Id);
+                    sourceResources.Add(output.First.Id);
+                }
                 AddPairs(building.ResourceRequirements, reachableResources, sinkResources, false);
                 AddPairs(building.ResourceConsumptionRates, reachableResources, sinkResources, false);
             }

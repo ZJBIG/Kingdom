@@ -7,8 +7,8 @@ public sealed partial class KingdomUIRoot
 {
     private RectTransform offlineAccelerationToolbar;
     private TMP_Text remainingOfflineTime;
-    private readonly Button[] accelerationButtons = new Button[4];
-    private static readonly int[] AccelerationChoices = { 1, 5, 20, 1000 };
+    private readonly Button[] accelerationButtons = new Button[3];
+    private static readonly int[] AccelerationChoices = { 1, 5, 20 };
     private long displayedOfflineSeconds = -1;
     private int displayedAcceleration;
 
@@ -21,7 +21,7 @@ public sealed partial class KingdomUIRoot
             return;
         }
         remainingOfflineTime = offlineAccelerationToolbar.Find("RemainingTime").GetComponent<TMP_Text>();
-        string[] names = { "Normal", "Speed5", "Speed20", "Speed1000" };
+        string[] names = { "Normal", "Speed5", "Speed20" };
         for (int i = 0; i < names.Length; i++)
         {
             int multiplier = AccelerationChoices[i];

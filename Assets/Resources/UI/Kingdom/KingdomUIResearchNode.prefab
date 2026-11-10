@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 5318767221497904533}
   - component: {fileID: 371367077092302094}
   - component: {fileID: 2711644140299338734}
+  - component: {fileID: 1000077}
   m_Layer: 5
   m_Name: KingdomUIResearchNode
   m_TagString: Untagged
@@ -22,6 +23,18 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!225 &1000077
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000001}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!224 &1000002
 RectTransform:
   m_ObjectHideFlags: 0

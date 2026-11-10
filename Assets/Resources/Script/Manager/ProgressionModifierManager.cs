@@ -33,6 +33,7 @@ public sealed class ProgressionModifierState
     public ExpantaNum CampaignSupplyCostMultiplier { get; internal set; } = ExpantaNum.One;
     public ExpantaNum CampaignCasualtyMultiplier { get; internal set; } = ExpantaNum.One;
     public ExpantaNum DeconstructionReturnRate { get; internal set; } = new ExpantaNum(0.05d);
+    public bool ChemicalRocketFuelUnlocked { get; internal set; }
 
     public IReadOnlyCollection<ResearchSystem> UnlockedSystems => unlockedSystems;
     public bool IsSystemUnlocked(ResearchSystem system) =>
@@ -43,6 +44,10 @@ public sealed class ProgressionModifierState
 
     public ExpantaNum GetBuildingResourceProductionMultiplier(BuildingDef building, ResourceDef resource)
     {
+        if (!ChemicalRocketFuelUnlocked &&
+            string.Equals(building?.Id, "ChemicalPlant", StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(resource?.Id, "RocketFuel", StringComparison.OrdinalIgnoreCase))
+            return ExpantaNum.Zero;
         if (ReferenceEquals(building, null) || ReferenceEquals(resource, null) ||
             !buildingResourceProductionMultipliers.TryGetValue(building, out Dictionary<ResourceDef, ExpantaNum> resources))
             return ExpantaNum.One;
@@ -218,6 +223,8 @@ public static class ProgressionModifierManager
                 ResearchState state = researchStates[i];
                 if (state?.Status != ResearchStatus.Completed)
                     continue;
+                rebuilt.ChemicalRocketFuelUnlocked |= string.Equals(
+                    state.Definition.Id, "OrbitalEngineering", StringComparison.OrdinalIgnoreCase);
                 ApplyResearchEffects(
                     rebuilt,
                     state.Definition.Effects,

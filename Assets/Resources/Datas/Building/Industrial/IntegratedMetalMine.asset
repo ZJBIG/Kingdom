@@ -19,7 +19,7 @@ MonoBehaviour:
   TechLevel: 3
   upgradeTo: {fileID: 11400000, guid: e2f3a4b5c67890d1e2f3a4b5c67890d1, type: 2}
   costGrowth: "1.18"
-  spaceCost: "18"
+  spaceCost: "96"
   productivityConsumption: "120"
   productivityGranted: "0"
   populationCapacityGranted: "0"
@@ -35,23 +35,23 @@ MonoBehaviour:
   militaryManpowerGranted: "0"
   resourceRequirements:
   - resource: {fileID: 11400000, guid: 83c7a054235ab2d4ea6c0135a631aa93, type: 2}
-    amount: "550"
+    amount: "2750"
   - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
-    amount: "450"
+    amount: "2250"
   - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
-    amount: "160"
+    amount: "800"
   - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    amount: "80"
+    amount: "400"
   resourceGenerationRates:
   - resource: {fileID: 11400000, guid: 605f4f30b687fbf428ee44c2b5715c51, type: 2}
-    amount: "1.6"
+    amount: "12"
   - resource: {fileID: 11400000, guid: eff51b472ae372e4f9c9f24c89d112e3, type: 2}
-    amount: "3.2"
+    amount: "20"
   - resource: {fileID: 11400000, guid: cab0b756c4a7b1540a580c0e836cd806, type: 2}
-    amount: "11.2"
+    amount: "90"
   resourceConsumptionRates:
   - resource: {fileID: 11400000, guid: 2c025959bcb548f1bba4d459df5f2e5c, type: 2}
-    amount: "0.15"
+    amount: "1.2"
   requiredResearch:
   - {fileID: 11400000, guid: ca4d5c54b40ea1a499e3283e174da7e3, type: 2}
   requiredWorkshopUpgrades:

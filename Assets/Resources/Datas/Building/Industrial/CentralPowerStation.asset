@@ -19,7 +19,7 @@ MonoBehaviour:
   TechLevel: 3
   upgradeTo: {fileID: 0}
   costGrowth: "1.22"
-  spaceCost: "28"
+  spaceCost: "88"
   productivityConsumption: "110"
   productivityGranted: "0"
   populationCapacityGranted: "0"
@@ -35,17 +35,17 @@ MonoBehaviour:
   militaryManpowerGranted: "0"
   resourceRequirements:
   - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
-    amount: "800"
+    amount: "4000"
   - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
-    amount: "100"
+    amount: "500"
   - resource: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
-    amount: "1200"
+    amount: "6000"
   resourceGenerationRates: []
   resourceConsumptionRates:
   - resource: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
-    amount: "3"
+    amount: "14"
   - resource: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
-    amount: "1.5"
+    amount: "6"
   requiredResearch:
   - {fileID: 11400000, guid: 75de12faf9372884795af2ccd72dc297, type: 2}
   requiredWorkshopUpgrades: []

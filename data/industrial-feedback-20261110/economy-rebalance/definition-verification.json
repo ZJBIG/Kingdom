@@ -1,0 +1,32 @@
+{
+  "buildingsChecked": 79,
+  "changedBuildings": 46,
+  "changedByEra": {
+    "Industrial": 26,
+    "Spacer": 17,
+    "Ultra": 3
+  },
+  "numericFieldChanges": 279,
+  "fields": {
+    "spaceCost": 30,
+    "resourceGenerationRates": 58,
+    "resourceConsumptionRates": 181,
+    "powerContribution": 1,
+    "resourceRequirements": 9
+  },
+  "metaGuidIdAndUnauthorizedFieldsPreserved": true,
+  "previousIndustrialConstructionCostsPreserved": true,
+  "strictRawFlowValid": true,
+  "simulatorUsed": false,
+  "changedSourceAndTestFiles": [
+    "Assets/Tests/Editor/EconomyIntegrationRegressionTests.cs",
+    "Assets/Tests/Editor/ResourceContinuityTests.cs",
+    "Assets/Tests/Editor/C6IndustrialContentTests.cs",
+    "Assets/Tests/Editor/BuildingVerticalSliceTests.cs",
+    "Assets/Tests/PlayMode/KingdomPlayModeTests.cs",
+    "Assets/Resources/Script/Manager/BuildingManager.cs",
+    "Assets/Tests/Editor/LateFactoryConsolidationTests.cs",
+    "Assets/Tests/Editor/SpaceProgressionTests.cs"
+  ],
+  "head": "1179f27ce3cc3858961ee4f813d52a81ae5217c5"
+}

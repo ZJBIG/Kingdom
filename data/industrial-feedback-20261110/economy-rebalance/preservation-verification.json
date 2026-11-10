@@ -1,0 +1,16 @@
+{
+  "preexistingTrackedDiffsOutsideTaskPreserved": true,
+  "unexpectedChanges": [],
+  "simulatorTrackedDiffsPreserved": true,
+  "existingTrackedPathsCompared": 27,
+  "taskCodeAndTests": [
+    "Assets/Tests/Editor/EconomyIntegrationRegressionTests.cs",
+    "Assets/Tests/Editor/ResourceContinuityTests.cs",
+    "Assets/Tests/Editor/C6IndustrialContentTests.cs",
+    "Assets/Tests/Editor/BuildingVerticalSliceTests.cs",
+    "Assets/Tests/PlayMode/KingdomPlayModeTests.cs",
+    "Assets/Resources/Script/Manager/BuildingManager.cs",
+    "Assets/Tests/Editor/LateFactoryConsolidationTests.cs",
+    "Assets/Tests/Editor/SpaceProgressionTests.cs"
+  ]
+}

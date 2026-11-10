@@ -77,7 +77,7 @@ public sealed class BuildingVerticalSliceTests
         Assert.That(industrial.ResourceConsumptionRates, Has.Count.GreaterThanOrEqualTo(2));
         Assert.That(orbital.TechLevel, Is.EqualTo(TechLevel.Spacer));
         Assert.That(orbital.PopulationCapacityGranted, Is.EqualTo(new ExpantaNum(3000)));
-        Assert.That(orbital.SpaceCost, Is.EqualTo(new ExpantaNum(650)));
+        Assert.That(orbital.SpaceCost, Is.GreaterThan(industrial.SpaceCost * 10d));
         Assert.That(orbital.ResourceRequirements, Has.Count.GreaterThanOrEqualTo(7));
         Assert.That(industrial.UpgradeTo, Is.SameAs(orbital));
     }

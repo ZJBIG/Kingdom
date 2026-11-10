@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
 using TMPro;
@@ -126,6 +127,190 @@ public sealed class EarlyGameUiExperiencePlayModeTests
         AssertHudGeometry(grid, true);
         Capture("hud-infrastructure-unlocked");
     }
+    [UnityTest]
+    public IEnumerator BuildingRecommendations_FollowResourceDeficitsAndBuildFactoryWithoutWorkshopGate()
+    {
+        yield return PrepareIndustrialRecommendationScene();
+        ResourceManager resources = ResourceManager.Instance;
+        BuildingManager buildings = BuildingManager.Instance;
+        BuildingDef lumberyard = DataBase<BuildingDef>.Find("MechanizedLumberyard");
+        ResourceDef wood = DataBase<ResourceDef>.Find("WoodLog");
+        resources.AdjustConsumptionRate(wood, new ExpantaNum(100));
+        Assert.That(resources.GetNetRate(resources.GetState(wood)), Is.LessThan(ExpantaNum.Zero));
+        ui.SetPage("Buildings");
+        yield return null;
+        ui.RefreshLiveCardValuesForEditor();
+        Image star = GetRecommendationStar(lumberyard);
+        BuildingDef reserveLumberyard = DataBase<BuildingDef>.Find("Lumberyard");
+        Image reserveStar = GetRecommendationStar(reserveLumberyard);
+        Assert.That(star.gameObject.activeSelf, Is.True);
+        Assert.That(reserveStar.gameObject.activeSelf, Is.True);
+        Assert.That(star.raycastTarget, Is.False);
+        ExpantaNum count = buildings.GetState(lumberyard).Amount;
+        ExpantaNum stock = resources.GetAmount(wood);
+        ui.RefreshLiveCardValuesForEditor();
+        Assert.That(buildings.GetState(lumberyard).Amount, Is.EqualTo(count)); // Discrete ownership is unchanged by a hint.
+        Assert.That(resources.GetAmount(wood).ToDouble(), Is.EqualTo(stock.ToDouble()).Within(1e-6));
+
+        RectTransform row = (RectTransform)star.transform.parent;
+        Canvas.ForceUpdateCanvases();
+        Bounds starBounds = RectTransformUtility.CalculateRelativeRectTransformBounds(row, star.rectTransform);
+        Assert.That(starBounds.min.y, Is.GreaterThanOrEqualTo(row.rect.yMin));
+        Assert.That(starBounds.max.y, Is.LessThanOrEqualTo(row.rect.yMax));
+        foreach (string name in new[] { "PinButton", "BuildButton", "DeconstructButton", "Label" })
+        {
+            Bounds other = RectTransformUtility.CalculateRelativeRectTransformBounds(row, row.Find(name));
+            Assert.That(starBounds.Intersects(other), Is.False, name + " must remain separate from the star.");
+        }
+
+        BuildingDef factory = DataBase<BuildingDef>.Find("MachineFactory");
+        Button factoryDeconstruct = ui.GetDeconstructButtonForEditor(factory);
+        Assert.That(factoryDeconstruct, Is.Not.Null, "The researched factory must be visible without its production upgrade.");
+        Button factoryBuild = factoryDeconstruct.transform.parent.Find("BuildButton").GetComponent<Button>();
+        Assert.That(factoryBuild.interactable, Is.True);
+        ui.ShowBuildingDetailsForEditor(factory);
+        TMP_Text body = ui.transform.Find("SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent/Body").GetComponent<TMP_Text>();
+        Assert.That(body.text, Does.Not.Contain("workshop:PrecisionTooling"));
+        WorkshopManager workshop = WorkshopManager.Instance;
+        Assert.That(workshop.IsPurchased(DataBase<WorkshopUpgradeDef>.Find("PrecisionTooling")), Is.False);
+        ExpantaNum factoryCount = buildings.GetState(factory).Amount;
+        factoryBuild.onClick.Invoke();
+        Assert.That(buildings.GetState(factory).Amount, Is.EqualTo(factoryCount + ExpantaNum.One)); // One build command without the workshop.
+        Assert.That(workshop.TryPurchase(DataBase<WorkshopUpgradeDef>.Find("PrecisionTooling"), out WorkshopPurchaseFailure failure),
+            Is.True, failure.ToString());
+        ui.RefreshUI();
+        ui.RefreshLiveCardValuesForEditor();
+        Assert.That(factoryBuild.interactable, Is.True);
+        Assert.That(buildings.States.ContainsKey(reserveLumberyard), Is.False,
+            "Workshop completion must exercise cleanup of the zero-count fallback source.");
+        yield return new WaitForSecondsRealtime(.3f);
+        Assert.That(body.text, Does.Not.Contain("workshop:PrecisionTooling"));
+        Assert.That(body.text, Does.Contain("每座建筑属性"));
+
+        ScrollRect scroll = row.GetComponentInParent<ScrollRect>();
+        float overflow = scroll.content.rect.height - scroll.viewport.rect.height;
+        if (overflow > 0f)
+        {
+            Bounds location = RectTransformUtility.CalculateRelativeRectTransformBounds(scroll.content, row);
+            scroll.verticalNormalizedPosition = 1f - Mathf.Clamp01((scroll.content.rect.yMax - location.max.y) / overflow);
+        }
+        Canvas.ForceUpdateCanvases();
+        Capture("building-recommendation-factory-unlocked", "industrial-feedback-20261110");
+
+        resources.AdjustConsumptionRate(wood, -resources.GetState(wood).ConsumptionRate);
+        ui.RefreshLiveCardValuesForEditor();
+        Assert.That(star.gameObject.activeSelf, Is.False, "The hint must clear when the shortage clears.");
+        Assert.That(reserveStar.gameObject.activeSelf, Is.False,
+            "A visible fallback source must refresh even after its zero-count State was removed.");
+        ui.SetPage("Overview");
+        resources.AdjustConsumptionRate(wood, new ExpantaNum(100));
+        ui.SetPage("Buildings");
+        ui.RefreshLiveCardValuesForEditor();
+        Assert.That(GetRecommendationStar(lumberyard).gameObject.activeSelf, Is.True, "Reopening must use current rates.");
+        Assert.That(GetRecommendationStar(reserveLumberyard).gameObject.activeSelf, Is.True);
+
+        BuildingDef chemical = DataBase<BuildingDef>.Find("ChemicalPlant");
+        ResourceDef fuel = DataBase<ResourceDef>.Find("RocketFuel");
+        resources.AdjustConsumptionRate(fuel, new ExpantaNum(10));
+        ui.RefreshLiveCardValuesForEditor();
+        Assert.That(GetRecommendationStar(chemical).gameObject.activeSelf, Is.False,
+            "A locked rocket-fuel recipe cannot justify recommending a chemical plant.");
+        ResearchManager research = ResearchManager.Instance;
+        research.GetState(DataBase<ResearchDef>.Find("OrbitalEngineering")).SetStatusForEditor(ResearchStatus.Completed);
+        ProgressionModifierManager.Rebuild(new List<ResearchState>(research.States.Values),
+            new List<WorkshopUpgradeState>(workshop.States.Values));
+        ui.RefreshLiveCardValuesForEditor();
+        Assert.That(GetRecommendationStar(chemical).gameObject.activeSelf, Is.True);
+    }
+
+    [UnityTest]
+    public IEnumerator BuildingRecommendations_TrackFoodPowerLogisticsAndHousingShortfalls()
+    {
+        yield return PrepareIndustrialRecommendationScene();
+        GameManager game = GameManager.Instance;
+        BuildingManager buildings = BuildingManager.Instance;
+        BuildingDef factory = DataBase<BuildingDef>.Find("MachineFactory");
+        BuildingDef oldHousing = DataBase<BuildingDef>.Find("TownHouse");
+        buildings.SetAmountAndRatesForEditor(buildings.GetState(factory), ExpantaNum.One);
+        buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(oldHousing), ExpantaNum.One);
+        ui.SetPage("Buildings");
+        game.AdjustFoodRates(ExpantaNum.Zero, game.State.FoodProductionRate + new ExpantaNum(100));
+        ui.RefreshLiveCardValuesForEditor();
+        Image power = GetRecommendationStar(DataBase<BuildingDef>.Find("CentralPowerStation"));
+        Image logistics = GetRecommendationStar(DataBase<BuildingDef>.Find("RailHub"));
+        Image food = GetRecommendationStar(DataBase<BuildingDef>.Find("PlantingField"));
+        Assert.That(power.gameObject.activeSelf, Is.True);
+        Assert.That(logistics.gameObject.activeSelf, Is.True);
+        Assert.That(game.State.FoodNetRate, Is.LessThan(ExpantaNum.Zero));
+        Assert.That(food.gameObject.activeSelf, Is.True);
+        game.AdjustPowerRates(new ExpantaNum(1000), ExpantaNum.Zero);
+        game.AdjustLogisticsRates(new ExpantaNum(1000), ExpantaNum.Zero);
+        game.AdjustFoodRates(-game.State.FoodNetRate + ExpantaNum.One, ExpantaNum.Zero);
+        ui.RefreshLiveCardValuesForEditor();
+        Assert.That(power.gameObject.activeSelf, Is.False);
+        Assert.That(logistics.gameObject.activeSelf, Is.False);
+        Assert.That(food.gameObject.activeSelf, Is.False);
+
+        game.State.RestorePopulationForEditor(game.State.Population.PopulationCapacity);
+        ExpantaNum factoryCount = (buildings.TotalProductivity / factory.ProductivityConsumption).Floor() + ExpantaNum.One;
+        buildings.SetAmountAndRatesForEditor(buildings.GetState(factory), factoryCount);
+        Assert.That(buildings.AvailableProductivity, Is.LessThan(ExpantaNum.Zero));
+        ui.RefreshLiveCardValuesForEditor();
+        Image housing = GetRecommendationStar(DataBase<BuildingDef>.Find("IndustrialHabitationComplex"));
+        Assert.That(buildings.TryGetUnlockedUpgradeTarget(oldHousing, out BuildingDef housingTarget), Is.True);
+        Assert.That(housingTarget.Id, Is.EqualTo("IndustrialHabitationComplex"));
+        Image housingUpgrade = GetRecommendationStar(oldHousing);
+        Assert.That(housing.gameObject.activeSelf, Is.True);
+        Assert.That(housingUpgrade.gameObject.activeSelf, Is.True, "The existing house card must recommend its useful upgrade.");
+        ExpantaNum perPerson = PopulationState.ProductivityGrantedPerPerson *
+            ProgressionModifierManager.Current.PopulationProductivityMultiplier;
+        ExpantaNum population = game.State.Population.Population +
+            (-buildings.AvailableProductivity / perPerson).Ceiling() + ExpantaNum.One;
+        game.State.RestorePopulationCapacityExactForEditor(population, ExpantaNum.Zero);
+        game.State.RestorePopulationForEditor(population);
+        ui.RefreshLiveCardValuesForEditor();
+        Assert.That(housing.gameObject.activeSelf, Is.False);
+        Assert.That(housingUpgrade.gameObject.activeSelf, Is.False);
+    }
+
+    private IEnumerator PrepareIndustrialRecommendationScene()
+    {
+        SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
+        for (int i = 0; i < 160; i++)
+        {
+            ui = Object.FindObjectOfType<KingdomUIRoot>();
+            if (ui != null && Object.FindObjectOfType<GameBootstrap>()?.Completed == true) break;
+            yield return null;
+        }
+        Assert.That(Object.FindObjectOfType<GameBootstrap>()?.Completed, Is.True);
+        SimulationManager.Instance.SetRunning(false);
+        yield return DismissIntroductions();
+        GameManager.Instance.AdvanceTechLevelForEditor(TechLevel.Industrial);
+        GameManager.Instance.State.RestorePopulationCapacityExactForEditor(new ExpantaNum(100), ExpantaNum.Zero);
+        GameManager.Instance.State.RestorePopulationForEditor(new ExpantaNum(100));
+        ResearchManager research = ResearchManager.Instance;
+        WorkshopManager workshop = WorkshopManager.Instance;
+        foreach (ResearchDef definition in DataBase<ResearchDef>.All)
+            if (definition.TechLevel <= TechLevel.Industrial)
+                research.GetState(definition).SetStatusForEditor(ResearchStatus.Completed);
+        foreach (WorkshopUpgradeDef definition in DataBase<WorkshopUpgradeDef>.All)
+            if (definition.TechLevel <= TechLevel.Industrial && definition.Id != "PrecisionTooling")
+                workshop.States[definition].SetPurchasedForEditor(true);
+        ProgressionModifierManager.Rebuild(new List<ResearchState>(research.States.Values),
+            new List<WorkshopUpgradeState>(workshop.States.Values));
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
+            ResourceManager.Instance.SetAmount(resource, new ExpantaNum("1e9"));
+    }
+
+    private Image GetRecommendationStar(BuildingDef building)
+    {
+        Button action = ui.GetDeconstructButtonForEditor(building);
+        Assert.That(action, Is.Not.Null, building.Id + " must have a visible building card.");
+        Image star = action.transform.parent.Find("RecommendationStar")?.GetComponent<Image>();
+        Assert.That(star, Is.Not.Null);
+        return star;
+    }
+
     private static void AssertHudGeometry(Transform grid, bool infrastructureVisible)
     {
         Canvas.ForceUpdateCanvases();
@@ -163,10 +348,10 @@ public sealed class EarlyGameUiExperiencePlayModeTests
         }
         ui.RefreshOnboardingForEditor();
     }
-    private void Capture(string name)
+    private void Capture(string name, string evidenceDirectory = "experience-20261023")
     {
         if (SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null) return;
-        string directory = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "data", "experience-20261023"));
+        string directory = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "data", evidenceDirectory));
         Directory.CreateDirectory(directory);
         Canvas canvas = ui.GetComponent<Canvas>();
         RenderMode mode = canvas.renderMode; Camera previousCamera = canvas.worldCamera; float distance = canvas.planeDistance;

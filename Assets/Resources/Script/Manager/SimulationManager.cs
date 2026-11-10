@@ -63,9 +63,8 @@ public sealed class SimulationManager : Singleton<SimulationManager>
         switch (multiplier)
         {
             case 1: return 0;
-            case 5: return 5;
-            case 20: return 25;
-            case 1000: return 500;
+            case 5: return 200;
+            case 20: return 500;
             default: throw new ArgumentOutOfRangeException(nameof(multiplier));
         }
     }

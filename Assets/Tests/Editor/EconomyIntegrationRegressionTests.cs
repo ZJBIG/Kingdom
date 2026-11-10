@@ -33,6 +33,113 @@ public sealed class EconomyIntegrationRegressionTests
     }
 
     [Test]
+    public void MachineFactory_CompletedResearchAllowsConstructionWithoutPrecisionTooling()
+    {
+        GameManager game = CreateManager<GameManager>("FactoryVisibility-Game");
+        ResourceManager resources = CreateManager<ResourceManager>("FactoryVisibility-Resources");
+        BuildingManager buildings = CreateManager<BuildingManager>("FactoryVisibility-Buildings");
+        ResearchManager research = CreateManager<ResearchManager>("FactoryVisibility-Research");
+        WorkshopManager workshop = CreateManager<WorkshopManager>("FactoryVisibility-Workshop");
+        workshop.ResetForLoadForEditor();
+        game.State.RestoreCoreForEditor(0, TechLevel.Industrial, new ExpantaNum("1e9"), 0L);
+        game.State.RestorePopulationForEditor(new ExpantaNum(10000));
+        game.State.ResetDerivedEconomyForEditor(new ExpantaNum(100000));
+        BuildingDef factory = DataBase<BuildingDef>.Find("MachineFactory");
+        Assert.That(buildings.ShouldDisplay(factory), Is.False);
+        foreach (ResearchDef prerequisite in factory.RequiredResearch)
+        {
+            ResearchState state = research.GetState(prerequisite);
+            state.RestoreForEditor(state.BaseCost, true, true, PaidCostsFor(prerequisite));
+        }
+        foreach (Pair<ResourceDef, ExpantaNum> cost in factory.ResourceRequirements)
+            resources.SetAmount(cost.First, new ExpantaNum("1e9"));
+
+        Assert.That(buildings.ShouldDisplay(factory), Is.True,
+            "Completing the factory research must reveal a directly buildable card.");
+        Assert.That(workshop.IsPurchased(DataBase<WorkshopUpgradeDef>.Find("PrecisionTooling")), Is.False);
+        Assert.That(buildings.CanConstructNew(factory), Is.True);
+        Assert.That(buildings.TryBuild(factory, ExpantaNum.One, out BuildFailure failure), Is.True, failure.ToString());
+        Assert.That(buildings.GetState(factory).Amount, Is.EqualTo(ExpantaNum.One)); // Discrete building count.
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public void ChemicalPlant_RocketFuelWaitsForOrbitalEngineeringAndStartsInExistingPlant(bool offline)
+    {
+        GameManager game = CreateManager<GameManager>("FuelGate-Game");
+        ResourceManager resources = CreateManager<ResourceManager>("FuelGate-Resources");
+        BuildingManager buildings = CreateManager<BuildingManager>("FuelGate-Buildings");
+        ResearchManager research = CreateManager<ResearchManager>("FuelGate-Research");
+        SimulationManager simulation = CreateManager<SimulationManager>("FuelGate-Simulation");
+        game.State.AdvanceTechLevelForEditor(TechLevel.Industrial);
+        game.State.RestorePopulationCapacityExactForEditor(new ExpantaNum(3000), ExpantaNum.Zero);
+        game.State.RestorePopulationForEditor(new ExpantaNum(2000));
+        foreach (ResearchDef definition in DataBase<ResearchDef>.All)
+        {
+            if (definition.TechLevel > TechLevel.Industrial) continue;
+            ResearchState state = research.GetState(definition);
+            state.RestoreForEditor(state.BaseCost, true, true, PaidCostsFor(definition));
+        }
+        ProgressionModifierManager.Rebuild(research.States.Values.ToArray());
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
+            resources.SetAmount(resource, new ExpantaNum(100000));
+        foreach (string id in new[] { "IrrigationWorks", "CentralPowerStation", "Caravanserai", "ChemicalPlant" })
+            buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(DataBase<BuildingDef>.Find(id)),
+                id == "IrrigationWorks" ? new ExpantaNum(100) : id == "ChemicalPlant" ? ExpantaNum.One : new ExpantaNum(4));
+        ResourceDef fuel = DataBase<ResourceDef>.Find("RocketFuel");
+        ResourceDef chemical = DataBase<ResourceDef>.Find("Chemical");
+        ResourceDef explosives = DataBase<ResourceDef>.Find("Explosives");
+        resources.SetAmount(fuel, ExpantaNum.Zero);
+        resources.SetAmount(chemical, ExpantaNum.Zero);
+        resources.SetAmount(explosives, ExpantaNum.Zero);
+        if (offline) simulation.AdvanceOffline(1d);
+        else simulation.ManualTick(1d);
+
+        Assert.That(resources.GetAmount(chemical), Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(resources.GetAmount(explosives), Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(resources.GetAmount(fuel).ToDouble(), Is.InRange(0d, 1e-8d),
+            "Industrial chemistry must not stockpile rocket propellant before orbital engineering.");
+        ProgressionModifierState locked = ProgressionModifierManager.Current;
+        ResearchDef orbital = DataBase<ResearchDef>.Find("OrbitalEngineering");
+        ResearchState orbitalState = research.GetState(orbital);
+        orbitalState.RestoreForEditor(orbitalState.BaseCost - new ExpantaNum(.01d), true, false, PaidCostsFor(orbital));
+        Assert.That(research.StartResearch(orbital), Is.True);
+        simulation.ManualTick(.1d);
+        Assert.That(research.IsResearchCompleted(orbital.Id), Is.True);
+        Assert.That(resources.GetState(fuel).ProductionRate, Is.GreaterThan(ExpantaNum.Zero),
+            "Completing the research must refresh the already operating chemical plant immediately.");
+        Assert.That(locked.GetBuildingResourceProductionMultiplier(DataBase<BuildingDef>.Find("ChemicalPlant"), fuel)
+            .ToDouble(), Is.InRange(0d, 1e-8d), "The previous modifier snapshot must retain the locked rate.");
+        if (offline) simulation.AdvanceOffline(1d);
+        else simulation.ManualTick(1d);
+        Assert.That(resources.GetAmount(fuel), Is.GreaterThan(ExpantaNum.Zero));
+
+        var savedResearch = new SaveManager.ResearchSaveData
+        {
+            GlobalEfficiencyFactor = "1",
+            States = research.States.Values.Where(state => state.Status == ResearchStatus.Completed)
+                .Select(state => new SaveManager.ResearchStateSaveData
+                {
+                    ResearchId = state.Definition.Id, Progress = state.Progress.ToString(),
+                    CostPaid = state.CostPaid, Completed = true,
+                    PaidResourceCosts = PaidCostsFor(state.Definition).Select(cost =>
+                        new SaveManager.ResearchResourceCostSaveData
+                        { ResourceId = cost.Key.Id, Amount = cost.Value.ToString() }).ToList()
+                }).ToList()
+        };
+        double rateBeforeReload = resources.GetState(fuel).ProductionRate.ToDouble();
+        var industrialResearch = JsonUtility.FromJson<SaveManager.ResearchSaveData>(JsonUtility.ToJson(savedResearch));
+        // Preserve the applied industrial rewards while restoring the fuel gate's earlier research state.
+        industrialResearch.States.RemoveAll(state => state.ResearchId == orbital.Id);
+        research.RestoreSaveDataForEditor(industrialResearch);
+        Assert.That(resources.GetState(fuel).ProductionRate.ToDouble(), Is.InRange(0d, 1e-8d));
+        research.RestoreSaveDataForEditor(JsonUtility.FromJson<SaveManager.ResearchSaveData>(
+            JsonUtility.ToJson(savedResearch)));
+        Assert.That(resources.GetState(fuel).ProductionRate.ToDouble(),
+            Is.EqualTo(rateBeforeReload).Within(1e-6d), "Restoring research must restore the fuel gate without duplicating production.");
+    }
+
+    [Test]
     public void SectorFacilityDisablePreservesOwnershipAndCapacityAndRestoresAllFlows()
     {
         GameManager game = CreateManager<GameManager>("Facility-Game");
@@ -346,6 +453,185 @@ public sealed class EconomyIntegrationRegressionTests
         Assert.That(buildings.TryBuild(well, ExpantaNum.One, out _), Is.True);
         simulation.ManualTick(1d);
         Assert.That(resources.GetAmount(oil), Is.GreaterThan(ExpantaNum.Zero));
+    }
+
+    [Test]
+    public void PhantomSupplyCanBeRebuiltAfterItsLastFactoryWasUpgraded()
+    {
+        GameManager game = CreateManager<GameManager>("PhantomRecovery-Game");
+        ResourceManager resources = CreateManager<ResourceManager>("PhantomRecovery-Resources");
+        BuildingManager buildings = CreateManager<BuildingManager>("PhantomRecovery-Buildings");
+        ResearchManager research = CreateManager<ResearchManager>("PhantomRecovery-Research");
+        WorkshopManager workshop = CreateManager<WorkshopManager>("PhantomRecovery-Workshop");
+        workshop.ResetForLoadForEditor();
+        SimulationManager simulation = CreateManager<SimulationManager>("PhantomRecovery-Simulation");
+        game.State.ResetDerivedEconomyForEditor(new ExpantaNum("1e9"));
+        game.State.AdjustFoodCapacityForEditor(new ExpantaNum("1e9"));
+        game.State.RestoreCoreForEditor(0, TechLevel.Spacer, new ExpantaNum("1e9"), 0L);
+        game.State.RestorePopulationForEditor(new ExpantaNum(100000));
+        CompleteAllResearch(research);
+        PurchaseAllWorkshops(workshop);
+        ProgressionModifierManager.Rebuild(research.States.Values.ToArray(), workshop.States.Values.ToArray());
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
+            resources.SetAmount(resource, new ExpantaNum("1e8"));
+        foreach ((string id, int count) in new[] { ("CentralPowerStation", 100), ("Caravanserai", 1000) })
+            buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(DataBase<BuildingDef>.Find(id)), new ExpantaNum(count));
+
+        BuildingDef source = DataBase<BuildingDef>.Find("PhantomMaterialsFabricator");
+        BuildingDef hub = source.UpgradeTo;
+        buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(source), ExpantaNum.One);
+        Assert.That(buildings.TryUpgrade(source, ExpantaNum.One, out BuildFailure upgradeFailure), Is.True,
+            upgradeFailure.ToString());
+        Assert.That(buildings.EnsureBuilding(source).Amount, Is.EqualTo(ExpantaNum.Zero)); // Discrete factory count.
+        foreach (string id in new[] { "PhantomAlloy", "PhantomWeave" })
+            resources.SetAmount(DataBase<ResourceDef>.Find(id), ExpantaNum.Zero);
+        simulation.ManualTick(1d);
+        Assert.That(buildings.GetState(hub).Efficiency, Is.LessThanOrEqualTo(ExpantaNum.Zero));
+        Assert.That(buildings.CanConstructNew(source), Is.True,
+            "The upgraded factory consumes phantom materials, so its upstream source must remain constructible.");
+        Assert.That(buildings.ShouldDisplay(source), Is.True);
+        Assert.That(buildings.TryBuild(source, ExpantaNum.One, out BuildFailure buildFailure), Is.True,
+            buildFailure.ToString());
+        simulation.ManualTick(1d);
+        foreach (string id in new[] { "PhantomAlloy", "PhantomWeave" })
+            Assert.That(resources.GetAmount(DataBase<ResourceDef>.Find(id)), Is.GreaterThan(ExpantaNum.Zero), id);
+        simulation.ManualTick(1d);
+        Assert.That(buildings.GetState(hub).Efficiency, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(buildings.CanConstructNew(DataBase<BuildingDef>.Find("MachineFactory")), Is.False,
+            "This exception must not reopen tiers whose output is already supplied by their successor.");
+    }
+
+    [TestCase("IntegratedMetalMine", "IndustrialMetalSmelter", "BasicMetalOre", 1)]
+    [TestCase("IntegratedMetalMine", "AdvancedMetalRefinery", "AdvancedMetalOre", 1)]
+    [TestCase("IndustrialMetalSmelter", "MachineFactory", "Steel", 1)]
+    [TestCase("WireMill", "MachineFactory", "CopperWire", 1)]
+    [TestCase("IndustrialStoneworks", "BuildingMaterialsComplex", "StoneBrick", 2)]
+    [TestCase("IndustrialStoneworks", "OrbitalBuildingMaterialsWorks", "StoneBrick", 4)]
+    [TestCase("AdvancedCeramicsPlant", "OrbitalBuildingMaterialsWorks", "Clay", 1)]
+    [TestCase("IndustrialMetalSmelter", "OrbitalWireWorks", "BasicMetalIngot", 1)]
+    [TestCase("IntegratedMetalMine", "TitaniumAlloySmelter", "SpecialMetalOre", 1)]
+    [TestCase("OrbitalResourceExtractionArray", "AutonomousMatterFabricator", "TitaniumAlloy", 2)]
+    [TestCase("OrbitalResourceExtractionArray", "AutonomousMatterFabricator", "Electronics", 2)]
+    [TestCase("OrbitalMachiningComplex", "AutonomousMatterFabricator", "Machinery", 1)]
+    [TestCase("AdvancedMetalRefinery", "AutonomousMatterFabricator", "AdvancedMetalIngot", 2)]
+    [TestCase("PhantomMaterialsFabricator", "PhaseMaterialSynthesisArray", "PhantomAlloy", 2)]
+    [TestCase("PhantomMaterialsFabricator", "PhaseMaterialSynthesisArray", "PhantomWeave", 2)]
+    [TestCase("OrbitalAgroecologyArray", "OrbitalResourceExtractionArray", "WoodLog", 2)]
+    [TestCase("OrbitalAgroecologyArray", "OrbitalResourceExtractionArray", "Biomass", 2)]
+    [TestCase("OrbitalAgroecologyArray", "OrbitalCarbonizationComplex", "WoodLog", 2)]
+    [TestCase("OrbitalMachiningComplex", "PhaseMaterialSynthesisArray", "Composite", 2)]
+    [TestCase("OrbitalAgroecologyArray", "OrbitalHabitatMegastructure", "Biomass", 1)]
+    [TestCase("OrbitalMachiningComplex", "PhaseMaterialSynthesisArray", "Composite", 2, 2)]
+    public void SuppliersSustainAuthoredIndustrialAndLateInputs(
+        string sourceId, string consumerId, string resourceId, int sourceCount, int phantomFactoryCount = 0)
+    {
+        GameManager game = CreateManager<GameManager>("Supply-Game");
+        ResourceManager resources = CreateManager<ResourceManager>("Supply-Resources");
+        BuildingManager buildings = CreateManager<BuildingManager>("Supply-Buildings");
+        ResearchManager research = CreateManager<ResearchManager>("Supply-Research");
+        WorkshopManager workshop = CreateManager<WorkshopManager>("Supply-Workshop");
+        workshop.ResetForLoadForEditor();
+        SimulationManager simulation = CreateManager<SimulationManager>("Supply-Simulation");
+        game.State.ResetDerivedEconomyForEditor(new ExpantaNum("1e9"));
+        game.State.AdjustFoodCapacityForEditor(new ExpantaNum("1e9"));
+        game.State.RestoreCoreForEditor(0, TechLevel.Ultra, new ExpantaNum("1e9"), 0L);
+        game.State.RestorePopulationCapacityExactForEditor(new ExpantaNum(100000), ExpantaNum.Zero);
+        game.State.RestorePopulationForEditor(new ExpantaNum(100000));
+        CompleteAllResearch(research);
+        PurchaseAllWorkshops(workshop);
+        ProgressionModifierManager.Rebuild(research.States.Values.ToArray(), workshop.States.Values.ToArray());
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
+            resources.SetAmount(resource, new ExpantaNum("1e8"));
+        foreach ((string id, int count) in new[] { ("CentralPowerStation", 100), ("Caravanserai", 1000),
+                     (sourceId, sourceCount), (consumerId, 1) })
+            buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(DataBase<BuildingDef>.Find(id)), new ExpantaNum(count));
+        if (phantomFactoryCount > 0)
+        {
+            buildings.SetAmountAndRatesForEditor(
+                buildings.EnsureBuilding(DataBase<BuildingDef>.Find("PhantomMaterialsFabricator")),
+                new ExpantaNum(phantomFactoryCount));
+            foreach (string id in new[] { "PhantomAlloy", "PhantomWeave" })
+                resources.SetAmount(DataBase<ResourceDef>.Find(id), ExpantaNum.Zero);
+        }
+        ResourceDef input = DataBase<ResourceDef>.Find(resourceId);
+        ExpantaNum seed = new ExpantaNum(100);
+        resources.SetAmount(input, seed);
+        for (int tick = 0; tick < 5; tick++) simulation.ManualTick(1d);
+        Assert.That(buildings.GetState(DataBase<BuildingDef>.Find(sourceId)).Efficiency.ToDouble(),
+            Is.GreaterThanOrEqualTo(0.99d), sourceId);
+        Assert.That(buildings.GetState(DataBase<BuildingDef>.Find(consumerId)).Efficiency.ToDouble(),
+            Is.GreaterThanOrEqualTo(0.99d), consumerId);
+        Assert.That(resources.GetAmount(input).ToDouble(), Is.GreaterThanOrEqualTo(seed.ToDouble() - 1e-6d),
+            "The authored suppliers must replenish this input rather than relying on a stockpile.");
+        if (phantomFactoryCount > 0)
+            Assert.That(buildings.GetState(DataBase<BuildingDef>.Find("PhantomMaterialsFabricator")).Efficiency.ToDouble(),
+                Is.GreaterThanOrEqualTo(0.99d), "The phase array and its phantom suppliers share the composite supply.");
+        ResourceState flow = resources.GetState(input);
+        Debug.Log($"REAL_SUPPLY_RATIO {sourceId}[{sourceCount}] -> {consumerId}: {resourceId} supply={flow.ProductionRate} demand={flow.ConsumptionRate}, phantomFactories={phantomFactoryCount}");
+    }
+
+    [TestCase("MachineFactory", "Machinery", 2d, null, 1d)]
+    [TestCase("WireMill", "CopperWire", 3d, null, 1d)]
+    [TestCase("BuildingMaterialsComplex", "Concrete", 2.5d, null, 1d)]
+    [TestCase("IndustrialCarbonizationRetort", "Coke", 3d, "WoodLog", 2d)]
+    [TestCase("IntegratedMetalMine", "BasicMetalOre", 8d, null, 1d)]
+    [TestCase("IntegratedMetalMine", "AdvancedMetalOre", 8d, null, 1d)]
+    [TestCase("MechanizedTextileMill", "Cloth", 4d, "Biomass", 4d)]
+    [TestCase("OrbitalMachiningComplex", null, 1d, null, 1d)]
+    [TestCase("OrbitalWireWorks", null, 1d, null, 1d)]
+    [TestCase("OrbitalBuildingMaterialsWorks", null, 1d, null, 1d)]
+    public void OrbitalUpgradeRetainsEachFullyModifiedIndustrialOutput(
+        string sourceId, string primaryOutputId, double minimumOutputMultiplier,
+        string inputId, double minimumInputMultiplier)
+    {
+        GameManager game = CreateManager<GameManager>("UpgradeFlow-Game");
+        ResourceManager resources = CreateManager<ResourceManager>("UpgradeFlow-Resources");
+        BuildingManager buildings = CreateManager<BuildingManager>("UpgradeFlow-Buildings");
+        ResearchManager research = CreateManager<ResearchManager>("UpgradeFlow-Research");
+        WorkshopManager workshop = CreateManager<WorkshopManager>("UpgradeFlow-Workshop");
+        workshop.ResetForLoadForEditor();
+        SimulationManager simulation = CreateManager<SimulationManager>("UpgradeFlow-Simulation");
+        game.State.ResetDerivedEconomyForEditor(new ExpantaNum("1e9"));
+        game.State.AdjustFoodCapacityForEditor(new ExpantaNum("1e9"));
+        game.State.RestoreCoreForEditor(0, TechLevel.Spacer, new ExpantaNum("1e9"), 0L);
+        game.State.RestorePopulationForEditor(new ExpantaNum(100000));
+        CompleteAllResearch(research);
+        PurchaseAllWorkshops(workshop);
+        BuildingDef source = DataBase<BuildingDef>.Find(sourceId);
+        BuildingDef target = source.UpgradeTo;
+        BuildingDef hub = target.UpgradeTo;
+        if (hub != null)
+        {
+            WorkshopUpgradeDef gate = hub.RequiredWorkshopUpgrades.First(upgrade => !target.RequiredWorkshopUpgrades.Contains(upgrade));
+            workshop.States[gate].SetPurchasedForEditor(false);
+        }
+        ProgressionModifierManager.Rebuild(research.States.Values.ToArray(), workshop.States.Values.ToArray());
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
+            resources.SetAmount(resource, new ExpantaNum("1e8"));
+        foreach ((string id, int count) in new[] { ("CentralPowerStation", 100), ("Caravanserai", 1000), (sourceId, 1) })
+            buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(DataBase<BuildingDef>.Find(id)), new ExpantaNum(count));
+        simulation.ManualTick(1d);
+        Dictionary<ResourceDef, ExpantaNum> before = source.ResourceGenerationRates.ToDictionary(
+            output => output.First, output => resources.GetState(output.First).ProductionRate);
+        ResourceDef input = inputId == null ? null : DataBase<ResourceDef>.Find(inputId);
+        ExpantaNum inputBefore = input == null ? ExpantaNum.Zero : resources.GetState(input).ConsumptionRate;
+        Assert.That(buildings.TryUpgrade(source, ExpantaNum.One, out BuildFailure failure), Is.True,
+            sourceId + ": " + failure);
+        simulation.ManualTick(1d);
+        foreach (KeyValuePair<ResourceDef, ExpantaNum> output in before)
+        {
+            double multiplier = output.Key.Id == primaryOutputId ? minimumOutputMultiplier : 1d;
+            Assert.That(resources.GetState(output.Key).ProductionRate, Is.GreaterThan(output.Value * multiplier),
+                sourceId + " upgrade must increase " + output.Key.Id + " after paid modifiers.");
+            Debug.Log($"REAL_UPGRADE_RATIO {sourceId} -> {target.Id}: {output.Key.Id} before={output.Value}, after={resources.GetState(output.Key).ProductionRate}, minimumFactor={multiplier}");
+        }
+        if (input != null)
+        {
+            Assert.That(resources.GetState(input).ConsumptionRate,
+                Is.GreaterThanOrEqualTo(inputBefore * minimumInputMultiplier),
+                sourceId + " upgrade must retain the higher input throughput.");
+            Debug.Log($"REAL_UPGRADE_INPUT {sourceId} -> {target.Id}: {input.Id} before={inputBefore}, after={resources.GetState(input).ConsumptionRate}, minimumFactor={minimumInputMultiplier}");
+        }
     }
 
     [Test]
@@ -1389,13 +1675,14 @@ public sealed class EconomyIntegrationRegressionTests
         });
         BuildingDef station = DataBase<BuildingDef>.Find("CentralPowerStation");
         BuildingDef mine = DataBase<BuildingDef>.Find("MechanizedCoalMine");
+        const int mineCount = 4; // Keeps the partial power budget measurable after amount quantization.
         game.State.RestorePopulationForEditor(
-            (station.ProductivityConsumption + mine.ProductivityConsumption) /
+            (station.ProductivityConsumption + mine.ProductivityConsumption * mineCount) /
             PopulationState.ProductivityGrantedPerPerson + ExpantaNum.One);
         BuildingDef logistics = CreateBudgetBuilding("CoalPowerLogistics", null, null);
         logistics.SetLogisticsContributionForEditor(stage.LogisticsConsumptionRate * 100);
         foreach (BuildingDef building in new[] { station, mine, logistics })
-            buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(building), 1);
+            buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(building), building == mine ? mineCount : 1);
         resources.SetAmount(DataBase<ResourceDef>.Find("Coal"), new ExpantaNum(0.02d));
 
         buildings.PrepareTickResourceSatisfactionForEditor(1d);
@@ -1408,10 +1695,11 @@ public sealed class EconomyIntegrationRegressionTests
             "Available Coal must keep the authored power cycle and Ultra work running.");
         ExpantaNum paidSeconds = (before - resources.GetAmount(meteredCost.First)) / meteredCost.Second;
         Assert.That(paidSeconds, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(paidSeconds, Is.LessThan(ExpantaNum.One), "The authored cycle must still exercise partial power supply.");
         Assert.That(buildings.GetState(station).Efficiency, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(buildings.GetState(mine).Efficiency, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(buildingDemand + stage.PowerConsumptionRate * paidSeconds <= supply, Is.True,
-            "The authored cycle must fund both the mine and the Ultra work actually paid for.");
+            $"The authored cycle must fund mine demand {buildingDemand} and paid Ultra work {stage.PowerConsumptionRate * paidSeconds} within supply {supply}.");
         AssertBudget(resources.GetState(DataBase<ResourceDef>.Find("Coal")), game.State.HappinessRewardMultiplier);
     }
 

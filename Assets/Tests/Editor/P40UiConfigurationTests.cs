@@ -5,6 +5,25 @@ using UnityEngine.UI;
 
 public sealed class P40UiConfigurationTests
 {
+    [TestCase("")]
+    [TestCase("EraCards/Animal/")]
+    [TestCase("EraCards/StoneAge/")]
+    [TestCase("EraCards/Medieval/")]
+    [TestCase("EraCards/Industrial/")]
+    [TestCase("EraCards/Spacer/")]
+    [TestCase("EraCards/Ultra/")]
+    [TestCase("EraCards/Archotech/")]
+    public void BuildingCards_AuthorInactiveRecommendationStarsWithoutInterceptingInput(string directory)
+    {
+        GameObject prefab = Resources.Load<GameObject>("UI/Kingdom/" + directory + "KingdomUIBuildingCard");
+        Image star = prefab.transform.Find("RecommendationStar")?.GetComponent<Image>();
+        Assert.That(star, Is.Not.Null);
+        Assert.That(star.sprite, Is.SameAs(Resources.Load<Sprite>("Art/UI/Status/BuildingRecommendationStar")));
+        Assert.That(star.gameObject.activeSelf, Is.False);
+        Assert.That(star.raycastTarget, Is.False);
+        Assert.That(star.preserveAspect, Is.True);
+    }
+
     [Test]
     public void OverviewNavigationToolbarPrefabProvidesAuthoredTargetButton()
     {

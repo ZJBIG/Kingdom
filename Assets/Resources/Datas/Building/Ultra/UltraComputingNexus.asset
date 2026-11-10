@@ -49,9 +49,9 @@ MonoBehaviour:
   resourceGenerationRates: []
   resourceConsumptionRates:
   - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    amount: "0.12"
+    amount: "3.6"
   - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
-    amount: "0.05"
+    amount: "0.3"
   requiredResearch:
   - {fileID: 11400000, guid: 7f9c2e4a6b8d4013a5c7e9f102b4d6e8, type: 2}
   - {fileID: 11400000, guid: c4e8a1f7b2d94690ad35ef681c0b7a23, type: 2}

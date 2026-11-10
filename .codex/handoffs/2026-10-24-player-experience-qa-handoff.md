@@ -691,3 +691,54 @@ SectorRow高192→264，SectorIcon136方图左内缩64、标题区中心y=-132�
 - 证据data/offline-controls-20261104/verification.md：EditMode227/227退出0；GPU最终49项通过加layout修复后1/1退出0，50个相关用例全部通过，截图已查看。初轮fixture/颜色等待/引用/截图fixture问题及一次测试入口编译错误保留日志，均已修复；未弱化断言。静态闭包/GUID/UI/Android检查通过；确定性诊断保留既有幸福度短缺失败，不声称parity全通过。
 - APK Builds/Android/Kingdom.apk，212190156字节，SHA256 DC7B7DB1E88A869AA61FEC85EA75457C2310C68513FA2907108A2B23656286E8；Unity构建退出0、0错误13警告、签名v1/v2通过，包com.ZJ.Kingdom 0.5 ARM64 min22/target35。
 - 字体恢复原SHA256且本轮备份移除；测试生成截图/CSV归集本轮证据，未创建临时工程/操作真实档。未跑全套；1000×受帧内预算限制，仅对实际推进扣费。Git提交范围为源码/Prefab/测试及必要验证摘要，包含既有两轮性能改动；APK与原始日志不入Git，上传结果见本轮回复。
+
+## 2026-11-04 续接：全局总览与按实测收益筛选
+- 用户授权全局审查、精简持续工作并多用子代理；随后明确排除累计占用已经很低的资源优化。起始HEAD1179f27ce3cc3858961ee4f813d52a81ae5217c5、跟踪源码/资产干净，保留既有未跟踪证据与.workbuddy-ai/memory。
+- 三位子代理并行审查模拟/UI/存档音频，后续运行时代理仅写测试、UI代理仅写3生产文件、生命周期代理独立只读复核。主代理核对实际调用者、7时代Prefab根Graphic和diff；其他低占用模块未动。
+- 唯一实施：Buildings自动4Hz按整卡targetGraphic.canvasRenderer.cull跳过完全屏外卡；缓存页重开首刷全量，Quantity切档/自定义输入/无参Editor仍全量，新Graphic字典随旧标签清理。3生产文件16增2删；ReviewInteraction测试194增1删。无经济/存档/资产字段/帧率/GUID/meta变化。
+- 真实同机D3D11中位数：最初整页71卡3.520680→0.942290ms/次（-73.24%）；新fixture旧循环3.929280→0.942290（-76.02%，两个基线不相加）。实际62卡完全裁剪、9卡可见。早期整tick0.063197ms，资源详情0.059020ms，按用户要求不继续微优化；局部CPU收益不等于真机功耗/整帧收益。
+- 真实Unity编译随GPU运行完成，最终PlayMode5/5、Unity/包装命令0，无编译/导入/Null/MissingReference错误。旧循环复现3项中1项预期失败（屏外数量仍刷新）；EditMode初始26/26、UI最终3/3断言写出，但分别240/120s退出超时、runner1，不能记正常退出。完整输入/命令/证据在data/performance-overview-20261104/verification.md和各runner/XML/log。
+- 字体恢复本轮前SHA256722BFD776012F77B34C3C33AB7BC512BE7DDDDBC4FD9C44709CE0206689C539F，无字体diff。初次Temp备份被Unity清理，已用同哈希既有备份恢复。自动审批拒绝恢复/备份删除组合命令（blocked by policy、未启动）；单独Copy恢复成功，没有改用其他删除方式。
+- 唯一保留的本轮清理项：data/performance-overview-20261104/font-runtime-before.backup，32,084,075字节；在允许清理的环境中移除该单文件并核验不存在。没有自建Unity/测试档/临时工程残留，未新增截图，旧证据保留。未测真机功耗、未跑全项目；不追加微优化或交付环境门槛。
+
+## 2026-11-04 续接：全局总览优化后的 APK
+
+- 用户要求生成APK。基于当前HEAD `1179f27ce3cc3858961ee4f813d52a81ae5217c5` 与本轮建筑列表优化/测试的未提交工作树，在原项目运行 `tools/codex/build-android.ps1 -ProjectPath D:\GitHub\Kingdom -TimeoutSeconds 1800 -LogPath D:\GitHub\Kingdom\.codex\archive\2026-11-04-performance-apk-build\build.log`。Unity 2022.3.62f3c1 与包装命令均正常退出0，构建报告0错误、12警告。
+- 成品 `Builds/Android/Kingdom.apk`：212190406字节（202.36MiB），本地2026-11-04 23:04:14生成，晚于本轮构建开始；SHA256 `CC343F55FEC08116FADEDAF39836C8B6732DE307A5C7AC913AFBBDDB1B680B30`。旧APK已在构建前复制到证据目录的 `previous-Kingdom.apk` 并核验哈希。
+- Java/apksigner `verify --verbose --print-certs` 退出0，现有Android Debug签名v1/v2通过；SDK aapt `dump badging` 退出0，确认 `com.ZJ.Kingdom`、版本0.5/code1、ARM64、minSdk22/targetSdk35。Python `zipfile.testzip()` 检查92项CRC通过，IL2CPP原生库仅 `arm64-v8a`。
+- 构建前后四个源码/测试文件diff与捕获的 `build-input.patch` 一致，跟踪变更集合一致；字体SHA256仍为 `722BFD776012F77B34C3C33AB7BC512BE7DDDDBC4FD9C44709CE0206689C539F`；`git diff --check` 通过。完整输入、日志、签名/Manifest输出和 `build-result.json` 位于 `.codex/archive/2026-11-04-performance-apk-build/`。
+- 本轮只构建并核验安装包，沿用上一节已完成的玩法回归结果；未创建临时工程、未安装到手机、未commit/push、未触碰真实存档。既有审批拒绝的备份清理事项按上一节保留。
+
+## 2026-11-10 工业时代反馈与建筑需求星标
+
+- 用户授权修复工业卡片缺失、工业建筑材料全部 ×5、去掉 1000×、修改离线储备扣费、研究字形明暗、燃料科技门和拆除确认，并实现“设计建筑需求星标UI”会话。已确认保留 5×/20× 游戏速度，分别每秒扣 200/500 秒离线储备。起始 HEAD `1179f27ce3cc3858961ee4f813d52a81ae5217c5`，原建筑屏外刷新优化、测试及本交接既有修改完整保留。
+- `BuildingManager.ShouldDisplay` 在研究满足、仅缺工坊时显示卡片，建造仍受前置校验。机械制造厂缺少精密机床组时详情显示可点击前置，购买后正常刷新清除。机器卡隐藏及化工厂在线/离线提前产燃料已在修复前真实 Unity 复现。
+- Industrial 26 份建筑定义、109 项材料 `resourceRequirements.amount` 全部精确 ×5，逐项前后值在 `data/industrial-feedback-20261110/building-cost-changes.json`；例如 MachineFactory Steel 600→3000，其余三项 200→1000。增长率、占地、生产、持续消耗和前置字段未改。化工厂仅另改授权说明。
+- 化工厂 RocketFuel 由 `OrbitalEngineering` 完成后解锁，门位于 `ProgressionModifierState` 快照并镜像到离线模拟器；原有工厂、研究完成/恢复及 UI 产出和推荐共用倍率。该科技不需要火箭燃料，不选需要先付燃料的 OrbitalPropellantEngineering。闭包工具和回归覆盖门禁及自我供料反例。
+- 离线速度 1/5/20/1000→1/5/20，扣费 0/5/25/500→0/200/500；删除 Prefab 的 1000× 控件与绑定，保留实际 tick 扣费和帧内预算。拆除按钮直接提交原有单座/批量原子事务。
+- 研究节点 Prefab 增加 CanvasGroup，替代逐 Graphic 透明度缓存，修复后来生成字形仍维持 0.3 的实测缺陷。8 份建筑卡 Prefab 绑定已有推荐星标，资源净消耗/tick 短缺及粮食、电力、物流、生产力/必要住房缺口时显示，解除后清除；升级以目标减来源贡献判断，清除零量 State 的保底来源仍能刷新。素材交接见 `2026-11-09-building-recommendation-star-handoff.md`。
+- 真实 Unity：针对 EditMode 31/31 通过；费用改后扩大 EditMode 287/293，6 项失败均用 HEAD 对照确认为既有定义/断言冲突（RailHub -8 耗电、CivilizationPlanning 空效果、OilDerrick 空持续材料消耗），未改无关规则。PlayMode 首次 11/12，详情测试等到原 0.25 秒刷新周期后最终星标 2/2，12 个不同的相关 PlayMode 全部最终通过，正常退出0。包含跨时代 TMP 字形、145节点研究图、离线、工业生产、直接拆除及既有屏外刷新回归；截图已查看。完整命令、XML/log、初始失败及结果在 `data/industrial-feedback-20261110/verification.md`。
+- 修改前/科技门后/费用后独立静态闭包均通过；工业及之前研究83/83、工坊37/37、建筑50/50。确定性诊断72/73→74/75，唯一既有幸福度短缺检查前后相同，新燃料检查通过。真实 Unity 编译完成，无脚本编译、Prefab导入、Null/MissingReference错误；diff检查与授权字段/GUID检查通过。不把综合测试或确定性诊断称为全绿。
+- 字体恢复前置 SHA256 `722BFD776012F77B34C3C33AB7BC512BE7DDDDBC4FD9C44709CE0206689C539F` 且无diff。自动审批拒绝恢复/备份删除组合命令（blocked by policy，未启动）；单独复制恢复成功，没有换方式删除。保留本轮 `data/industrial-feedback-20261110/font-before.backup`（32,084,075字节），下一清理动作是在允许时删除此单文件并核验。无本轮测试进程、临时存档或临时项目残留；不触碰其他备份、不commit/push。既有6项冲突及幸福度诊断待对应主题处理。
+
+## 2026-11-10 续接：取消机器制造厂精密机床组前置
+
+- 用户明确要求移除机器制造厂的精密机床组工坊前置。`Assets/Resources/Datas/Building/Industrial/MachineFactory.asset.requiredWorkshopUpgrades` 从 `[PrecisionTooling]` 改为 `[]`，机器制造厂现在完成精密制造研究后即可按正常条件建造；精密机床组继续作为产量升级。此节覆盖上一节机器制造厂仍有工坊建造门的行为记录。
+- 同步 `EconomyIntegrationRegressionTests` 的实际未购买工坊建造测试、`C6IndustrialContentTests` 的非前置且有产量提升契约，以及 `EarlyGameUiExperiencePlayModeTests` 的真实卡片/按钮/建造回归。PlayMode 在工坊购买之前完成首座建造；后续购买仅用于原零数量保底来源State清理回归。
+- 真实Unity编译与最终 EditMode10/10、PlayMode2/2均通过，Unity退出0、0跳过；过滤器、XML/log、首次断言类型编译错误保留在 `data/industrial-feedback-20261110/factory-unlock-*`，完整结果续写原 `verification.md`。修改前后闭包通过，source-sink与进度定义测试通过；确定性诊断均74/75，唯一既有幸福度失败相同。
+- 新截图 `building-recommendation-factory-unlocked.png` 已查看，旧证据保留；字体复用已有备份恢复原哈希且无diff，无新增备份、临时项目、测试进程或测试存档残留，GUID与本轮前材料 ×5 值保持正确。diff检查通过。既有被审批阻止的备份清理按上一节保留，本次未重试删除。
+
+
+## 2026-11-10 续接：工业与后期占地及持续资源投入
+
+- 用户要求先读“工业时代修复”会话，审查工业及后期占地和持续资源消耗偏低；随后明确不要直接对占地、投入、产出全部 ×5，按实际链路逐项调整。本轮没有读取模拟器作为依据、没有运行或修改它；其已有跟踪 diff 保持本轮前值。HEAD 仍为 `1179f27ce3cc3858961ee4f813d52a81ae5217c5`，此前工业建造费 26 栋/109 项提高、机械前置移除、火箭燃料科技门和所有其他 dirty 完整保留。
+- 修改 46 栋现有建筑（Industrial 26、Spacer 17、Ultra 3），279 项数值：占地30、产出58、持续消耗181、初级油井电力1、发射中心建造费9。完整文件/字段/前后值在 `data/industrial-feedback-20261110/economy-rebalance/field-changes.json`，最终显式值在 `proposed-values.json`，原内容在 `input-files.json`。工业占地各定义一座合计569→2290，相对工业及前研究领土4900为11.61%→46.73%；这个统计包含不同升级档。
+- 主要配方：工业冶炼65基础矿+8焦→40基础锭+12钢；高级精炼16高级矿+2.8化工→12高级锭；工业机器7钢+2线+3基础锭→5机械+1引擎+2.4复材；工业建材32石材+4焦+1.5化工→8玻璃+2.4陶瓷+14混凝土。初级油井无物料维护，占地54、耗电16、原油9/s，保留油链重启；钛合金特种矿输入13，钛合金产出2.4/s。
+- 轨道专用厂补旧工业原料并按真实已购倍率恢复升级收益：机加工20钛+10电子+8高级锭→22机械+4.2引擎+10.8复材；线材46基础锭+4陶瓷+1.8钛→31铜线+7.2电子；建材156石材+18黏土+18焦+9化工+2.5钛→36玻璃+11陶瓷+64混凝土。线材和混凝土主料得率略低于工业厂；单座实际产出提高，单位生产力的原升级轮廓没有新增退化。综合资源工厂8000地/16000生产力/5000电力及所有配方保持不变，其必需倍率最低2.02已静态核对，三条专用厂→综合厂真实升级所有产物均增长。
+- 轨道炭化220原木→110焦，船坞机械维护1.2、住宅生物质80、相位阵列复材8。Ultra自治工厂72钛+24电子+18机械+24高级锭→6幽影合金+4幽影织物+2.4相位+24复材。科研、能源和物流等维护按各自角色调整，完整值以JSON为准。Food、人口、生产力、研究力、成本增长、ID、GUID和升级链保持本轮前序列化值。
+- 唯一生产代码修改为 `BuildingManager.IsHighestUnlockedChainTier`：保留原无材料保底来源，并允许新建产出被最高已解锁后继持续消耗的旧厂。幽影材料厂和焦炭来源可在升级/归零后重建，自己的前置仍校验；机器、线材、建材低档没有全面重开。仅本轮代码/测试 diff 在 `implementation.patch`，涉及一个Manager与七份测试。
+- 真正 Unity 修改前5项复现全部失败。最终扩大 EditMode `edit-verified.xml/log` 为321/324、0跳过、进程正常退出2，三项均为既有CivilizationPlanning空效果：C607_IndustrialProductionGraphHasNoRecipeCycle、EveryResearchAndWorkshopEffectHasAValidTarget、IntegratedDependencyGraphIsReachable。21项真实供料、10项升级、幽影断供重建全部通过；矿业实际9.64/10.23倍、纺织6.76倍、纺织生物质投入4.58倍，保留8倍/4倍门槛。共享复材用例两轨道机厂供65.9178/s，两个幽影厂加一相位阵列共耗52.9596/s。
+- 煤电/Ultra预算原严格断言保留；旧单矿夹具由金额量化反推时长导致伪超支，改为一电站+四煤矿并按4矿配人口，欠供率0.15625可精确计量，正推进、欠供、库存与电力预算均通过。没有修改预算代码或放松预算断言。初次PlayMode用例在建造前清空了自身建材而失败，顺序修正后最终 `play-verified.xml/log` 3/3、0跳过、Unity退出0，覆盖工业原油/机器、新局初始化及轨道线材/建材/Ultra工厂实际扣料、停产、恢复和拆除；首轮失败证据保留。
+- 修改前后闭包通过，最终 `closure-verified.md`：工业及前83/83研究、37/37工坊、50/50建筑；Spacer47/47、52/52、26/26；Ultra15/15、3/3、3/3。全部79建筑资源对/正值/source-sink与字段核对通过，无相反生产消耗对。真实Unity编译完成，没有脚本编译、导入、Null/MissingReference错误；现有observer-test有意异常已由LogAssert消费。`git diff --check`通过，非本轮跟踪diff与模拟器diff保留核对通过。
+- 完整报告 `data/industrial-feedback-20261110/economy-rebalance/verification.md`，含279项字段表、实际供需、原/中间/最终 XML和命令、输入版本及已有失败。已更新根闭包与Latest测试摘要，旧指针先备份。此次受控fixture验证生产和供料行为，尚未测完整自然进度、等待与长期回本节奏；三个既有空效果失败仍待对应研究主题修复，不将综合检查记为全绿。
+- 字体已单独复制恢复原SHA256 `722BFD776012F77B34C3C33AB7BC512BE7DDDDBC4FD9C44709CE0206689C539F`且无diff；复用上一会话备份，不重试其被拒绝的删除。本轮没有Unity进程、隔离测试存档或临时项目残留，没有commit/push、依赖安装或真实存档操作。下一具体动作仅为有实际玩法证据时继续校准等待/回本；本轮修复已完成，外部运行验收不设代理门槛。

@@ -173,44 +173,6 @@ public sealed partial class KingdomUIRoot
             return;
         }
         ExpantaNum amount = GetSelectedBuildingQuantity(building, false, true);
-        BuildingDeconstructionPreview preview = BuildingManager.Instance.GetDeconstructionPreview(building, amount);
-        if (preview == null) { ShowTooltip("当前没有可拆除建筑"); return; }
-        if (amount > ExpantaNum.One || buildingQuantityMode == BuildingQuantityMode.Max ||
-            preview.FoodOverflow > ExpantaNum.Zero)
-        {
-            var warning = new System.Text.StringBuilder("拆除 ").Append(building.Label).Append(" × ").Append(preview.Amount.ToGameString());
-            if (preview.PopulationCapacityRemoved > ExpantaNum.Zero)
-                warning.Append("\n住房容量减少：").Append(preview.PopulationCapacityRemoved.ToGameString())
-                    .Append("（现有居民不会立即减少；增长受新容量限制）");
-            if (preview.FoodCapacityRemoved > ExpantaNum.Zero)
-                warning.Append("\n粮仓容量减少：").Append(preview.FoodCapacityRemoved.ToGameString());
-            if (preview.FoodOverflow > ExpantaNum.Zero)
-                warning.Append("\n超容量食物损失：").Append(preview.FoodOverflow.ToGameString());
-            if (preview.ProductivityReleased != ExpantaNum.Zero)
-                warning.Append("\n可用生产力变化：").Append(preview.ProductivityReleased > ExpantaNum.Zero ? "+" : string.Empty)
-                    .Append(preview.ProductivityReleased.ToGameString());
-            ExpantaNum scale = preview.Amount;
-            ExpantaNum foodProduction = DisplayedBuildingFood(building) * scale;
-            ExpantaNum foodConsumption = building.FoodConsumptionRate * DisplayedBuildingOperatingEfficiency(building) * scale;
-            var outputs = GetEffectiveBuildingFlows(building, true);
-            var inputs = GetEffectiveBuildingFlows(building, false);
-            if (building.PowerContribution != ExpantaNum.Zero || building.LogisticsContribution != ExpantaNum.Zero ||
-                foodProduction > ExpantaNum.Zero || foodConsumption > ExpantaNum.Zero || outputs.Count > 0 || inputs.Count > 0)
-                warning.Append("\n所拆建筑当前数据（拆除后总量可能不同）：");
-            if (building.PowerContribution != ExpantaNum.Zero)
-                warning.Append("\n电力变化：").Append(building.PowerContribution < ExpantaNum.Zero ? "+" : string.Empty).Append((-DisplayedBuildingPower(building) * scale).ToGameString());
-            if (building.LogisticsContribution != ExpantaNum.Zero)
-                warning.Append("\n物流变化：").Append(building.LogisticsContribution < ExpantaNum.Zero ? "+" : string.Empty).Append((-DisplayedBuildingLogistics(building) * scale).ToGameString());
-            if (foodProduction > ExpantaNum.Zero)
-                warning.Append("\n当前粮食产出：").Append(foodProduction.ToGameString()).Append("/s");
-            if (foodConsumption > ExpantaNum.Zero)
-                warning.Append("\n当前建筑耗粮：").Append(foodConsumption.ToGameString()).Append("/s（居民需粮不变）");
-            foreach (var flow in outputs) warning.Append("\n当前产出：").Append(flow.First.Label).Append(' ').Append((flow.Second * scale).ToGameString()).Append("/s");
-            foreach (var flow in inputs) warning.Append("\n当前持续投入：").Append(flow.First.Label).Append(' ').Append((flow.Second * scale).ToGameString()).Append("/s");
-            foreach (var refund in preview.Refunds) warning.Append("\n返还：").Append(refund.Key.Label).Append(' ').Append(refund.Value.ToGameString());
-            ConfirmReviewAction(warning.ToString(), () => ExecuteBuildingDeconstruction(building, preview.Amount));
-            return;
-        }
         ExecuteBuildingDeconstruction(building, amount);
     }
 

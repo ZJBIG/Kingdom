@@ -127,7 +127,7 @@ public sealed partial class KingdomUIRoot
         public TMP_Text ProgressText;
         public TMP_Text LabelText;
         public Text LegacyLabel;
-        public Graphic[] Graphics;
+        public CanvasGroup OpacityGroup;
         public UITouchTooltip Tooltip;
         public int StateVersion = -1;
     }
@@ -1547,6 +1547,13 @@ public sealed partial class KingdomUIRoot
             Destroy(nodeObject);
             return;
         }
+        CanvasGroup opacityGroup = node.GetComponent<CanvasGroup>();
+        if (opacityGroup == null)
+        {
+            Debug.LogError("[王国界面] ResearchNode prefab is missing its authored CanvasGroup: " + research.Id);
+            Destroy(nodeObject);
+            return;
+        }
         // ResearchTreeSK stores node positions as pixel rectangles. The
         // prefab supplies the complete visual and interaction component tree;
         // only data-driven geometry and presentation values are changed here.
@@ -1584,6 +1591,8 @@ public sealed partial class KingdomUIRoot
         // the click and erase the intended P2 contrast.
         button.transition = Selectable.Transition.None;
         button.interactable = CanInspectResearch(research);
+        // TMP can add glyph submeshes after binding; parent opacity includes those renderers too.
+        opacityGroup.alpha = button.interactable ? 1f : .3f;
         ApplyButtonColors(button);
         button.onClick.RemoveAllListeners();
         button.onClick.AddListener(() => ShowResearchDetails(research));
@@ -1639,7 +1648,6 @@ public sealed partial class KingdomUIRoot
         progress.fillAmount = ResearchProgressFillAmount(state, status);
         // Preserve the authored P3 texture; fillAmount controls its visible area.
         progress.color = Color.white;
-        progress.canvasRenderer.SetAlpha(1f);
         progress.enabled = true;
         progress.gameObject.SetActive(true);
         progressRect.SetAsLastSibling();
@@ -1704,7 +1712,7 @@ public sealed partial class KingdomUIRoot
             ProgressText = progressLabel,
             LabelText = titleLabel,
             LegacyLabel = titleLabel.GetComponent<Text>(),
-            Graphics = node.GetComponentsInChildren<Graphic>(true),
+            OpacityGroup = opacityGroup,
             Tooltip = node.GetComponent<UITouchTooltip>(),
             StateVersion = state == null ? -1 : state.Version
         };
@@ -1715,8 +1723,6 @@ public sealed partial class KingdomUIRoot
             return;
         }
         tooltip.SetTooltip(CanInspectResearch(research) ? research.Description : "进入" + research.TechLevel.GetDescription() + "后开放");
-        foreach (Graphic graphic in researchNodeVisualReferences[research].Graphics)
-            if (graphic != null) graphic.canvasRenderer.SetAlpha(button.interactable ? 1f : .3f);
     }
 
     private static Image[] CreateResearchNodeBorder(RectTransform node)
@@ -1894,9 +1900,8 @@ public sealed partial class KingdomUIRoot
             if (visualReferences != null)
             {
                 visualReferences.StateVersion = stateVersion;
-                if (visualReferences.Graphics != null)
-                    foreach (Graphic graphic in visualReferences.Graphics)
-                        if (graphic != null) graphic.canvasRenderer.SetAlpha(accessible ? 1f : .3f);
+                if (visualReferences.OpacityGroup != null)
+                    visualReferences.OpacityGroup.alpha = accessible ? 1f : .3f;
                 visualReferences.Tooltip?.SetTooltip(accessible ? research.Description : "进入" + research.TechLevel.GetDescription() + "后开放");
             }
             Image surface = visualReferences?.Surface ?? button.targetGraphic as Image;
@@ -1923,7 +1928,6 @@ public sealed partial class KingdomUIRoot
                 if (Mathf.Abs(progressImage.fillAmount - fill) > 0.0001f)
                     progressImage.fillAmount = fill;
                 SetColorIfChanged(progressImage, Color.white);
-                progressImage.canvasRenderer.SetAlpha(accessible ? 1f : .3f);
                 progressImage.enabled = true;
                 progress.gameObject.SetActive(true);
                 // Keep the progress fill on top of its era frame, but only

@@ -123,6 +123,8 @@ public sealed partial class KingdomUIRoot
         for (int i = 0; i < source.Count; i++)
         {
             Pair<ResourceDef, ExpantaNum> flow = source[i];
+            if (output && modifiers.GetBuildingResourceProductionMultiplier(building, flow.First) <= ExpantaNum.Zero)
+                continue;
             ExpantaNum multiplier = output
                 ? DisplayedBuildingResourceMultiplier(building, flow.First)
                 : productionMultiplier;
@@ -234,6 +236,13 @@ public sealed partial class KingdomUIRoot
             text.AppendLine(building.Label);
             text.AppendLine(building.Description);
         }
+        if (useCompactBuildingDetails && BuildingManager.Instance != null &&
+            !BuildingManager.Instance.ArePrerequisitesMet(building, out BuildFailure prerequisiteFailure) &&
+            prerequisiteFailure == BuildFailure.WorkshopPrerequisiteIncomplete)
+        {
+            text.AppendLine("工坊前置");
+            AppendWorkshopPrerequisites(text, building.RequiredWorkshopUpgrades);
+        }
         AppendBuildingCapacityRequirements(text, building);
         AppendBuildingBasicAttributes(text, building);
         if (state != null && state.Amount > ExpantaNum.Zero)
@@ -310,13 +319,16 @@ public sealed partial class KingdomUIRoot
     {
         int outputCount = 0;
         foreach (var output in building.ResourceGenerationRates)
-            if (output.First != null && output.Second > ExpantaNum.Zero) outputCount++;
+            if (output.First != null && output.Second > ExpantaNum.Zero &&
+                ProgressionModifierManager.Current.GetBuildingResourceProductionMultiplier(building, output.First) > ExpantaNum.Zero)
+                outputCount++;
         if (building.FoodProductionRate > ExpantaNum.Zero) outputCount++;
         if (building.ResearchPowerGranted > ExpantaNum.Zero) outputCount++;
         if (building.PowerContribution > ExpantaNum.Zero) outputCount++;
         if (building.LogisticsContribution > ExpantaNum.Zero) outputCount++;
         foreach (var output in building.ResourceGenerationRates)
-            if (output.First != null && output.Second > ExpantaNum.Zero)
+            if (output.First != null && output.Second > ExpantaNum.Zero &&
+                ProgressionModifierManager.Current.GetBuildingResourceProductionMultiplier(building, output.First) > ExpantaNum.Zero)
                 AppendEfficiency(output.First.Label, DisplayedBuildingResourceMultiplier(building, output.First));
         if (building.FoodProductionRate > ExpantaNum.Zero)
             AppendEfficiency("<sprite=\"HudFood\" index=0>", DisplayedBuildingFood(building) / building.FoodProductionRate);
@@ -801,6 +813,7 @@ public sealed partial class KingdomUIRoot
         ProgressionVisibilityRules.EraResearchId => "开放时代页：查看时代跃迁目标与所需条件。",
         ProgressionVisibilityRules.ProductionResearchId => "开放生产页：查看原料来源、持续投入与上下游生产链。",
         "Calendar" => "显示聚落历法日期，记录文明发展的岁月。",
+        "OrbitalEngineering" => "解锁化工厂火箭燃料生产。",
         _ => string.Empty
     };
 
@@ -1246,6 +1259,11 @@ public sealed partial class KingdomUIRoot
     {
         if (detailBody == null || building == null)
             return;
+        if (useCompactBuildingDetails)
+        {
+            SetBuildingDetailBody(building, BuildingManager.Instance?.GetState(building));
+            return;
+        }
         StringBuilder researchRows = new();
         AppendResearchPrerequisites(researchRows, building.RequiredResearch);
         ReplaceDetailSection("研究前置\n", building.RequiredWorkshopUpgrades.Count > 0 ? "工坊前置\n" : null, researchRows.ToString());

@@ -29,7 +29,59 @@ public static class ValidationSuite
         CheckWorkshopProjectPrerequisites(report);
         CheckInteriorExploration(report);
         CheckSignedBuildingFlows(report);
+        CheckChemicalRocketFuelGate(report);
         return report;
+    }
+
+    private static void CheckChemicalRocketFuelGate(ValidationReport report)
+    {
+        foreach (bool offline in new[] { false, true })
+        {
+            var snapshot = BudgetSnapshot();
+            snapshot.RuntimeState.TechLevel = "Industrial";
+            snapshot.Resources[0].Id = "Chemical";
+            snapshot.Resources[1].Id = "Explosives";
+            snapshot.Resources.Add(new ResourceSnapshot
+            {
+                Id = "RocketFuel", Guid = 3.ToString("x32"),
+                AssetPath = "fixture/RocketFuel.asset", TechLevel = "Spacer"
+            });
+            var plant = BudgetBuilding("ChemicalPlant", "", "0", "Chemical", "1.5");
+            plant.ResourceGenerationRates.Add(new AmountSnapshot { ResourceId = "Explosives", Value = "0.35" });
+            plant.ResourceGenerationRates.Add(new AmountSnapshot { ResourceId = "RocketFuel", Value = "0.25" });
+            snapshot.Buildings.Add(plant);
+            snapshot.Research.Add(new ResearchSnapshot
+            {
+                Id = "OrbitalEngineering", Guid = 300.ToString("x32"),
+                AssetPath = "fixture/OrbitalEngineering.asset", TechLevel = "Spacer",
+                BaseCost = "1", AdvancesTechLevel = true
+            });
+            var savedOrbital = new ResearchStateSnapshot { ResearchId = "OrbitalEngineering", CostPaid = true };
+            snapshot.InitialState.Research.Add(savedOrbital);
+            snapshot.SaveState.Research.Add(savedOrbital);
+            snapshot.RuntimeState.Research.Add(savedOrbital);
+            var core = BudgetCore(snapshot, "0");
+            void Advance(SimulationCore target)
+            {
+                if (offline) target.RunOffline(1d);
+                else target.Tick(SimulationMode.Realtime, 1d, 1d);
+            }
+            Advance(core);
+            var epsilon = new ExpantaNum(1e-8d);
+            bool passed = core.State.GetResource("RocketFuel").Abs() < epsilon &&
+                core.State.GetResource("Chemical") > ExpantaNum.Zero &&
+                core.State.GetResource("Explosives") > ExpantaNum.Zero;
+            core.State.SetResearchState("OrbitalEngineering", ExpantaNum.One, true, true);
+            Advance(core);
+            passed &= core.State.GetResource("RocketFuel") > ExpantaNum.Zero;
+            savedOrbital.Progress = "1";
+            savedOrbital.Completed = true;
+            var restored = SimulationCore.FromSnapshot(snapshot);
+            Advance(restored);
+            passed &= restored.State.GetResource("RocketFuel") > ExpantaNum.Zero;
+            AddResult(report, $"chemical rocket fuel research gate {(offline ? "offline" : "realtime")}", passed,
+                "Chemical and explosives remain available before orbital engineering; completion and snapshot restore unlock fuel from the existing plant.");
+        }
     }
 
     private static void CheckSignedBuildingFlows(ValidationReport report)

@@ -225,6 +225,15 @@ public sealed partial class KingdomUIRoot
             SetBuildingActionButtonState(deconstructButton, hasAmount);
             buildingDeconstructButtons[building] = deconstructButton;
             buildingAmountLabels[building] = row.transform.Find("Amount")?.GetComponent<TMP_Text>();
+            buildingRowGraphics[building] = cardButton.targetGraphic;
+            Image recommendationStar = row.transform.Find("RecommendationStar")?.GetComponent<Image>();
+            if (recommendationStar == null)
+                Debug.LogError("[王国界面] BuildingCard prefab is missing authored RecommendationStar.");
+            else
+            {
+                buildingRecommendationStars[building] = recommendationStar;
+                RefreshBuildingRecommendation(building);
+            }
             buildingEffectLabels[building] = row.transform.Find("Effect")?.GetComponent<TMP_Text>();
         }
         lastBuildingDisplaySignature = BuildBuildingDisplaySignature().ToString();
@@ -232,6 +241,104 @@ public sealed partial class KingdomUIRoot
     }
 
     private const string LandIcon = "<sprite=\"HudTerritory\" index=0>";
+
+    private void RefreshBuildingRecommendation(BuildingDef building)
+    {
+        if (!buildingRecommendationStars.TryGetValue(building, out Image star) || star == null)
+            return;
+        bool recommended = ShouldRecommendBuilding(building);
+        if (star.gameObject.activeSelf != recommended)
+            star.gameObject.SetActive(recommended);
+    }
+
+    private static bool ShouldRecommendBuilding(BuildingDef building)
+    {
+        BuildingManager buildings = BuildingManager.Instance;
+        ResourceManager resources = ResourceManager.Instance;
+        GameManager game = GameManager.Instance;
+        if (buildings == null || resources == null || game == null ||
+            building == null || building is SectorBuildingDef)
+            return false;
+        BuildingDef previous = null;
+        if (buildings.TryGetUnlockedUpgradeTarget(building, out BuildingDef target))
+        {
+            previous = building;
+            building = target;
+        }
+        else if (!buildings.CanConstructNew(building))
+            return false;
+
+        ProgressionModifierState modifiers = ProgressionModifierManager.Current;
+        foreach (Pair<ResourceDef, ExpantaNum> output in building.ResourceGenerationRates)
+        {
+            if (output.First == null || output.Second <= ExpantaNum.Zero ||
+                modifiers.GetBuildingResourceProductionMultiplier(building, output.First) <= ExpantaNum.Zero ||
+                !resources.States.TryGetValue(output.First, out ResourceState resource))
+                continue;
+            if ((resources.GetNetRate(resource) < ExpantaNum.Zero ||
+                 resources.GetTickSatisfaction(output.First) < ExpantaNum.One) &&
+                RecommendationResourceProduction(building, output.First, modifiers) >
+                RecommendationResourceProduction(previous, output.First, modifiers))
+                return true;
+        }
+
+        GameState state = game.State;
+        if (state.FoodNetRate - buildings.StrategicFoodConsumptionRate < ExpantaNum.Zero &&
+            RecommendationFoodContribution(building, modifiers, state) > RecommendationFoodContribution(previous, modifiers, state))
+            return true;
+        if (state.PowerProductionRate * state.HappinessRewardMultiplier < buildings.TotalPowerDemand &&
+            RecommendationUtilityContribution(building, true, modifiers, state) >
+            RecommendationUtilityContribution(previous, true, modifiers, state))
+            return true;
+        if (state.LogisticsProductionRate * state.HappinessRewardMultiplier < buildings.TotalLogisticsDemand &&
+            RecommendationUtilityContribution(building, false, modifiers, state) >
+            RecommendationUtilityContribution(previous, false, modifiers, state))
+            return true;
+
+        ExpantaNum capacityGain = building.PopulationCapacityGranted - (previous?.PopulationCapacityGranted ?? ExpantaNum.Zero);
+        ExpantaNum productivityGain = building.ProductivityGranted - building.ProductivityConsumption -
+            (previous == null ? ExpantaNum.Zero : previous.ProductivityGranted - previous.ProductivityConsumption);
+        if (productivityGain <= ExpantaNum.Zero && capacityGain <= ExpantaNum.Zero)
+            return false;
+        ExpantaNum productivityGap = -buildings.AvailableProductivity;
+        if (productivityGap <= ExpantaNum.Zero)
+            return false;
+        if (productivityGain > ExpantaNum.Zero)
+            return true;
+        ExpantaNum perPerson = PopulationState.ProductivityGrantedPerPerson * modifiers.PopulationProductivityMultiplier;
+        ExpantaNum roomToGrow = ExpantaNum.Max(ExpantaNum.Zero,
+            state.Population.PopulationCapacity - state.Population.Population);
+        return roomToGrow * perPerson < productivityGap &&
+            capacityGain > ExpantaNum.Zero && capacityGain * perPerson + productivityGain > ExpantaNum.Zero;
+    }
+
+    private static ExpantaNum RecommendationResourceProduction(
+        BuildingDef building, ResourceDef resource, ProgressionModifierState modifiers)
+    {
+        if (building == null) return ExpantaNum.Zero;
+        foreach (Pair<ResourceDef, ExpantaNum> output in building.ResourceGenerationRates)
+            if (output.First == resource)
+                return output.Second * modifiers.GetBuildingProductionMultiplier(building) *
+                    modifiers.GetBuildingResourceProductionMultiplier(building, resource);
+        return ExpantaNum.Zero;
+    }
+
+    private static ExpantaNum RecommendationFoodContribution(
+        BuildingDef building, ProgressionModifierState modifiers, GameState state) =>
+        building == null ? ExpantaNum.Zero :
+            (building.FoodProductionRate * modifiers.GlobalFoodProductionMultiplier * state.Events.ProductionMultiplier -
+             building.FoodConsumptionRate) * modifiers.GetBuildingProductionMultiplier(building);
+
+    private static ExpantaNum RecommendationUtilityContribution(
+        BuildingDef building, bool power, ProgressionModifierState modifiers, GameState state)
+    {
+        if (building == null) return ExpantaNum.Zero;
+        ExpantaNum contribution = power ? building.PowerContribution : building.LogisticsContribution;
+        if (contribution <= ExpantaNum.Zero) return contribution;
+        return contribution * state.HappinessRewardMultiplier * (power
+            ? modifiers.PowerMultiplier * modifiers.GetBuildingPowerProductionMultiplier(building)
+            : modifiers.GlobalLogisticsMultiplier * modifiers.GetBuildingLogisticsProductionMultiplier(building));
+    }
 
     private const string LandShortageIcon = "<sprite=\"BuildingStatusIcons\" index=3>";
 

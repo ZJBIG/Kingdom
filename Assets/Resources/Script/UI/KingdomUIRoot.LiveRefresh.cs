@@ -333,7 +333,7 @@ public sealed partial class KingdomUIRoot
             float branchStart = Time.realtimeSinceStartup;
             long liveValuesAllocatedStart = GC.GetAllocatedBytesForCurrentThread();
 #endif
-            RefreshLiveCardValues();
+            RefreshLiveCardValues(true);
             if (populatedPage == "Production") RefreshProductionVisibilityIfNeeded();
 #if UNITY_EDITOR
             uiRefreshAllocatedBytes += Math.Max(0L, GC.GetAllocatedBytesForCurrentThread() - liveValuesAllocatedStart);
@@ -1407,6 +1407,7 @@ public sealed partial class KingdomUIRoot
     public void RefreshAutomaticUIForEditor() => RefreshUI(false);
     public void RefreshTopInfoForEditor() => RefreshTopInfo();
     public void RefreshLiveCardValuesForEditor() => RefreshLiveCardValues();
+    public void RefreshLiveCardValuesForEditor(bool onlyVisible) => RefreshLiveCardValues(onlyVisible);
     public void EnqueueRecentNoticeForEditor(string notice) => EnqueueRecentNotice(notice);
 #endif
 
@@ -1645,15 +1646,23 @@ public sealed partial class KingdomUIRoot
         storyObservedEraInitialized = false;
     }
 
-    private void RefreshLiveCardValues()
+    private void RefreshLiveCardValues(bool onlyVisible = false)
     {
         // These dictionaries contain rows from pages that are not currently
         // visible. Formatting every building/resource on every live tick
         // creates avoidable ExpantaNum strings and TMP dirties, especially
         // while the research graph owns a touch gesture.
         if (populatedPage == "Buildings" && BuildingManager.Instance != null)
+        {
+            onlyVisible &= !buildingLiveValuesNeedFullRefresh;
             foreach (KeyValuePair<BuildingDef, TMP_Text> pair in buildingAmountLabels)
                 if (pair.Value != null)
+                {
+                    // A clipped label does not mean that the whole card is outside the viewport.
+                    if (onlyVisible && buildingRowGraphics.TryGetValue(pair.Key, out Graphic rowGraphic) &&
+                        rowGraphic != null && rowGraphic.canvasRenderer.cull)
+                        continue;
+                    RefreshBuildingRecommendation(pair.Key);
                     if (BuildingManager.Instance.States.TryGetValue(pair.Key, out BuildingState state))
                     {
                         buildingActionUpgradeModes.TryGetValue(pair.Key, out bool upgrade);
@@ -1676,6 +1685,9 @@ public sealed partial class KingdomUIRoot
                                 available);
                         }
                     }
+                }
+            buildingLiveValuesNeedFullRefresh = false;
+        }
         ResourceManager resourceManager = ResourceManager.Instance;
         if (resourceManager == null)
             return;

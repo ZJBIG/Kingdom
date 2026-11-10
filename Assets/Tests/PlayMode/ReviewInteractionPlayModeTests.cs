@@ -75,7 +75,8 @@ public sealed class ReviewInteractionPlayModeTests
         Transform controls = ui.transform.Find("SafeAreaRoot/Content/PageTool/BuildingControls");
         controls.Find("Quantity_Max").GetComponent<Button>().onClick.Invoke();
         yield return null;
-        RecordUiMedian("building-max-cards", ui.RefreshLiveCardValuesForEditor, 10);
+        RecordBuildingCardVisibility();
+        RecordUiMedian("building-max-cards", () => ui.RefreshLiveCardValuesForEditor(true), 10);
         ui.SetPage("Resources");
         ui.ShowResourceDetailsForEditor(DataBase<ResourceDef>.Find("WoodLog"));
         yield return null;
@@ -94,6 +95,198 @@ public sealed class ReviewInteractionPlayModeTests
         }
         Array.Sort(samples);
         Debug.Log($"[HotPathPerf2] {name} medianMs={samples[3]:F6} iterations={iterations} batches={samples.Length} controlledFixture=true");
+    }
+
+    [UnityTest]
+    public IEnumerator BuildingCards_AutomaticRefreshSkipsOffscreenCardsAndResumesWhenVisible()
+    {
+        yield return Load();
+        yield return PrepareScrollableBuildingCards();
+        ScrollRect scroll = ui.transform.Find("SafeAreaRoot/Content/PageHost").GetComponent<ScrollRect>();
+        ui.RefreshLiveCardValuesForEditor();
+        BuildingDef building = FindOffscreenBuilding(scroll.viewport);
+        BuildingManager manager = BuildingManager.Instance;
+        BuildingState state = manager.GetState(building);
+        RectTransform row = ui.GetDeconstructButtonForEditor(building).transform.parent as RectTransform;
+        TMP_Text amount = row.Find("Amount").GetComponent<TMP_Text>();
+        Button action = row.Find("BuildButton").GetComponent<Button>();
+        string previousAmount = amount.text;
+        Assert.That(action.interactable, Is.True, "The chosen card starts with an affordable single-building action.");
+        manager.SetAmountAndRatesForEditor(state, new ExpantaNum(2));
+        foreach (var cost in building.ResourceRequirements)
+            ResourceManager.Instance.SetAmount(cost.First, ExpantaNum.Zero);
+        ui.RefreshLiveCardValuesForEditor(true);
+        Assert.That(amount.text, Is.EqualTo(previousAmount), "A completely clipped card must skip automatic text and affordability work.");
+        Assert.That(action.interactable, Is.True, "The clipped card keeps its last rendered button state until it becomes visible.");
+
+        CenterCardInViewport(scroll, row);
+        yield return null;
+        Canvas.ForceUpdateCanvases();
+        Assert.That(row.GetComponent<Button>().targetGraphic.canvasRenderer.cull, Is.False);
+        Assert.That(RectInViewport(row, scroll.viewport).Overlaps(scroll.viewport.rect), Is.True);
+        yield return new WaitForSecondsRealtime(.3f);
+        AssertBuildingCardAmount(amount, state);
+        Assert.That(action.interactable, Is.False, "Returning to the viewport must expose the current material shortage within the existing live-refresh period.");
+        foreach (var cost in building.ResourceRequirements)
+            ResourceManager.Instance.SetAmount(cost.First, new ExpantaNum(1e9));
+        manager.SetAmountAndRatesForEditor(state, new ExpantaNum(3));
+        yield return new WaitForSecondsRealtime(.3f);
+        AssertBuildingCardAmount(amount, state);
+        Assert.That(action.interactable, Is.True, "Visible cards must observe replenished materials without reopening the page.");
+
+        RectTransform amountRect = amount.rectTransform;
+        Vector3 originalPosition = amountRect.position;
+        try
+        {
+            Rect amountBounds = RectInViewport(amountRect, scroll.viewport);
+            float shift = scroll.viewport.rect.xMax - amountBounds.xMin + amountBounds.width;
+            amountRect.position += scroll.viewport.TransformVector(new Vector3(shift, 0f, 0f));
+            Canvas.ForceUpdateCanvases();
+            yield return null;
+            Canvas.ForceUpdateCanvases();
+            Assert.That(RectInViewport(amountRect, scroll.viewport).Overlaps(scroll.viewport.rect), Is.False);
+            Assert.That(amount.canvasRenderer.cull, Is.True, "This fixture clips only the amount field using the real viewport mask.");
+            Assert.That(row.GetComponent<Button>().targetGraphic.canvasRenderer.cull, Is.False);
+            Assert.That(action.targetGraphic.canvasRenderer.cull, Is.False);
+            manager.SetAmountAndRatesForEditor(state, new ExpantaNum(4));
+            foreach (var cost in building.ResourceRequirements)
+                ResourceManager.Instance.SetAmount(cost.First, ExpantaNum.Zero);
+            ui.RefreshLiveCardValuesForEditor(true);
+            AssertBuildingCardAmount(amount, state);
+            Assert.That(action.interactable, Is.False, "A clipped amount label must not suppress updates to a visible card and action button.");
+        }
+        finally
+        {
+            amountRect.position = originalPosition;
+            Canvas.ForceUpdateCanvases();
+        }
+    }
+
+    [UnityTest]
+    public IEnumerator BuildingCards_CachedPageAndExplicitRefreshUpdateOffscreenCards()
+    {
+        yield return Load();
+        yield return PrepareScrollableBuildingCards();
+        ScrollRect scroll = ui.transform.Find("SafeAreaRoot/Content/PageHost").GetComponent<ScrollRect>();
+        ui.RefreshLiveCardValuesForEditor();
+        BuildingDef building = FindOffscreenBuilding(scroll.viewport);
+        BuildingManager manager = BuildingManager.Instance;
+        BuildingState state = manager.GetState(building);
+        RectTransform row = ui.GetDeconstructButtonForEditor(building).transform.parent as RectTransform;
+        TMP_Text amount = row.Find("Amount").GetComponent<TMP_Text>();
+        Button action = row.Find("BuildButton").GetComponent<Button>();
+        ui.SetPage("Resources");
+        manager.SetAmountAndRatesForEditor(state, new ExpantaNum(2));
+        foreach (var cost in building.ResourceRequirements)
+            ResourceManager.Instance.SetAmount(cost.First, ExpantaNum.Zero);
+        ui.SetPage("Buildings");
+        Assert.That(ui.GetDeconstructButtonForEditor(building).transform.parent, Is.SameAs(row), "This exercises the existing cached row, rather than a newly populated card.");
+        ui.RefreshLiveCardValuesForEditor(true);
+        AssertBuildingCardAmount(amount, state);
+        Assert.That(action.interactable, Is.False, "The first live refresh after returning must observe state changed on another page.");
+        Canvas.ForceUpdateCanvases();
+        yield return null;
+        Canvas.ForceUpdateCanvases();
+        Assert.That(row.GetComponent<Button>().targetGraphic.canvasRenderer.cull, Is.True);
+
+        manager.SetAmountAndRatesForEditor(state, state.Amount + ExpantaNum.One);
+        foreach (var cost in building.ResourceRequirements)
+            ResourceManager.Instance.SetAmount(cost.First, ExpantaNum.Zero);
+        ui.RefreshLiveCardValuesForEditor();
+        AssertBuildingCardAmount(amount, state);
+        Assert.That(action.interactable, Is.False, "The public no-argument refresh remains a full refresh of clipped cards.");
+    }
+
+    private IEnumerator PrepareScrollableBuildingCards()
+    {
+        for (int frame = 0; frame < 160 && !ui.StoryPageBuiltForEditor; frame++)
+            yield return null;
+        Assert.That(ui.StoryPageBuiltForEditor, Is.True, "Initial research and story warmup must finish before measuring list clipping.");
+        GameManager.Instance.State.AdvanceTechLevelForEditor(TechLevel.Archotech);
+        GameManager.Instance.State.AdjustTerritoryTotalForEditor(new ExpantaNum(1e9));
+        foreach (ResearchState research in ResearchManager.Instance.States.Values)
+            research.SetStatusForEditor(ResearchStatus.Completed);
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
+            ResourceManager.Instance.SetAmount(resource, new ExpantaNum(1e9));
+        foreach (BuildingState building in BuildingManager.Instance.States.Values)
+            BuildingManager.Instance.SetAmountAndRatesForEditor(building, ExpantaNum.One);
+        ui.SetPage("Buildings");
+        ui.transform.Find("SafeAreaRoot/Content/PageTool/BuildingControls/Quantity_One").GetComponent<Button>().onClick.Invoke();
+        ScrollRect scroll = ui.transform.Find("SafeAreaRoot/Content/PageHost").GetComponent<ScrollRect>();
+        scroll.verticalNormalizedPosition = 1f;
+        Canvas.ForceUpdateCanvases();
+        yield return null;
+        Canvas.ForceUpdateCanvases();
+        Assert.That(scroll.viewport.rect.width, Is.GreaterThan(0f));
+        Assert.That(scroll.viewport.rect.height, Is.GreaterThan(0f));
+        Assert.That(scroll.content.rect.height, Is.GreaterThan(scroll.viewport.rect.height), "The real authored list must overflow its viewport.");
+    }
+
+    private BuildingDef FindOffscreenBuilding(RectTransform viewport)
+    {
+        foreach (BuildingDef definition in DataBase<BuildingDef>.All)
+        {
+            Button deconstruct = ui.GetDeconstructButtonForEditor(definition);
+            if (deconstruct == null || definition.ResourceRequirements.Count == 0 ||
+                BuildingManager.Instance.TryGetUnlockedUpgradeTarget(definition, out _) ||
+                BuildingManager.Instance.GetMaxBuildable(definition, ExpantaNum.One) < ExpantaNum.One)
+                continue;
+            RectTransform row = deconstruct.transform.parent as RectTransform;
+            if (row.GetComponent<Button>().targetGraphic.canvasRenderer.cull &&
+                !RectInViewport(row, viewport).Overlaps(viewport.rect))
+                return definition;
+        }
+        Assert.Fail("The authored building list must provide an affordable, fully clipped ordinary construction card.");
+        return null;
+    }
+
+    private void RecordBuildingCardVisibility()
+    {
+        RectTransform viewport = ui.transform.Find("SafeAreaRoot/Content/PageHost").GetComponent<ScrollRect>().viewport;
+        Transform rows = ui.transform.Find("SafeAreaRoot/Content/PageHost/Buildings/DataRows");
+        int total = 0;
+        int culled = 0;
+        for (int i = 0; i < rows.childCount; i++)
+        {
+            RectTransform row = rows.GetChild(i) as RectTransform;
+            if (!row.gameObject.activeInHierarchy || row.Find("BuildButton") == null) continue;
+            total++;
+            if (!row.GetComponent<Button>().targetGraphic.canvasRenderer.cull) continue;
+            Assert.That(RectInViewport(row, viewport).Overlaps(viewport.rect), Is.False, "A fully culled card must have no viewport overlap.");
+            culled++;
+        }
+        Assert.That(culled, Is.GreaterThan(0), "The performance fixture must contain actual clipped cards.");
+        Assert.That(total - culled, Is.GreaterThan(0), "The performance fixture must retain actually visible cards.");
+        Debug.Log($"[HotPathPerf2] building-card-culling total={total} fullyCulled={culled} visible={total - culled} discreteAuthoredRowCounts=true");
+    }
+
+    private static void AssertBuildingCardAmount(TMP_Text amount, BuildingState state)
+    {
+        amount.ForceMeshUpdate(true, true);
+        Assert.That(amount.GetParsedText(), Is.EqualTo(state.Amount.ToGameString()), "The label displays the current discrete building count.");
+    }
+
+    private static void CenterCardInViewport(ScrollRect scroll, RectTransform row)
+    {
+        scroll.StopMovement();
+        Rect bounds = RectInViewport(row, scroll.viewport);
+        scroll.content.position += scroll.viewport.TransformVector(new Vector3(0f, scroll.viewport.rect.center.y - bounds.center.y, 0f));
+        Canvas.ForceUpdateCanvases();
+    }
+
+    private static Rect RectInViewport(RectTransform rect, RectTransform viewport)
+    {
+        Vector3[] corners = new Vector3[4];
+        rect.GetWorldCorners(corners);
+        Vector2 minimum = viewport.InverseTransformPoint(corners[0]);
+        Vector2 maximum = minimum;
+        for (int i = 1; i < corners.Length; i++)
+        {
+            Vector2 point = viewport.InverseTransformPoint(corners[i]);
+            minimum = Vector2.Min(minimum, point);
+            maximum = Vector2.Max(maximum, point);
+        }
+        return Rect.MinMaxRect(minimum.x, minimum.y, maximum.x, maximum.y);
     }
 
     [UnityTest]
@@ -762,52 +955,62 @@ public sealed class ReviewInteractionPlayModeTests
     }
 
     [UnityTest]
-    public IEnumerator BatchDeconstruction_PreviewAndCancelDoNotCommit_ConfirmCommitsOnce()
+    public IEnumerator BatchDeconstruction_CommitsAndRefundsOnceWithoutConfirmation()
     {
         yield return Load();
         BuildingDef building = DataBase<BuildingDef>.Find("WoodHouse");
-        BuildingState state = BuildingManager.Instance.States[building];
-        BuildingManager.Instance.SetAmountAndRatesForEditor(state, new ExpantaNum(10));
+        BuildingManager buildings = BuildingManager.Instance;
+        ResourceManager resources = ResourceManager.Instance;
+        BuildingState state = buildings.States[building];
+        buildings.SetAmountAndRatesForEditor(state, new ExpantaNum(10));
+        BuildingDeconstructionPreview preview = buildings.GetDeconstructionPreview(building, new ExpantaNum(10));
+        Assert.That(preview, Is.Not.Null);
+        Assert.That(preview.Refunds.Count, Is.GreaterThan(0));
+        var before = new Dictionary<ResourceDef, ExpantaNum>();
+        foreach (var refund in preview.Refunds) before.Add(refund.Key, resources.GetAmount(refund.Key));
         ui.SetPage("Buildings");
         ui.transform.Find("SafeAreaRoot/Content/PageTool/BuildingControls/Quantity_Ten").GetComponent<Button>().onClick.Invoke();
         ui.RefreshLiveCardValuesForEditor();
         Button demolish = ui.GetDeconstructButtonForEditor(building);
         Assert.That(demolish, Is.Not.Null);
-        ExpantaNum before = state.Amount;
         demolish.onClick.Invoke();
-        Assert.That(ui.ReviewConfirmationPendingForEditor, Is.True);
-        Assert.That(ui.transform.Find("SafeAreaRoot").GetComponent<CanvasGroup>().interactable, Is.False, "The modal prevents commands beneath it.");
-        Assert.That(state.Amount >= before && state.Amount <= before, Is.True, "Preview preserves inventory.");
-        ClickConfirmation("Cancel");
         Assert.That(ui.ReviewConfirmationPendingForEditor, Is.False);
         Assert.That(ui.transform.Find("SafeAreaRoot").GetComponent<CanvasGroup>().interactable, Is.True);
-        Assert.That(state.Amount >= before && state.Amount <= before, Is.True);
+        Assert.That(state.Amount, Is.EqualTo(ExpantaNum.Zero), "All ten discrete buildings are removed by the first click.");
+        foreach (var refund in preview.Refunds)
+            Assert.That((resources.GetAmount(refund.Key) - before[refund.Key]).ToDouble(),
+                Is.EqualTo(refund.Value.ToDouble()).Within(1e-7));
         demolish.onClick.Invoke();
-        ClickConfirmation("Confirm");
-        Assert.That(state.Amount, Is.LessThan(before));
-        ExpantaNum committed = state.Amount;
-        ClickConfirmation("Confirm");
-        Assert.That(state.Amount >= committed && state.Amount <= committed, Is.True, "A second click has no pending command.");
+        Assert.That(state.Amount, Is.EqualTo(ExpantaNum.Zero), "A stale button cannot remove another discrete building.");
+        foreach (var refund in preview.Refunds)
+            Assert.That((resources.GetAmount(refund.Key) - before[refund.Key]).ToDouble(),
+                Is.EqualTo(refund.Value.ToDouble()).Within(1e-7), "A stale click cannot refund the same buildings twice.");
     }
 
     [UnityTest]
-    public IEnumerator BatchDeconstruction_DescribesRemovedBuildingsCurrentContribution()
+    public IEnumerator SingleGranaryDeconstruction_CommitsFoodOverflowWithoutConfirmation()
     {
         yield return Load();
-        BuildingDef building = DataBase<BuildingDef>.Find("Lumberyard");
-        BuildingState state = BuildingManager.Instance.States[building];
-        BuildingManager.Instance.SetAmountAndRatesForEditor(state, new ExpantaNum(10));
+        BuildingManager buildings = BuildingManager.Instance;
+        BuildingDef building = DataBase<BuildingDef>.Find("Granary");
+        BuildingState state = buildings.EnsureBuilding(building);
+        buildings.SetAmountAndRatesForEditor(state, ExpantaNum.One);
+        GameState game = GameManager.Instance.State;
+        game.RestoreCoreForEditor(game.CalendarDays, game.TechLevel, game.FoodCapacity, game.LastSaveUnixSeconds);
+        ExpantaNum foodBefore = game.FoodAmount;
+        BuildingDeconstructionPreview preview = buildings.GetDeconstructionPreview(building, ExpantaNum.One);
+        Assert.That(preview, Is.Not.Null);
+        Assert.That(preview.FoodOverflow, Is.GreaterThan(ExpantaNum.Zero));
         ui.SetPage("Buildings");
-        ui.transform.Find("SafeAreaRoot/Content/PageTool/BuildingControls/Quantity_Ten").GetComponent<Button>().onClick.Invoke();
+        ui.transform.Find("SafeAreaRoot/Content/PageTool/BuildingControls/Quantity_One").GetComponent<Button>().onClick.Invoke();
         ui.RefreshLiveCardValuesForEditor();
         ui.GetDeconstructButtonForEditor(building).onClick.Invoke();
-        Assert.That(ui.ReviewConfirmationPendingForEditor, Is.True);
-        TMP_Text warning = ui.transform.Find("SafeAreaRoot/ReviewControls/Confirmation/Panel/Viewport/Content/Warning").GetComponent<TMP_Text>();
-        Assert.That(warning.text, Does.Contain("所拆建筑当前数据"));
-        Assert.That(warning.text, Does.Contain("拆除后总量可能不同"));
-        Assert.That(warning.text, Does.Contain("当前产出："));
-        ClickConfirmation("Cancel");
-        Assert.That(state.Amount, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(ui.ReviewConfirmationPendingForEditor, Is.False);
+        Assert.That(ui.transform.Find("SafeAreaRoot").GetComponent<CanvasGroup>().interactable, Is.True);
+        Assert.That(state.Amount, Is.EqualTo(ExpantaNum.Zero), "The single discrete granary is removed immediately.");
+        Assert.That((foodBefore - game.FoodAmount).ToDouble(),
+            Is.EqualTo(preview.FoodOverflow.ToDouble()).Within(1e-7));
+        Assert.That(game.FoodAmount, Is.LessThanOrEqualTo(game.FoodCapacity));
     }
 
     [UnityTest]
@@ -1188,7 +1391,7 @@ public sealed class ReviewInteractionPlayModeTests
         TMP_Text body = ui.transform.Find("SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent/Body").GetComponent<TMP_Text>();
         string currentDetails = body.text;
         Assert.That(futureNode.interactable, Is.False);
-        Assert.That(futureNode.targetGraphic.canvasRenderer.GetAlpha(), Is.LessThan(1f),
+        Assert.That(EffectiveRendererAlpha(futureNode.targetGraphic), Is.LessThan(1f),
             "Future-era nodes remain in the graph but are visibly dimmed.");
         futureNode.onClick.Invoke();
         Assert.That(body.text, Is.EqualTo(currentDetails), "Even a direct event invocation cannot inspect future research.");
@@ -1247,6 +1450,90 @@ public sealed class ReviewInteractionPlayModeTests
         Assert.That(state.Version, Is.EqualTo(version), "Only the era changes, not this research state.");
         Assert.That(node.interactable, Is.True);
         Assert.That(label.text, Is.EqualTo("需前置研究"));
+    }
+
+    [UnityTest]
+    public IEnumerator ResearchEraChange_KeepsLaterCreatedGlyphSubmeshesAtTheNodeOpacity()
+    {
+        yield return Load();
+        BuildingManager buildings = BuildingManager.Instance;
+        buildings.SetAmountAndRatesForEditor(
+            buildings.EnsureBuilding(DataBase<BuildingDef>.Find("WoodHouse")), ExpantaNum.One);
+        ui.SetPage("Research");
+        ResearchDef research = DataBase<ResearchDef>.Find("IndustrialAgriculture");
+        Button node = null;
+        bool ready = false;
+        for (int frame = 0; frame < 600; frame++)
+        {
+            Transform viewport = ui.transform.Find("SafeAreaRoot/Content/PageHost/Research/DataRows/ResearchGraphViewport");
+            node = viewport?.Find("ResearchGraphContent/ResearchNode_" + research.Id)?.GetComponent<Button>();
+            ready = node != null && viewport.GetComponent<UIResearchGraphGesture>().IsInitialized;
+            if (ready) break;
+            yield return null;
+        }
+        Assert.That(ready, Is.True);
+        ui.ShowResearchDetailsForEditor(DataBase<ResearchDef>.Find("StoneProcessing"));
+        yield return null;
+        TMP_Text title = node.transform.Find("Label").GetComponent<TMP_Text>();
+        TMP_FontAsset originalFont = title.font;
+        Material originalMaterial = title.fontSharedMaterial;
+        Font source = Resources.Load<Font>("Fonts/NotoSansSC-Regular");
+        Assert.That(source, Is.Not.Null);
+        // A small atlas deterministically splits the real Chinese title across materials after node binding.
+        TMP_FontAsset font = TMP_FontAsset.CreateFontAsset(source, 36, 4,
+            UnityEngine.TextCore.LowLevel.GlyphRenderMode.SDFAA, 64, 64);
+        Assert.That(font, Is.Not.Null);
+        try
+        {
+            Assert.That(font.TryAddCharacters(research.Label, out string missing), Is.True, missing);
+            title.font = font;
+            title.fontSharedMaterial = font.material;
+            title.text = research.Label;
+            title.ForceMeshUpdate(true, true);
+            Canvas.ForceUpdateCanvases();
+            Assert.That(title.textInfo.materialCount, Is.GreaterThan(1), "The controlled atlas must create actual glyph submeshes.");
+            Assert.That(node.interactable, Is.False);
+            Assert.That(EffectiveRendererAlpha(node.targetGraphic), Is.InRange(.01f, .95f));
+            AssertResearchGlyphOpacity(title, node, "future");
+
+            GameManager.Instance.AdvanceTechLevelForEditor(TechLevel.Industrial);
+            ui.ShowResearchDetailsForEditor(research);
+            Canvas.ForceUpdateCanvases();
+            Assert.That(node.interactable, Is.True);
+            Assert.That(EffectiveRendererAlpha(node.targetGraphic), Is.GreaterThan(.99f));
+            AssertResearchGlyphOpacity(title, node, "industrial");
+        }
+        finally
+        {
+            title.font = originalFont;
+            title.fontSharedMaterial = originalMaterial;
+            title.ForceMeshUpdate(true, true);
+            foreach (Texture2D atlas in font.atlasTextures)
+                if (atlas != null) Object.Destroy(atlas);
+            Object.Destroy(font.material);
+            Object.Destroy(font);
+        }
+    }
+
+    private static float EffectiveRendererAlpha(Graphic graphic) =>
+        graphic.canvasRenderer.GetAlpha() * graphic.canvasRenderer.GetInheritedAlpha();
+
+    private static void AssertResearchGlyphOpacity(TMP_Text title, Button node, string phase)
+    {
+        float expected = EffectiveRendererAlpha(node.targetGraphic);
+        Assert.That(EffectiveRendererAlpha(title), Is.EqualTo(expected).Within(.001f));
+        TMP_SubMeshUI[] submeshes = title.GetComponentsInChildren<TMP_SubMeshUI>(true);
+        int visibleSubmeshes = 0;
+        foreach (TMP_SubMeshUI submesh in submeshes)
+        {
+            if (!submesh.gameObject.activeInHierarchy || submesh.mesh.vertexCount == 0) continue;
+            visibleSubmeshes++;
+            float actual = EffectiveRendererAlpha(submesh);
+            Debug.Log($"[ResearchGlyphOpacity] controlledFontAtlas=true phase={phase} nodeAlpha={expected:F3} glyphAlpha={actual:F3} material={submesh.sharedMaterial.name}");
+            Assert.That(actual, Is.EqualTo(expected).Within(.001f),
+                "Characters on a later-created material must follow the research node opacity.");
+        }
+        Assert.That(visibleSubmeshes, Is.GreaterThan(0), "The check must include real rendered glyph submeshes.");
     }
 
     private static Bounds RectBounds(Transform parent, RectTransform rect)

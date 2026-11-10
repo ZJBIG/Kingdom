@@ -4,6 +4,30 @@ using NUnit.Framework;
 public sealed class LateFactoryConsolidationTests
 {
     [Test]
+    public void OrbitalProcessingRetainsItsIndustrialFeedstocks()
+    {
+        BuildingDef wires = DataBase<BuildingDef>.Find("OrbitalWireWorks");
+        foreach (string id in new[] { "BasicMetalIngot", "Ceramic" })
+            Assert.That(HasPositiveRate(wires.ResourceConsumptionRates, DataBase<ResourceDef>.Find(id)), Is.True, id);
+        BuildingDef materials = DataBase<BuildingDef>.Find("OrbitalBuildingMaterialsWorks");
+        foreach (string id in new[] { "StoneBrick", "Clay", "Coke", "Chemical" })
+            Assert.That(HasPositiveRate(materials.ResourceConsumptionRates, DataBase<ResourceDef>.Find(id)), Is.True, id);
+    }
+
+    [Test]
+    public void UltraAssemblyRequiresIndustrialThroughputForAdvancedMaterials()
+    {
+        BuildingDef factory = DataBase<BuildingDef>.Find("AutonomousMatterFabricator");
+        double titanium = factory.ResourceConsumptionRates.First(pair => pair.First.Id == "TitaniumAlloy").Second.ToDouble();
+        double alloy = factory.ResourceGenerationRates.First(pair => pair.First.Id == "PhantomAlloy").Second.ToDouble();
+        Assert.That(titanium / alloy, Is.GreaterThanOrEqualTo(10d),
+            "Advanced assembly must retain substantial titanium feedstock per unit of phantom alloy.");
+        foreach (string id in new[] { "Electronics", "Machinery", "AdvancedMetalIngot" })
+            Assert.That(factory.ResourceConsumptionRates.First(pair => pair.First.Id == id).Second.ToDouble(),
+                Is.GreaterThan(5d), id);
+    }
+
+    [Test]
     public void SpacerMaterialChainsConvergeOnOneComprehensiveFactory()
     {
         BuildingDef hub = DataBase<BuildingDef>.Find("OrbitalResourceExtractionArray");

@@ -19,7 +19,7 @@ MonoBehaviour:
   TechLevel: 3
   upgradeTo: {fileID: 11400000, guid: e1c2d3e4f5674890b1c2d3e4f5678907, type: 2}
   costGrowth: "1.15"
-  spaceCost: "14"
+  spaceCost: "54"
   productivityConsumption: "50"
   productivityGranted: "0"
   populationCapacityGranted: "0"
@@ -27,7 +27,7 @@ MonoBehaviour:
   foodProductionRate: "0"
   foodConsumptionRate: "0"
   foodCapacityGranted: "0"
-  powerContribution: -8
+  powerContribution: -16
   logisticsContribution: -6
   fleetPowerGranted: "0"
   attackPowerGranted: "0"
@@ -35,12 +35,12 @@ MonoBehaviour:
   militaryManpowerGranted: "0"
   resourceRequirements:
   - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
-    amount: "500"
+    amount: "2500"
   - resource: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
-    amount: "250"
+    amount: "1250"
   resourceGenerationRates:
   - resource: {fileID: 11400000, guid: fea41a5d90eee6d42889456bd49f5ec5, type: 2}
-    amount: "3"
+    amount: "9"
   resourceConsumptionRates: []
   requiredResearch:
   - {fileID: 11400000, guid: ea25df4d3b4dae645b0cec00cf53d779, type: 2}

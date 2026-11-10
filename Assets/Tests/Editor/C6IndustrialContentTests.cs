@@ -168,6 +168,39 @@ public sealed class C6IndustrialContentTests
     };
 
     [Test]
+    public void IndustrialFootprintsRequireAMaterialShareOfTheAvailableLand()
+    {
+        ExpantaNum territory = TerritoryState.InitialTotal;
+        foreach (ResearchDef research in DataBase<ResearchDef>.All)
+        {
+            if (research.TechLevel > TechLevel.Industrial) continue;
+            foreach (ResearchEffectDefinition effect in research.Effects)
+                if (effect.Type == ResearchEffectType.TerritoryGranted)
+                    territory += effect.NumericValue;
+        }
+        ExpantaNum footprint = ExpantaNum.Zero;
+        foreach (BuildingDef building in DataBase<BuildingDef>.All)
+            if (building.TechLevel == TechLevel.Industrial)
+                footprint += building.SpaceCost;
+        Assert.That((footprint / territory).ToDouble(), Is.InRange(0.4d, 0.55d),
+            "One of each industrial facility must require land choices while leaving room for upstream support.");
+    }
+
+    [Test]
+    public void IndustrialRefiningHasMaterialLossAndPreservesTheSteelUpgrade()
+    {
+        foreach (string id in new[] { "AdvancedMetalSmelter", "AdvancedMetalRefinery" })
+        {
+            BuildingDef building = DataBase<BuildingDef>.Find(id);
+            Assert.That(FindRate(building.ResourceGenerationRates, "AdvancedMetalIngot"),
+                Is.LessThan(FindRate(building.ResourceConsumptionRates, "AdvancedMetalOre")), id);
+        }
+        Assert.That(FindRate(DataBase<BuildingDef>.Find("IndustrialMetalSmelter").ResourceGenerationRates, "Steel"),
+            Is.GreaterThan(FindRate(DataBase<BuildingDef>.Find("SteelForge").ResourceGenerationRates, "Steel")),
+            "Upgrading the forge must increase its steel throughput.");
+    }
+
+    [Test]
     public void C602_IndustrialChemistryFollowsThePowerGridFoundation()
     {
         ResearchDef chemistry = DataBase<ResearchDef>.Find("IndustrialChemistry");
@@ -730,7 +763,8 @@ public sealed class C6IndustrialContentTests
         Assert.That(railHub.LogisticsContribution, Is.GreaterThan(ExpantaNum.Zero),
             "铁路枢纽必须提供物流。");
         Assert.That(powerStation.LogisticsContribution, Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(railHub.PowerContribution, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(railHub.PowerContribution, Is.LessThan(ExpantaNum.Zero),
+            "The logistics hub operates on electricity rather than generating it.");
     }
 
     [Test]
@@ -1153,14 +1187,14 @@ public sealed class C6IndustrialContentTests
     }
 
     [Test]
-    public void MachineFactoryRequiresItsPrecisionToolingWorkshop()
+    public void MachineFactory_PrecisionToolingImprovesProductionWithoutBlockingConstruction()
     {
         BuildingDef machineFactory = DataBase<BuildingDef>.Find("MachineFactory");
         WorkshopUpgradeDef precisionTooling = DataBase<WorkshopUpgradeDef>.Find("PrecisionTooling");
 
         Assert.That(machineFactory, Is.Not.Null);
         Assert.That(precisionTooling, Is.Not.Null);
-        Assert.That(machineFactory.RequiredWorkshopUpgrades, Does.Contain(precisionTooling));
+        Assert.That(machineFactory.RequiredWorkshopUpgrades, Has.No.Member(precisionTooling));
         Assert.That(precisionTooling.Effects, Has.Some.Matches<WorkshopEffectDefinition>(effect =>
             effect != null && effect.Building == machineFactory && effect.NumericValue.ToDouble() > 1d));
     }

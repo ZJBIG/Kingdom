@@ -185,7 +185,8 @@ public sealed class ResourceContinuityTests
     {
         Assert.That(HasBuildingRequirement("OrbitalHabitatMegastructure", "Biomass"), Is.True);
         Assert.That(HasBuildingConsumption("OrbitalHabitatMegastructure", "Biomass"), Is.True);
-        Assert.That(HasBuildingConsumptionRate("OrbitalHabitatMegastructure", "Electronics", 0.10d), Is.True);
+        Assert.That(GetBuildingAmount(DataBase<BuildingDef>.Find("OrbitalHabitatMegastructure"), "Electronics", true),
+            Is.GreaterThanOrEqualTo(0.5d));
         Assert.That(HasBuildingConsumption("OrbitalHabitatMegastructure", "Chemical"), Is.True);
         Assert.That(HasBuildingConsumption("OrbitalHabitatMegastructure", "Rubber"), Is.True);
         Assert.That(HasPositiveRequirement(DataBase<ResearchDef>.Find("OrbitalStationEngineering"), "Biomass"), Is.True);
@@ -273,7 +274,7 @@ public sealed class ResourceContinuityTests
 
         Assert.That(station, Is.Not.Null);
         Assert.That(GetBuildingAmount(station, "AdvancedMetalIngot"), Is.GreaterThan(0d));
-        Assert.That(HasBuildingConsumptionRate("OrbitalStation", "AdvancedMetalIngot", 0.04d), Is.True);
+        Assert.That(GetBuildingAmount(station, "AdvancedMetalIngot", true), Is.GreaterThanOrEqualTo(0.2d));
     }
 
     [Test]
@@ -321,7 +322,9 @@ public sealed class ResourceContinuityTests
     public void 炸药应作为工业与远征中的持续消耗资源()
     {
         Assert.That(HasBuildingGeneration("ChemicalPlant", "Explosives"), Is.True);
-        Assert.That(HasBuildingConsumption("OilDerrick", "Explosives"), Is.True);
+        Assert.That(HasBuildingConsumption("OilDerrick", "Explosives"), Is.False,
+            "The first oil source must start before oil-derived explosives exist.");
+        Assert.That(HasBuildingConsumption("IndustrialOilExtractionComplex", "Explosives"), Is.True);
         Assert.That(HasBuildingConsumption("IntegratedMetalMine", "Explosives"), Is.True);
         Assert.That(HasBuildingConsumption("RailHub", "Explosives"), Is.True);
         Assert.That(HasBuildingRequirement("OilRefinery", "Chemical"), Is.True);
@@ -332,8 +335,8 @@ public sealed class ResourceContinuityTests
     {
         Assert.That(HasBuildingConsumption("IndustrialHabitationComplex", "Steel"), Is.True);
         Assert.That(
-            HasBuildingConsumptionRate("IndustrialHabitationComplex", "Steel", 0.02d),
-            Is.True);
+            GetBuildingAmount(DataBase<BuildingDef>.Find("IndustrialHabitationComplex"), "Steel", true),
+            Is.GreaterThanOrEqualTo(0.1d));
     }
 
     [Test]
@@ -341,12 +344,12 @@ public sealed class ResourceContinuityTests
     {
         Assert.That(HasBuildingConsumption("IndustrialHabitationComplex", "Concrete"), Is.True);
         Assert.That(
-            HasBuildingConsumptionRate("IndustrialHabitationComplex", "Concrete", 0.03d),
-            Is.True);
+            GetBuildingAmount(DataBase<BuildingDef>.Find("IndustrialHabitationComplex"), "Concrete", true),
+            Is.GreaterThanOrEqualTo(0.2d));
     }
 
     [Test]
-    public void 所有工业建筑必须拥有持续资源维护回路()
+    public void 工业建筑承担持续投入并保留油井启动来源()
     {
         BuildingDef[] industrialBuildings = DataBase<BuildingDef>.All
             .Where(building => building != null && building.TechLevel == TechLevel.Industrial)
@@ -355,6 +358,14 @@ public sealed class ResourceContinuityTests
         Assert.That(industrialBuildings, Is.Not.Empty);
         foreach (BuildingDef building in industrialBuildings)
         {
+            if (building.Id == "OilDerrick")
+            {
+                Assert.That(building.ResourceConsumptionRates, Is.Empty,
+                    "Keep the material-free oil source available after upgrading and depleting the oil chain.");
+                Assert.That(building.PowerContribution.ToDouble(), Is.LessThanOrEqualTo(-12d));
+                Assert.That(building.LogisticsContribution, Is.LessThan(ExpantaNum.Zero));
+                continue;
+            }
             Assert.That(
                 building.ResourceConsumptionRates,
                 Is.Not.Null.And.Not.Empty,
@@ -471,8 +482,8 @@ public sealed class ResourceContinuityTests
     {
         Assert.That(HasBuildingRequirement("PhantomMaterialsFabricator", "Coke"), Is.True);
         Assert.That(
-            HasBuildingConsumptionRate("PhantomMaterialsFabricator", "Coke", 0.06d),
-            Is.True);
+            GetBuildingAmount(DataBase<BuildingDef>.Find("PhantomMaterialsFabricator"), "Coke", true),
+            Is.GreaterThanOrEqualTo(0.5d));
         Assert.That(HasWorkshopRequirement("PhantomWeaveLattice", "Coke"), Is.True);
         Assert.That(HasPositiveRequirement(DataBase<ResearchDef>.Find("PhantomMaterials"), "Coke"), Is.True);
     }
@@ -547,23 +558,6 @@ public sealed class ResourceContinuityTests
         {
             Pair<ResourceDef, ExpantaNum> pair = building.ResourceConsumptionRates[i];
             if (pair.First != null && pair.First.Id == resourceId && pair.Second > ExpantaNum.Zero)
-                return true;
-        }
-
-        return false;
-    }
-
-    private static bool HasBuildingConsumptionRate(string buildingId, string resourceId, double amount)
-    {
-        BuildingDef building = DataBase<BuildingDef>.Find(buildingId);
-        if (building == null)
-            return false;
-        for (int i = 0; i < building.ResourceConsumptionRates.Count; i++)
-        {
-            Pair<ResourceDef, ExpantaNum> pair = building.ResourceConsumptionRates[i];
-            if (pair.First != null &&
-                pair.First.Id == resourceId &&
-                pair.Second.ToDouble() == amount)
                 return true;
         }
 

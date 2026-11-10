@@ -43,21 +43,21 @@ MonoBehaviour:
   resourceGenerationRates: []
   resourceConsumptionRates:
   - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    amount: "0.8"
+    amount: "3.2"
   - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
-    amount: "0.05"
+    amount: "0.25"
   - resource: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
-    amount: "0.04"
+    amount: "0.2"
   - resource: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
-    amount: "0.06"
+    amount: "0.6"
   - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
-    amount: "0.08"
+    amount: "0.8"
   - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
-    amount: "0.03"
+    amount: "0.12"
   - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
-    amount: "0.08"
+    amount: "0.8"
   - resource: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
-    amount: "0.10"
+    amount: "0.6"
   requiredResearch:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: 12ca71b0c14f45ed83642482565c0cdd, type: 2}
