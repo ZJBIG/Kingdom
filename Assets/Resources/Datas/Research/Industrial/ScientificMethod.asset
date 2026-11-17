@@ -15,7 +15,7 @@ MonoBehaviour:
   id: ScientificMethod
   Label: "\u79D1\u5B66\u65B9\u6CD5"
   Description: "从可以检验的问题出发，以对照实验和重复观察区分猜想与事实。"
-  BaseCost: "980000"
+  BaseCost: "180000"
   prerequisites:
   - {fileID: 11400000, guid: ea25df4d3b4dae645b0cec00cf53d779, type: 2}
   resourceRequirements:

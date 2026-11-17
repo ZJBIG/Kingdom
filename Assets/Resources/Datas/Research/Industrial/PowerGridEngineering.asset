@@ -15,7 +15,7 @@ MonoBehaviour:
   id: PowerGridEngineering
   Label: "电网工程"
   Description: "连接发电机、输电线与调度台，让分散的厂房分享一张可靠的电网。"
-  BaseCost: "900000"
+  BaseCost: "180000"
   prerequisites:
   - {fileID: 11400000, guid: 874a8698c303e984795406fc7f83008b, type: 2}
   - {fileID: 11400000, guid: 542068e7549b5064593ba693741e2f8e, type: 2}

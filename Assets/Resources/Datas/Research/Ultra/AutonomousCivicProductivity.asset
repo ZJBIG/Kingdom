@@ -15,7 +15,7 @@ MonoBehaviour:
   id: AutonomousCivicProductivity
   Label: "自主社会生产调度"
   Description: "协调居民作息、研究任务与工厂排程，让复杂的星区生活仍能彼此照应。"
-  BaseCost: "2.2e13"
+  BaseCost: "480000000"
   prerequisites:
   - {fileID: 11400000, guid: c4e8a1f7b2d94690ad35ef681c0b7a23, type: 2}
   - {fileID: 11400000, guid: 5a7c9e1f3b2d4f6081a3c5e7b9d0f2a4, type: 2}

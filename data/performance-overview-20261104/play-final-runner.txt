@@ -1,4 +1,0 @@
-Started: 2026-11-04T22:26:15.9486365+08:00
-Command: D:\Unity\Hub\Editor\2022.3.62f3c1\Editor\Unity.exe -batchmode -force-d3d11 -projectPath D:\GitHub\Kingdom -runTests -testPlatform PlayMode -testFilter ReviewInteractionPlayModeTests.BuildingCards_AutomaticRefreshSkipsOffscreenCardsAndResumesWhenVisible;ReviewInteractionPlayModeTests.BuildingCards_CachedPageAndExplicitRefreshUpdateOffscreenCards;ReviewInteractionPlayModeTests.UiHotPaths_RecordMaxCardsAndResourceDetails;ReviewInteractionPlayModeTests.BuildingQuantity_UpdatesBatchAvailabilityAndClipsCustomInput;ReviewInteractionPlayModeTests.StableBuildingButtons_DoNotDirtyTheirGraphicVertices -testResults D:\GitHub\Kingdom\data\performance-overview-20261104\play-final.xml -logFile D:\GitHub\Kingdom\data\performance-overview-20261104\play-final.log
-Input: final production card-culling guard restored; source/test changes only within this task.
-UnityExitCode=0 Result=Passed Total=5 Passed=5 Failed=0 Skipped=0

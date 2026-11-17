@@ -15,7 +15,7 @@ MonoBehaviour:
   id: ModernUniversity
   Label: "\u73B0\u4EE3\u5927\u5B66\u4E0E\u5B66\u672F\u51FA\u7248"
   Description: "建立院系、实验室与学术出版，让学问能够在质疑、复现和交流中不断积累。"
-  BaseCost: "900000"
+  BaseCost: "240000"
   prerequisites:
   - {fileID: 11400000, guid: c1e5bab7941cbc2448480c7a63cc8177, type: 2}
   - {fileID: 11400000, guid: ae9e433b1c0d4074baf90342f66c2509, type: 2}

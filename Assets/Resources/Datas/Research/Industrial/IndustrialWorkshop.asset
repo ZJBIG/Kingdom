@@ -15,7 +15,7 @@ MonoBehaviour:
   id: IndustrialWorkshop
   Label: "\u5DE5\u4E1A\u5DE5\u574A"
   Description: "让动力机床与专用工位汇集在同一屋檐下，把工匠的设想变成可以装配与检验的设备。"
-  BaseCost: "900000"
+  BaseCost: "120000"
   prerequisites:
   - {fileID: 11400000, guid: ea25df4d3b4dae645b0cec00cf53d779, type: 2}
   resourceRequirements:

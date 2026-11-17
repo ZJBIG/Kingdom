@@ -15,7 +15,7 @@ MonoBehaviour:
   id: OrbitalPowerTransmission
   Label: "轨道能量传输理论"
   Description: "校准定向输电节点与接收端，让轨道上的阳光能够跨过距离，点亮需要它的设施。"
-  BaseCost: "108800000"
+  BaseCost: "2000000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: b3e1a7c94d2f6081ab35c7e9d4f26018, type: 2}
@@ -36,5 +36,13 @@ MonoBehaviour:
     Building: {fileID: 11400000, guid: a1b2c3d4e5f60718293a4b5c6d7e8f90, type: 2}
     Resource: {fileID: 0}
     value: "1.35"
+  - Type: 1
+    Building: {fileID: 11400000, guid: 7c77eecf71c64c558a43342a2618efa2, type: 2}
+    Resource: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
+    value: "1.5"
+  - Type: 1
+    Building: {fileID: 11400000, guid: 7c77eecf71c64c558a43342a2618efa2, type: 2}
+    Resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    value: "1.5"
   TechLevel: 4
   AdvancesTechLevel: 0

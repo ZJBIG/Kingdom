@@ -15,7 +15,7 @@ MonoBehaviour:
   id: BioregenerativeLifeSupport
   Label: "\u751F\u7269\u518D\u751F\u751F\u547D\u4FDD\u969C"
   Description: "把植物、微生物与循环水路连接起来，让封闭舱段中的生命彼此供养。"
-  BaseCost: "285000000"
+  BaseCost: "3000000"
   prerequisites:
   - {fileID: 11400000, guid: c4f2b8d0e6a17395bc46d8f2a7019e3c, type: 2}
   - {fileID: 11400000, guid: b3e1a7c94d2f6081ab35c7e9d4f26018, type: 2}

@@ -15,7 +15,7 @@ MonoBehaviour:
   id: HomeSystemSurvey
   Label: "本星系测绘"
   Description: "完成对太阳系内行星、轨道与近地资源的系统测绘，建立可靠的本星系航行图和通信链路，为寻找失落设施与远方航线做好准备。"
-  BaseCost: "382500000"
+  BaseCost: "1400000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: b3e1a7c94d2f6081ab35c7e9d4f26018, type: 2}

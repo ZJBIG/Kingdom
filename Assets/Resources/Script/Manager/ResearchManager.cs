@@ -1124,7 +1124,7 @@ public class ResearchManager : Singleton<ResearchManager>
                 if (!seen.Add(definition))
                     throw new InvalidOperationException($"Duplicate research state: {definition.Id}");
                 ExpantaNum progress = Parse(saved.Progress, saved.ResearchId, nameof(saved.Progress));
-                if (progress < ExpantaNum.Zero || progress > definition.BaseCost)
+                if (progress < ExpantaNum.Zero)
                     throw new InvalidOperationException(
                         $"Research progress is outside the valid range: {definition.Id}");
                 IReadOnlyDictionary<ResourceDef, ExpantaNum> paidCosts =
@@ -1315,9 +1315,8 @@ public class ResearchManager : Singleton<ResearchManager>
             if (required <= ExpantaNum.Zero)
                 throw new InvalidOperationException(
                     $"Research payment uses a resource not required by {definition.Id}: {resource.Id}");
-            if (amount > required)
-                throw new InvalidOperationException(
-                    $"Research payment exceeds the required cost for {definition.Id}: {resource.Id}");
+            // This is a historical payment ledger. A definition price reduction
+            // must not invalidate money already spent in the current save format.
             result.Add(resource, amount);
         }
         return result;

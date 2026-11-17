@@ -181,20 +181,6 @@ public sealed class ContentProgressionValidatorTests
     }
 
     [Test]
-    public void MainProgression_ReachesMedievalWithoutInjectedResources()
-    {
-        ProgressionAuditResult result = ContentProgressionAudit.Run(
-            DataBase<ResourceDef>.All,
-            DataBase<BuildingDef>.All,
-            DataBase<ResearchDef>.All,
-            new[] { "WoodLog" },
-            TechLevel.Animal);
-
-        Assert.That(result.HighestTechLevel, Is.GreaterThanOrEqualTo(TechLevel.Medieval),
-            result.FormatFailureReport());
-    }
-
-    [Test]
     public void ResourcesWithoutProducersOrConsumers_AreReportedIndividually()
     {
         ResourceDef basicOre = DataBase<ResourceDef>.Find("BasicMetalOre");

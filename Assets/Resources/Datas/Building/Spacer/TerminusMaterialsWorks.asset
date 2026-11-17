@@ -15,7 +15,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: db905fdb427d48d5870340db6ef4d158, type: 3}
   id: TerminusMaterialsWorks
   Label: "终焉结构材料联合厂"
-  Description: "利用终焉星荒原的建设空间布置结构材料与机械联合厂，将既有采矿和冶炼链的原料加工成轨道设施与舰队所需的复合材料和机械；持续需要化学品、金属与燃料。"
+  Description: "利用终焉星荒原的建设空间布置大型材料与机械联合厂，持续为轨道扩建和舰队供给复合材料与机械。需要既有冶炼链提供金属，并消耗化学品、陶瓷与燃料。"
   TechLevel: 4
   upgradeTo: {fileID: 0}
   costGrowth: "1.25"
@@ -38,9 +38,9 @@ MonoBehaviour:
     amount: "1000"
   resourceGenerationRates:
   - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
-    amount: "6"
+    amount: "96"
   - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
-    amount: "3"
+    amount: "64"
   resourceConsumptionRates:
   - resource: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
     amount: "6"

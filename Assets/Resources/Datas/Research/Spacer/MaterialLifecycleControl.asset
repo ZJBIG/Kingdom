@@ -15,7 +15,7 @@ MonoBehaviour:
   id: MaterialLifecycleControl
   Label: "材料生命周期控制"
   Description: "从装配到检修，再到拆卸与回收，为每种材料安排可以延续的使用历程。"
-  BaseCost: "4500000000"
+  BaseCost: "240000000"
   prerequisites:
   - {fileID: 11400000, guid: 4b5c6d7e8f901a2b3c4d5e6f708192a3, type: 2}
   - {fileID: 11400000, guid: f0a1b2c3d4e567890123456789abcdef, type: 2}

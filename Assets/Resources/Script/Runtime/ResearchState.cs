@@ -104,8 +104,10 @@ public sealed class ResearchState
     {
         if (!restoredProgress.IsFinite)
             throw new ArgumentOutOfRangeException(nameof(restoredProgress));
-        if (restoredProgress < ExpantaNum.Zero || restoredProgress > BaseCost)
+        if (restoredProgress < ExpantaNum.Zero)
             throw new ArgumentOutOfRangeException(nameof(restoredProgress));
+        // Already earned research can exceed a newly reduced cost. Keep it
+        // within the current progress bound; the Manager still owns completion.
         SetProgress(restoredProgress);
         ResetPaidResourceCosts();
         if (restoredPaidResourceCosts != null)
@@ -118,8 +120,6 @@ public sealed class ResearchState
                         "Restored payment contains a resource not required by this research.",
                         nameof(restoredPaidResourceCosts));
                 if (!entry.Value.IsFinite || entry.Value < ExpantaNum.Zero)
-                    throw new ArgumentOutOfRangeException(nameof(restoredPaidResourceCosts));
-                if (entry.Value > required)
                     throw new ArgumentOutOfRangeException(nameof(restoredPaidResourceCosts));
                 SetPaidResourceCost(entry.Key, entry.Value);
             }

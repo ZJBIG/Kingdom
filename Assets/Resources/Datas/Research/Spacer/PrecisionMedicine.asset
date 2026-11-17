@@ -15,7 +15,7 @@ MonoBehaviour:
   id: PrecisionMedicine
   Label: "\u7CBE\u51C6\u533B\u7597"
   Description: "用连续监测、个体治疗和远程手术照料每位居民，让遥远的距离不再阻断救治。"
-  BaseCost: "720000000"
+  BaseCost: "18000000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: c2d3e4f5061728394a5b6c7d8e9f012a, type: 2}

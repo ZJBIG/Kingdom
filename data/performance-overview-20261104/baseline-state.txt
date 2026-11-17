@@ -1,8 +1,0 @@
-HEAD: 1179f27ce3cc3858961ee4f813d52a81ae5217c5
-Initial tracked source/assets: clean (verified before delegation and before baseline).
-Existing untracked evidence and .workbuddy-ai/memory were preserved.
-Scope narrowed by user: skip already-low cumulative occupancy; only measure and implement a material continuous hotspot.
-Runtime baseline: 26/26 XML Passed; runner timed out after writing results.
-GPU UI baseline: 1/1 XML Passed, Unity exit 0.
-Baseline font: 722BFD776012F77B34C3C33AB7BC512BE7DDDDBC4FD9C44709CE0206689C539F
-Temporary font backup under Temp was removed by Unity on exit. Restored using an existing backup verified against the pre-run hash. Persistent task-owned backup is data/performance-overview-20261104/font-runtime-before.backup.

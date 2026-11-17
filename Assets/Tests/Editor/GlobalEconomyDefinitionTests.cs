@@ -239,7 +239,8 @@ public sealed class GlobalEconomyDefinitionTests
         {
             Assert.That(research.Effects, Is.Not.Null, research.Id);
             Assert.That(
-                research.AdvancesTechLevel || research.Effects.Count > 0,
+                research.AdvancesTechLevel || research.Effects.Count > 0 ||
+                ProgressionVisibilityRules.UnlocksProgressionPage(research),
                 Is.True,
                 research.Id);
             foreach (ResearchEffectDefinition effect in research.Effects)
@@ -447,6 +448,37 @@ public sealed class GlobalEconomyDefinitionTests
             DataBase<ResearchDef>.All,
             DataBase<WorkshopUpgradeDef>.All,
             out string error), Is.True, error);
+    }
+
+    [TestCase(ProgressionVisibilityRules.EraResearchId, true)]
+    [TestCase("StoneAgeTransition", true)]
+    [TestCase("ResearchWithoutProgressionUnlock", false)]
+    public void EmptyResearchRequiresAnExistingProgressionUnlock(string id, bool expectedValid)
+    {
+        ResearchDef research = UnityEngine.Object.Instantiate(
+            DataBase<ResearchDef>.Find(expectedValid ? id : ProgressionVisibilityRules.EraResearchId));
+        try
+        {
+            research.SetIdForEditor(id);
+            research.SetPrerequisitesForEditor(null);
+            Assert.That(research.Effects, Is.Empty);
+            Assert.That(research.AdvancesTechLevel, Is.EqualTo(id == "StoneAgeTransition"));
+
+            bool valid = EconomyDependencyValidator.Validate(
+                Array.Empty<ResourceDef>(),
+                Array.Empty<BuildingDef>(),
+                new[] { research },
+                Array.Empty<WorkshopUpgradeDef>(),
+                out string error);
+
+            Assert.That(valid, Is.EqualTo(expectedValid), error);
+            if (!expectedValid)
+                Assert.That(error, Does.Contain(id));
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(research);
+        }
     }
 
     [Test]

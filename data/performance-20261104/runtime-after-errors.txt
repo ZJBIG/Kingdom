@@ -1,5 +1,0 @@
-Kingdom Unity Test Runner - Latest Error Report
-Generated: 2026-11-04T13:11:58.6879390+08:00
-Platform: EditMode
-Result: Failed(NoXml)
-ExitCode=1073741845; Unity produced no valid result XML. Log=D:/GitHub/Kingdom/data/performance-20261104/runtime-after.log

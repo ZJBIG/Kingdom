@@ -325,6 +325,8 @@ public sealed class HomeSystemDevelopmentPlayModeTests
                 if (!label.transform.parent.name.StartsWith("Requirement_") ||
                     label.name != "Label" || label.text != requirement.First.Label) continue;
                 string amount = label.transform.parent.Find("Amount").GetComponent<TMPro.TMP_Text>().text;
+                // The detail view uses TMP alignment tags around the visible price.
+                amount = System.Text.RegularExpressions.Regex.Replace(amount, "<[^>]*>", string.Empty);
                 ExpantaNum expected = requirement.Second * (construction == null ? ExpantaNum.One
                     : BuildingManager.GetConstructionCostMultiplierForEditor(construction));
                 Assert.That(amount, Does.StartWith(expected.ToGameString() + " "));

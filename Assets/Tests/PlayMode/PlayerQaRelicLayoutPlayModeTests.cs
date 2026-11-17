@@ -159,18 +159,6 @@ public sealed class PlayerQaRelicLayoutPlayModeTests
         Assert.That(bodyBounds.yMin, Is.InRange(viewportBounds.yMin, viewportBounds.yMax));
         float overlap = Mathf.Max(0f, Mathf.Min(bodyBounds.yMax, actionBounds.yMax) - Mathf.Max(bodyBounds.yMin, actionBounds.yMin));
         Debug.Log($"[PlayerQa] RelicLayout gameView={Screen.width}x{Screen.height} renderTarget={target.width}x{target.height} canvas={((RectTransform)canvas.transform).rect.size} body={bodyBounds} actions={actionBounds} overlapPx={overlap:F3}");
-        camera.Render();
-        RenderTexture previous = RenderTexture.active;
-        Texture2D pixels = new Texture2D(target.width, target.height, TextureFormat.RGB24, false);
-        try
-        {
-            RenderTexture.active = target;
-            pixels.ReadPixels(new Rect(0, 0, target.width, target.height), 0, 0);
-            pixels.Apply();
-            Directory.CreateDirectory(Path.GetFullPath("data/ui-request-20261025/images"));
-            File.WriteAllBytes(Path.GetFullPath("data/ui-request-20261025/images/06-relic-no-inner-background.png"), pixels.EncodeToPNG());
-        }
-        finally { RenderTexture.active = previous; Object.DestroyImmediate(pixels); }
         Assert.That(bodyBounds.width, Is.GreaterThan(0f));
         Assert.That(bodyBounds.height, Is.GreaterThan(0f));
         Assert.That(actionBounds.width, Is.GreaterThan(0f));

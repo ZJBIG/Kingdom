@@ -237,8 +237,9 @@ public sealed class OfflineProgressSummaryTests
         }
     }
 
-    [TestCase(5, 200)]
-    [TestCase(20, 500)]
+    [TestCase(5, 5)]
+    [TestCase(20, 40)]
+    [TestCase(100, 250)]
     public void AllocatedOfflineTime_ConsumesOnlyCompletedProgressAtTheSelectedRate(int speed, int consumption)
     {
         SaveManager.GameSaveData data = game.CaptureSaveData();
@@ -262,12 +263,13 @@ public sealed class OfflineProgressSummaryTests
         Assert.That(save.RemainingOfflineSeconds, Is.EqualTo(bank).Within(1e-6d));
     }
 
-    [TestCase(5, 200)]
-    [TestCase(20, 500)]
+    [TestCase(5, 5)]
+    [TestCase(20, 40)]
+    [TestCase(100, 250)]
     public void AllocatedOfflineTime_ExhaustsProportionallyAndReturnsToNormalSpeed(int speed, int consumption)
     {
         SaveManager.GameSaveData data = game.CaptureSaveData();
-        data.RemainingOfflineSeconds = 5d;
+        data.RemainingOfflineSeconds = 1d;
         game.RestoreSaveDataForEditor(data);
         SimulationManager simulation = host.GetComponent<SimulationManager>();
         simulation.SetAccelerationMultiplier(speed);
@@ -277,7 +279,7 @@ public sealed class OfflineProgressSummaryTests
         Assert.That(simulation.AccelerationMultiplier, Is.EqualTo(1), "Normal speed is an exact discrete mode.");
         SaveManager.GameSaveData result = game.CaptureSaveData();
         double elapsed = result.CalendarDays * 10d + result.CalendarElapsedSeconds + simulation.AccumulatedSecondsForEditor;
-        Assert.That(elapsed, Is.EqualTo(.5d + (5d / consumption) * (speed - 1)).Within(1e-4d));
+        Assert.That(elapsed, Is.EqualTo(.5d + (1d / consumption) * (speed - 1)).Within(1e-4d));
         Assert.Throws<ArgumentOutOfRangeException>(() => simulation.SetAccelerationMultiplier(7));
         Assert.Throws<ArgumentOutOfRangeException>(() => simulation.SetAccelerationMultiplier(1000));
         result.RemainingOfflineSeconds = double.NaN;

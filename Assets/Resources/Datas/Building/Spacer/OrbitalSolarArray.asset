@@ -15,7 +15,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 666e693184614725b16e78319e7b740b, type: 3}
   id: OrbitalSolarArray
   Label: "轨道太阳能阵列"
-  Description: "在轨道部署太阳能板、导电母线和定向输电设备，持续供电；需要复合材料、钛合金与电气部件维护。"
+  Description: "大面积集光阵列将恒星能量送入轨道电网，为成组的材料工厂、生态设施与深空观测设备提供电力。"
   TechLevel: 4
   upgradeTo: {fileID: 0}
   costGrowth: "1.22"
@@ -27,7 +27,7 @@ MonoBehaviour:
   foodProductionRate: "0"
   foodConsumptionRate: "0"
   foodCapacityGranted: "0"
-  powerContribution: 360
+  powerContribution: 2400
   logisticsContribution: -8
   fleetPowerGranted: "0"
   attackPowerGranted: "0"

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -497,16 +498,16 @@ public sealed class ResearchEffectTests
         ResearchDef powerTheory = DataBase<ResearchDef>.Find("OrbitalPowerTransmission");
         ResearchDef logisticsTheory = DataBase<ResearchDef>.Find("OrbitalLogisticsInfrastructure");
         WorkshopUpgradeDef powerWorkshop = DataBase<WorkshopUpgradeDef>.Find("OrbitalPowerBeaming");
-        WorkshopUpgradeDef logisticsWorkshop = DataBase<WorkshopUpgradeDef>.Find("DeepSpaceNetworkAutomation");
+        WorkshopUpgradeDef logisticsWorkshop = DataBase<WorkshopUpgradeDef>.Find("AutonomousFleetLogistics");
         BuildingDef solarArray = DataBase<BuildingDef>.Find("OrbitalSolarArray");
-        BuildingDef deepSpaceRelay = DataBase<BuildingDef>.Find("DeepSpaceRelay");
+        BuildingDef orbitalStation = DataBase<BuildingDef>.Find("OrbitalStation");
 
         Assert.That(powerTheory, Is.Not.Null);
         Assert.That(logisticsTheory, Is.Not.Null);
         Assert.That(powerWorkshop, Is.Not.Null);
         Assert.That(logisticsWorkshop, Is.Not.Null);
         Assert.That(solarArray, Is.Not.Null);
-        Assert.That(deepSpaceRelay, Is.Not.Null);
+        Assert.That(orbitalStation, Is.Not.Null);
 
         WorkshopUpgradeState powerWorkshopState = new WorkshopUpgradeState(powerWorkshop);
         WorkshopUpgradeState logisticsWorkshopState = new WorkshopUpgradeState(logisticsWorkshop);
@@ -529,15 +530,29 @@ public sealed class ResearchEffectTests
             ExpantaNum.One,
             true);
         BuildingManager.ApplyRateDeltaForEditor(
-            new BuildingState(deepSpaceRelay),
+            new BuildingState(orbitalStation),
             ExpantaNum.Zero,
             ExpantaNum.One,
             ExpantaNum.One,
             ExpantaNum.One,
             true);
 
-        Assert.That(GameManager.Instance.State.PowerProductionRate, Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(GameManager.Instance.State.LogisticsProductionRate, Is.GreaterThan(ExpantaNum.Zero));
+        ExpantaNum expectedPower = solarArray.PowerContribution *
+            (powerTheory.Effects.Single(effect => effect.Type == ResearchEffectType.BuildingPowerProductionMultiplier &&
+                effect.Building == solarArray).NumericValue +
+            powerWorkshop.Effects.Single(effect => effect.Type == WorkshopEffectType.BuildingPowerProductionMultiplier &&
+                effect.Building == solarArray).NumericValue - ExpantaNum.One);
+        ExpantaNum expectedLogistics = orbitalStation.LogisticsContribution *
+            (logisticsTheory.Effects.Single(effect => effect.Type == ResearchEffectType.BuildingLogisticsProductionMultiplier &&
+                effect.Building == orbitalStation).NumericValue +
+            logisticsWorkshop.Effects.Single(effect => effect.Type == WorkshopEffectType.BuildingLogisticsProductionMultiplier &&
+                effect.Building == orbitalStation).NumericValue - ExpantaNum.One);
+        Assert.That(expectedPower, Is.GreaterThan(solarArray.PowerContribution));
+        Assert.That(expectedLogistics, Is.GreaterThan(orbitalStation.LogisticsContribution));
+        Assert.That(GameManager.Instance.State.PowerProductionRate.ToDouble(),
+            Is.EqualTo(expectedPower.ToDouble()).Within(0.000001d));
+        Assert.That(GameManager.Instance.State.LogisticsProductionRate.ToDouble(),
+            Is.EqualTo(expectedLogistics.ToDouble()).Within(0.000001d));
     }
 
     [Test]

@@ -1,3 +1,0 @@
-targetFps,frames,seconds,actualFps,mainThreadAllocatedBytes,gc0,gc1,gc2,activeObjectsBefore,activeObjectsAfter,audioClipsBefore,audioClipsAfter,totalMemoryBefore,totalMemoryAfter,monoMemoryBefore,monoMemoryAfter
-60,181,3.0150,60.03,NA,0,0,0,1906,1906,43,43,291579982,291579222,729165824,731951104
-30,91,3.0324,30.01,NA,0,0,0,1906,1906,43,43,291578750,291642006,733061120,739037184

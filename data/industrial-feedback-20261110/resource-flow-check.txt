@@ -1,2 +1,0 @@
-BuildingAssets=79
-OpposingRawResourceFlows=0

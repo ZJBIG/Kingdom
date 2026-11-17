@@ -15,14 +15,14 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: ba22eb3f53434d6786bb7124b3948a6e, type: 3}
   id: EarthMoonLogisticsHub
   Label: "碧池星物流中枢"
-  Description: "连接碧池星冰海驻留基地与轨道转运站的物流中枢，统一调度跨星球补给，增加物流供给，并为舰队与基地防御提供支援。"
+  Description: "连接碧池星冰海基地与轨道转运站，以集中调度支撑成组轨道工厂的物流需求，并为舰队与基地防御提供支援。"
   TechLevel: 4
   upgradeTo: {fileID: 0}
   costGrowth: 1.01
   productivityConsumption: 420
   foodConsumptionRate: 4
   powerContribution: -180
-  logisticsContribution: 240
+  logisticsContribution: 1200
   fleetPowerGranted: 80
   defensePowerGranted: 50
   resourceRequirements:

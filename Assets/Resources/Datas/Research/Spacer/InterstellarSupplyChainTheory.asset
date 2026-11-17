@@ -15,7 +15,7 @@ MonoBehaviour:
   id: InterstellarSupplyChainTheory
   Label: "\u661f\u9645\u8865\u7ed9\u94fe\u7406\u8bba"
   Description: "将前沿储运、舰队运输与远征补给连为一体，让漫长战役不再因一次迟到的运送而中断。"
-  BaseCost: "992000000"
+  BaseCost: "54000000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: 9b7e3d1f5a2c4e6b8d0f1a3c5e7b9d24, type: 2}

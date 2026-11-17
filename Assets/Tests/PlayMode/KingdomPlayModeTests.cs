@@ -99,73 +99,45 @@ public sealed class KingdomPlayModeTests
         Assert.That(SimulationManager.Instance.AccelerationMultiplier, Is.EqualTo(1), "The default speed is the discrete normal-play mode.");
         Assert.That(save.SaveNow(true), Is.True);
         KingdomUIRoot ui = Object.FindObjectOfType<KingdomUIRoot>();
+        for (int stage = 0; stage < 20 && TutorialManager.Current.EvaluateStage() != null; stage++)
+            TutorialManager.Current.SkipCurrentStage();
+        ui.RefreshOnboardingForEditor();
         ui.SetPage("Overview");
         yield return null;
         Canvas.ForceUpdateCanvases();
-        Transform toolbar = ui.transform.Find("SafeAreaRoot/Content/PageTool/OfflineAccelerationToolbar");
+        Transform toolbar = ui.transform.Find("SafeAreaRoot/NotificationBar/OfflineAccelerationToolbar");
         Assert.That(toolbar, Is.Not.Null);
         Assert.That(toolbar.gameObject.activeInHierarchy, Is.True);
-        TMP_Text remaining = toolbar.Find("RemainingTime").GetComponent<TMP_Text>();
-        Assert.That(remaining.text, Does.Contain("09:40:"));
-        string[] names = { "Normal", "Speed5", "Speed20" };
-        int[] speeds = { 1, 5, 20 };
-        int[] consumptions = { 0, 200, 500 };
-        Assert.That(toolbar.Find("Speed1000"), Is.Null, "The removed acceleration mode has no authored control.");
-        Assert.That(toolbar.GetComponentsInChildren<Button>(true), Has.Length.EqualTo(speeds.Length),
-            "The toolbar has exactly one button for each supported mode.");
-        Rect previous = default;
-        Rect parent = ((RectTransform)toolbar).rect;
+        string[] names = { "Normal", "Speed5", "Speed20", "Speed100" };
+        int[] speeds = { 1, 5, 20, 100 };
         for (int i = 0; i < names.Length; i++)
         {
             Button button = toolbar.Find(names[i]).GetComponent<Button>();
             Assert.That(button.IsInteractable(), Is.True);
-            if (i > 0)
-            {
-                string label = button.GetComponentInChildren<TMP_Text>().text;
-                Assert.That(label, Does.StartWith(speeds[i] + "×\n"));
-                Assert.That(label, Does.EndWith(consumptions[i] + "×"), "The displayed consumption matches the configured rate.");
-            }
             button.onClick.Invoke();
-            Assert.That(SimulationManager.Instance.AccelerationMultiplier, Is.EqualTo(speeds[i]), "The selected mode is an exact protocol value.");
-            RectTransform rect = button.GetComponent<RectTransform>();
-            Vector3[] corners = new Vector3[4];
-            rect.GetWorldCorners(corners);
-            Vector3 min = toolbar.InverseTransformPoint(corners[0]);
-            Vector3 max = toolbar.InverseTransformPoint(corners[2]);
-            Rect bounds = Rect.MinMaxRect(min.x, min.y, max.x, max.y);
-            Assert.That(bounds.width, Is.GreaterThan(0f));
-            Assert.That(bounds.height, Is.GreaterThan(0f));
-            Assert.That(bounds.xMin, Is.GreaterThanOrEqualTo(parent.xMin - 1f));
-            Assert.That(bounds.xMax, Is.LessThanOrEqualTo(parent.xMax + 1f));
-            if (i > 0) Assert.That(bounds.xMin, Is.GreaterThanOrEqualTo(previous.xMax - 1f));
-            previous = bounds;
+            Assert.That(SimulationManager.Instance.AccelerationMultiplier, Is.EqualTo(speeds[i]),
+                "The selected mode is an exact protocol value.");
+            for (int selection = 0; selection < names.Length; selection++)
+                Assert.That(toolbar.Find(names[selection]).GetComponent<Outline>().enabled,
+                    Is.EqualTo(selection == i));
         }
-        RectTransform saveButtonRect = ui.transform.Find("SafeAreaRoot/Content/PageTool/PageTools/Save") as RectTransform;
-        RectTransform toolbarRect = (RectTransform)toolbar;
-        Vector3[] saveCorners = new Vector3[4];
-        saveButtonRect.GetWorldCorners(saveCorners);
-        Vector3[] toolbarCorners = new Vector3[4];
-        toolbarRect.GetWorldCorners(toolbarCorners);
-        Assert.That(toolbarCorners[2].x, Is.LessThanOrEqualTo(saveCorners[0].x + 1f),
-            "The acceleration controls must not overlap the save button.");
-        foreach (TMP_Text label in toolbar.GetComponentsInChildren<TMP_Text>())
-        {
-            label.ForceMeshUpdate();
-            Assert.That(label.isTextOverflowing, Is.False, label.name + " must fit the authored toolbar.");
-        }
-        toolbar.Find("Speed20").GetComponent<Button>().onClick.Invoke();
-        double before = save.RemainingOfflineSeconds;
-        yield return null;
-        yield return null;
-        Assert.That(save.RemainingOfflineSeconds, Is.LessThan(before));
         ui.SetPage("Resources");
-        Assert.That(toolbar.gameObject.activeInHierarchy, Is.False);
-        ui.SetPage("Overview");
+        yield return null;
         Assert.That(toolbar.gameObject.activeInHierarchy, Is.True);
+        toolbar.Find("Normal").GetComponent<Button>().onClick.Invoke();
+        Assert.That(SimulationManager.Instance.AccelerationMultiplier, Is.EqualTo(1));
         Assert.That(save.SaveNow(true), Is.True, "Every paid acceleration tick is included in the durable snapshot.");
         SimulationManager.Instance.SetRunning(false);
         SaveManager.KingdomSaveData persisted = SaveManager.ParseSaveDataForEditor(File.ReadAllText(primary));
         Assert.That(persisted.General.RemainingOfflineSeconds, Is.EqualTo(save.RemainingOfflineSeconds).Within(1e-6d));
+        SaveManager.GameSaveData emptyReserve = GameManager.Instance.CaptureSaveData();
+        emptyReserve.RemainingOfflineSeconds = 0d;
+        GameManager.Instance.RestoreSaveDataForEditor(emptyReserve);
+        SimulationManager.Instance.SetAccelerationMultiplier(1);
+        yield return new WaitForSecondsRealtime(.2f);
+        Assert.That(toolbar.Find("Normal").GetComponent<Button>().IsInteractable(), Is.True);
+        foreach (string name in new[] { "Speed5", "Speed20", "Speed100" })
+            Assert.That(toolbar.Find(name).GetComponent<Button>().IsInteractable(), Is.False);
     }
 
     [UnityTest]

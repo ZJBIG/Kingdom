@@ -100,7 +100,6 @@ public sealed class KingdomCardPolishPlayModeTests
                 Bounds firstCard = RectTransformUtility.CalculateRelativeRectTransformBounds(OuterScroll().viewport, cards[0].Rect);
                 OuterScroll().content.anchoredPosition += Vector2.up * (OuterScroll().viewport.rect.yMax - firstCard.max.y - 8f);
                 Canvas.ForceUpdateCanvases();
-                Capture(camera, target, "story-collapsed");
                 float collapsedHeight = cards[0].Rect.rect.height;
                 cards[0].transform.Find("Header/Actions/StoryChapterToggle").GetComponent<Button>().onClick.Invoke();
                 yield return null;
@@ -146,7 +145,6 @@ public sealed class KingdomCardPolishPlayModeTests
                     Assert.That(new[] { "EraDefinition", "EraCapabilities", "EraTransitionStatus",
                         "EraResearchSummary", "EraResourceSummary", "EraPrimaryBlocker" }, Does.Not.Contain(row.name),
                         "Era archive must not restore redundant summary cards.");
-                Capture(camera, target, "era");
                 AssertForwardedDrag(archive.gameObject, camera);
                 camera.targetTexture = null;
                 target.Release();
@@ -238,25 +236,5 @@ public sealed class KingdomCardPolishPlayModeTests
         var corners = new Vector3[4];
         rect.GetWorldCorners(corners);
         return corners;
-    }
-
-    private static void Capture(Camera camera, RenderTexture target, string page)
-    {
-        string directory = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "data", "card-polish-20261013", "final"));
-        Directory.CreateDirectory(directory);
-        string path = Path.Combine(directory, page + "-" + target.width + "x" + target.height + ".png");
-        RenderTexture previous = RenderTexture.active;
-        Texture2D pixels = new Texture2D(target.width, target.height, TextureFormat.RGB24, false);
-        try
-        {
-            camera.Render();
-            RenderTexture.active = target;
-            pixels.ReadPixels(new Rect(0, 0, target.width, target.height), 0, 0);
-            pixels.Apply();
-            File.WriteAllBytes(path, pixels.EncodeToPNG());
-            Assert.That(new FileInfo(path).Length, Is.GreaterThan(0));
-            Debug.Log("[CardPolishScreenshot] " + path);
-        }
-        finally { RenderTexture.active = previous; Object.Destroy(pixels); }
     }
 }

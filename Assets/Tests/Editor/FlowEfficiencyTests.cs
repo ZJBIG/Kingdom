@@ -23,12 +23,12 @@ public sealed class FlowEfficiencyTests
     }
 
     [TestCase("DeepSpaceRelay", false, -23d)]
-    [TestCase("EarthMoonLogisticsHub", false, 240d)]
+    [TestCase("EarthMoonLogisticsHub", false, 1200d)]
     [TestCase("OrbitalResourceExtractionArray", false, 1200d)]
     [TestCase("OrbitalStation", false, 180d)]
     [TestCase("ThunderGatePropellantWorks", false, -38.666666666667d)]
     [TestCase("AutonomousMatterFabricator", false, 3000d)]
-    [TestCase("PhaseEnergyArray", true, 1410d)]
+    [TestCase("PhaseEnergyArray", true, 8000d)]
     public void MigratedBuildingUsesOneAuthoredSignedContribution(string id, bool power, double expected)
     {
         BuildingDef building = DataBase<BuildingDef>.Find(id);

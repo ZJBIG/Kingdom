@@ -15,7 +15,7 @@ MonoBehaviour:
   id: PhaseFieldEngineering
   Label: "相位场工程"
   Description: "将相位材料、幽影合金与跨星区工程标准连成一套施工准则，让陌生而复杂的结构也能被可靠建成。"
-  BaseCost: "8e11"
+  BaseCost: "180000000"
   prerequisites:
   - {fileID: 11400000, guid: 7f9c2e4a6b8d4013a5c7e9f102b4d6e8, type: 2}
   - {fileID: 11400000, guid: 9c0d1e2f30415263748596a7b8c9d0e1, type: 2}

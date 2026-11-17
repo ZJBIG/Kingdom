@@ -400,7 +400,6 @@ public sealed class KingdomCollectionPlayModeTests
                             if (root.GetDeconstructButtonForEditor(building) != null)
                             { root.ShowBuildingDetailsForEditor(building); break; }
                     Canvas.ForceUpdateCanvases();
-                    Capture(camera, target, page.ToLowerInvariant() + "-" + size.x + "x" + size.y);
                     Debug.Log("[CollectionUIEvidence] page=" + page + " size=" + size + " populated=" + populated);
                 }
                 camera.targetTexture = null;
@@ -418,24 +417,5 @@ public sealed class KingdomCollectionPlayModeTests
             if (target != null) { target.Release(); Object.Destroy(target); }
             Object.Destroy(cameraObject);
         }
-    }
-
-    private static void Capture(Camera camera, RenderTexture target, string name)
-    {
-        string directory = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "data", "production-compact-20261013"));
-        Directory.CreateDirectory(directory);
-        Texture2D pixels = new Texture2D(target.width, target.height, TextureFormat.RGB24, false);
-        RenderTexture previous = RenderTexture.active;
-        try
-        {
-            camera.Render();
-            RenderTexture.active = target;
-            pixels.ReadPixels(new Rect(0, 0, target.width, target.height), 0, 0);
-            pixels.Apply();
-            string path = Path.Combine(directory, name + ".png");
-            File.WriteAllBytes(path, pixels.EncodeToPNG());
-            Assert.That(new FileInfo(path).Length, Is.GreaterThan(0));
-        }
-        finally { RenderTexture.active = previous; Object.Destroy(pixels); }
     }
 }

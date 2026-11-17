@@ -1,4 +1,0 @@
-Started: 2026-11-04T22:23:20.7899773+08:00
-Command: D:\Unity\Hub\Editor\2022.3.62f3c1\Editor\Unity.exe -batchmode -force-d3d11 -projectPath D:\GitHub\Kingdom -runTests -testPlatform PlayMode -testFilter ReviewInteractionPlayModeTests.BuildingCards_AutomaticRefreshSkipsOffscreenCardsAndResumesWhenVisible;ReviewInteractionPlayModeTests.BuildingCards_CachedPageAndExplicitRefreshUpdateOffscreenCards;ReviewInteractionPlayModeTests.UiHotPaths_RecordMaxCardsAndResourceDetails -testResults D:\GitHub\Kingdom\data\performance-overview-20261104\play-old-loop.xml -logFile D:\GitHub\Kingdom\data\performance-overview-20261104\play-old-loop.log
-Input: final regression tests with only the new four-line card-culling guard removed; old full-row work is preserved.
-UnityExitCode=2 Result=Failed(Child) Total=3 Passed=2 Failed=1 Skipped=0

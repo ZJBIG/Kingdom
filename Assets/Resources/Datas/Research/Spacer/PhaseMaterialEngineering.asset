@@ -15,7 +15,7 @@ MonoBehaviour:
   id: PhaseMaterialEngineering
   Label: "相位材料工程"
   Description: "以幽影材料与高能场约束相位结构，探索常规物质之外的工程可能。"
-  BaseCost: "525000000"
+  BaseCost: "4200000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: 293a4b5c6d7e8f901a2b3c4d5e6f7081, type: 2}
@@ -39,5 +39,9 @@ MonoBehaviour:
     Building: {fileID: 11400000, guid: b6d8f0a2c4e65193b7d9f1a3c5e8f204, type: 2}
     Resource: {fileID: 0}
     value: "1.2"
+  - Type: 1
+    Building: {fileID: 11400000, guid: b6d8f0a2c4e65193b7d9f1a3c5e8f204, type: 2}
+    Resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+    value: "4"
   TechLevel: 4
   AdvancesTechLevel: 0

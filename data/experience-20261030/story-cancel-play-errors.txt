@@ -1,5 +1,0 @@
-Kingdom Unity Test Runner - Latest Error Report
-Generated: 2026-10-30T10:22:20.5472710+08:00
-Platform: PlayMode
-Result: Failed(Timeout)
-Unity PlayMode tests timed out after 180 seconds. Log=D:\GitHub\Kingdom/data/experience-20261030/story-cancel-play.log

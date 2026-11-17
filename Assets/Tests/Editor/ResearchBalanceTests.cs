@@ -133,13 +133,14 @@ public sealed class ResearchBalanceTests
     }
 
     [Test]
-    public void 已发布研究与工坊不得拥有空Effect()
+    public void 已发布研究与工坊必须具有实际用途()
     {
         foreach (ResearchDef research in DataBase<ResearchDef>.All)
         {
             Assert.That(research.Effects, Is.Not.Null, research.Id);
             Assert.That(
-                research.AdvancesTechLevel || research.Effects.Count > 0,
+                research.AdvancesTechLevel || ProgressionVisibilityRules.UnlocksProgressionPage(research) ||
+                research.Effects.Count > 0,
                 Is.True,
                 research.Id);
             for (int i = 0; i < research.Effects.Count; i++)

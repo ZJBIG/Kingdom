@@ -23,18 +23,18 @@ MonoBehaviour:
   territoryReward: "100000"
   resourceRewards: []
   occupiedResourceRatesPerSecond: []
-  colonizationFoodPerSecond: "2333.3333333"
+  colonizationFoodPerSecond: "200"
   colonizationResourceRatesPerSecond:
     - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
-      amount: "225"
+      amount: "4"
     - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
-      amount: "100"
+      amount: "10"
     - resource: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
-      amount: "225"
+      amount: "15"
     - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-      amount: "125"
+      amount: "1.5"
     - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
-      amount: "100"
+      amount: "2"
   colonizationDurationSeconds: "7200"
   campaignFoodPerSecond: "0"
   campaignResourceRatesPerSecond: []

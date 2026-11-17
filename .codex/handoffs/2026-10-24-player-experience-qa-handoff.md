@@ -742,3 +742,60 @@ SectorRow高192→264，SectorIcon136方图左内缩64、标题区中心y=-132�
 - 修改前后闭包通过，最终 `closure-verified.md`：工业及前83/83研究、37/37工坊、50/50建筑；Spacer47/47、52/52、26/26；Ultra15/15、3/3、3/3。全部79建筑资源对/正值/source-sink与字段核对通过，无相反生产消耗对。真实Unity编译完成，没有脚本编译、导入、Null/MissingReference错误；现有observer-test有意异常已由LogAssert消费。`git diff --check`通过，非本轮跟踪diff与模拟器diff保留核对通过。
 - 完整报告 `data/industrial-feedback-20261110/economy-rebalance/verification.md`，含279项字段表、实际供需、原/中间/最终 XML和命令、输入版本及已有失败。已更新根闭包与Latest测试摘要，旧指针先备份。此次受控fixture验证生产和供料行为，尚未测完整自然进度、等待与长期回本节奏；三个既有空效果失败仍待对应研究主题修复，不将综合检查记为全绿。
 - 字体已单独复制恢复原SHA256 `722BFD776012F77B34C3C33AB7BC512BE7DDDDBC4FD9C44709CE0206689C539F`且无diff；复用上一会话备份，不重试其被拒绝的删除。本轮没有Unity进程、隔离测试存档或临时项目残留，没有commit/push、依赖安装或真实存档操作。下一具体动作仅为有实际玩法证据时继续校准等待/回本；本轮修复已完成，外部运行验收不设代理门槛。
+
+## 2026-11-10 续接：工业至 Ultra 自然成长（实施中）
+
+- 用户已批准完整方案：工业到Spacer 2–4日、Spacer到现有Ultra主线2–4周；每天08/13/21各15分钟，离线仅积累储备，20×用尽后1×，另做5×对照。遵循原不用过时模拟器、不统一乘倍数的约束；不扩Archotech，不改存档v1/GUID，不处理外部运行交付。
+- 输入HEAD为abce5400011b0fe26ad636cf216ba97d2915c206，初始工作树干净。当前361份相关定义及meta原文、输入版本保存在data/industrial-growth-20261110/definition-input.json与input-version.json；本轮复用主工程，没有临时项目。font-before.backup仅用于恢复本轮Unity生成的动态字体变化，最终需清理本轮自己的备份。
+- 修改前closure-before.md通过，33种资源与各时代研究/工坊/建筑全部静态可达。真实Unity baseline-unlocks.xml/log共6项，2通过4预期失败：文明规划实际能解锁时代页，但经济验证仍把它认作无效果。窄共享用途判定已实现，保留无用途空研究拒绝，等待修后验证。
+- 现有EarlyVerticalSlicePacingTests正在改为真实SaveManager储备/SimulationManager加速路径；旧AdvanceOffline不再作为自然进度口径。下一动作：运行真实工业端点，记录完整资源/布局/等待，随后逐链调整工业供给与准入费用，再进入Spacer/Ultra。当前尚未修改经济定义，不将既有受控供料测试称为自然节奏通过。
+
+### 工业成长实施续接状态（覆盖上方“尚未修改”的早期状态）
+
+- 用户随后放宽时间至原目标的 33%–300%，工业到 Spacer 的正常参考带为 0.66–12 日，Spacer 到 Ultra 为 4.62–84 日。仍要求真正付费、满负荷供给与可再投资，不能用放宽时间代替资源闭环。
+- 已调整工业 6 项研究进度费、25 项工坊的指定材料费，以及炼油厂/工业石料厂的可选工坊前置；逐项初改和第二轮值在 `industrial-applied.json`、`industrial-revision2.json`。没有统一降低建筑造价。文明规划和时代跃迁的真实用途已纳入经济验证，并保留无用途空研究反例。
+- `industrial-second.xml/log`：真实 Unity EditMode 166/167、0 跳过，唯一失败为工业至 Spacer 13.6684 日超过 12 日；A/B/C 三个布局均实际付费、全住房入住、生产有效、逐资源供给余量至少 15%。C 配套实际占地 3662/4900、人口 1790。`industrial-checkpoint/` 是真实新游戏进入工业的已付费 v1 存档，可复用未变前缀；`spacer-checkpoint/` 来自第二轮，其工业时间未过门，最终需重捕获。
+- 新油链 PlayMode `industrial-play-verified.xml/log` 1/1、0 跳过、Unity 退出 0，真正编译执行完成。零原油/零化工品→小库存启动→欠油限产→付费补井→恢复满产→以新产化工品购买首炼油厂。前两份失败 XML 保留：批量几何预置建造预算与分次付款有约 0.003 钢的舍入差；初始非油/非化工建造预算增加 0.1% 有界余量后通过，未改正式付款规则。
+- 后期仍是未应用候选：科研楼原始研究力拟为 250→2600→5000→20000→40000；首深空观测站拟移除过早的量子计算前置。`late-candidates.json` 保存 47 项 Spacer、15 项 Ultra 科研费及必要工坊费用候选；大型工厂产出、现有研究定向成长与星区费用需在工业闭环通过后应用和实测。下一动作是提前实际可用的工业冶炼升级、解决旧煤矿几何扩建等待，再沿同一路线进入后期。未运行或参考旧模拟器。
+
+### 工业、科研与综合工厂已验证（覆盖上方候选状态）
+
+- 工业最终 `industrial-final.xml/log` 167/167、`industrial-third-play.xml/log` 3/3，真实 Unity 均退出 0、无跳过。工业到 Spacer 为 9.4669 日，A/B/C 均满住房、逐资源至少 15% 余量，C 实际占地 3662/4900。旧煤矿 PoweredMining 定向倍率 1.2→2、旧金属矿 1.2→3.2；煤矿峰值 46→30，工业 C 提前付款升级冶炼与电子。字段见 `industrial-revision3.json`、`industrial-route-final.json`。
+- 科研与太空入口已应用 `spacer-entry-applied.json` 的 68 文件/107 字段：大学基础科研 250 保持，深空观测站 220→2600、量子阵列 500→5000、理论中枢 900→20000、Ultra 中枢 1600→40000；观测站移除过早的 QuantumComputing 研究前置，Solar 电力 360→2400，47 项 Spacer/15 项 Ultra 科研费及指定研究定向成长同步。真实首次前置下每次科研升级的单位生产力收益均通过。
+- `spacer-entry.xml/log` 26/26、`spacer-entry-play.xml/log` 3/3。进入 Spacer 到首观测站 2.5398 日；完整配套占地 7796/17400、人口 3230，逐资源至少 15% 余量。`observatory-checkpoint/` 是 391 条真实付费命令后的 v1 检查点。
+- 大厂规模已应用 `late-scale-applied.json`（18 文件/114 字段）。综合厂主要基础产出：三矿 2400/800/300、钛 180、机械 360、复材 240、电子 160、火箭燃料 360；自主厂幽影合金/织物/相位/复材为 240/180/120/480；相位能源电力 1410→8000。保持大厂占地、生产力、持续配方、建造费与几何增长。DeepSpaceIndustrialIntegration、MatterTransmutationTheory 定向旧产业成长及必要工坊费用均已应用。
+- 星区 `sector-growth-applied.json` 调整 4 文件/7 产出字段与对应说明：碧池物流 240→1200，终焉复材/机械 6/3→96/64，碎冠三矿 96/24/6→1200/300/160，曜心电力 1200→3600；8 类零本土占地、2/1/3/3/3/1/1/1 限建及探索门保持。新增 7 输出运行比较已通过。雷门装载环的无效负物流产出倍率保持原状。
+- `comprehensive-third.xml/log` 110/110、`late-scale-play-verified.xml/log` 5/5，真实 Unity 退出 0、0 跳过，无脚本编译或 Null/MissingReference 错误。第一轮物流只有 90.45% 且部分原料余量不足，付款路线补入碧池中枢、第三矿山、第四幽影厂、第九钛厂；综合厂投产后退役七钛厂、两轨道机厂、一线材和一建材。最终实际占地 25194/117400、满员 12830、生产力 32176/44308.8，全部 33 资源检查通过，太空进入到综合厂约 4.996 日。检查点 `comprehensive-checkpoint/` 为 471 条命令。
+- 早期失败证据均保留。Food 单 tick 进度有六位小数量化，改为独立验证进度量化界与满供给时间的精确付款；Terminus 单结算段额外支付 20 粮，与居民日常净流和溢出分开核对。两项星区 PlayMode 的既有富文本价格断言先剥离 TMP 标签再核验可见价格，未修改 UI 或付款。新固定路线已编入后续研究、远征、Ultra 三阶段启动/提交和两场收束战役，目前正在验证远征准备；最终 5× 对照、Ultra 全程、可选行星工程、完整汇总及本轮字体恢复/备份清理尚待完成。未使用旧模拟器。
+
+### 完整主线与降价存档续接
+
+- `IndustrialHabitationEngineering` 最终 Steel 40000→25000，Electronics 保持 10000。原合法 v1 检查点会因历史实付高于新价而拒载，旧科研进度高于新 BaseCost 也有同样问题。已最小修正 `ResearchManager`/`ResearchState`：接受有限非负的历史实付及超出新价的进度，保留实付记录，进度沿已有路径钳制到新上限；未知、重复、无关、负值和欠付仍拒绝，没有退款、额外资源、存档迁移层或版本变化。四项真实付款后降价用例先复现再修复；`ultra-factories-second.xml/log` 41/41、退出 0。
+- 主线现 580 条真实付款命令。补入粮仓与标准集装箱工坊以满足现有第 6/11 章；研究前置已自动付费时不重复记录 `paid:`。完整主线只接受新局或 Spacer 前检查点，确保三种 Food 付款与工程运行期间投资记录完整；终点检查点在全部最终断言通过后导出。可选后缀 21 条，保留三项内部探索、冰海方舟、雷门和戴森现有六项工坊；不虚构冰海方舟阶段。
+- `full-five-first.xml/log` 的完整 5× 主线 Passed：工业→Spacer 12.0036 日，Spacer→Ultra 主线 32.0037 日，全部 18 章完成。18 个布局检查点均满员、实际生产、供给余量至少 15%；终点土地 43346/13797400、人口 21350。其扩大套件 548 项中 544 通过、4 个旧测试断言失败，失败证据保留，不能把整个套件记为通过。`full-five-first-checkpoint/` 是全部主线断言通过后的正式 v1 终点；5× 输入已保存 `full-five-first-input.json`。
+- 四个旧测试对应页面真实用途、物流生产设施选择、殖民总投入与奇点相对费用。物流同通道倍率按加成相加，太阳能与轨道站当前结算应为 3840/342，不能按倍率相乘。内部探索日志改名 `progressEquivalentBudget`，明确六位进度折算的预算不等于精确累计实付。
+- 最终定义报告 `field-changes-final.json/md` 已核对 361 份定义、123 份改动、339 项最终字段变化；中途还原值不计入。`closure-final.md` 全闭合，`flows-final.json` 覆盖 33 资源、79 建筑（工业及后期 55 栋），没有资源来源/用途缺口。现有 ID、脚本引用、meta 和存档 v1 保持，无 Archotech 越界。
+- 最终 20× 主线 `full-twenty-final.xml/log` 的路线用例 Passed：工业→Spacer 9.0000 日，Spacer→Ultra 收束 23.9996 日，三阶段工程与 18 章剧情全部完成，Food 三类独立分账通过。该次扩大套件 547/548，唯一失败是测试把同通道增益误写成相乘；定义/Runtime 均正确，已修正测试公式。原输入保存在 `full-twenty-final-input.json`，没有重跑或替换其失败证据。
+- `planet-projects-final.xml/log` 最终相关 EditMode **548/548**、0 跳过、Unity 退出 0，包含四个修正后的完整测试类。可选后缀从通过的 20× 主线终点接续，额外 8.459 日/13.906 游戏小时完成三项探索、八种设施及雷门/戴森六项工坊；全部现有剧情仍完成。两档主线各 18 个满员布局检查点，可选阶段另 2 个，材料持续供给余量全部至少 15%。
+- `final-growth-play.xml/log` **5/5**、0 跳过、Unity 退出 0；真实编译及 Console 检查通过，没有新增编译、导入、Null/MissingReference 或未预期异常。事务回归的五条 observer-test 异常已由 LogAssert 消费。相关回归已完成，未运行全项目测试。所有命令及退出码见同名前缀的 `-command.json`/`-run.json`。
+- 完整交付入口 `data/industrial-growth-20261110/verification.md`，包含 `field-changes-final.md`、`upgrade-returns.md`、`phase-layouts.json/md`、`phase-resources.md`、`visits.json/md` 与 XML/log。`final-source-audit.json` 核对 140 个源码/定义输入、361 份定义/meta 及新增测试 GUID，定义和 Runtime 与两档已通过主线输入一致。根闭包和 Latest-Test-Errors 已更新，旧指针先保留到本轮证据目录。
+- 字体已恢复原 SHA256 `722BFD776012F77B34C3C33AB7BC512BE7DDDDBC4FD9C44709CE0206689C539F` 且无 diff；无 Unity 进程、隔离测试存档或临时项目残留。先前内联清理命令被自动审批拒绝后，用户明确要求“用ps1清理”；已执行本轮证据目录中的 `cleanup-font-backup.ps1`，正常退出 0，仅删除已核验的 `font-before.backup`，释放 32,084,075 字节。已核验备份不存在且正式字体校验值未变，详情见 `cleanup-font-backup.json` 与更新后的 `font-restoration.json`。本轮清理无遗留，没有改动旧会话备份。此后续仅清理与更新记录，未执行真实 Unity 编译；游戏内容沿用上方已通过的验证，没有提交/推送、安装依赖或真实存档操作。
+
+## 2026-11-10 续接：加速储备消耗翻倍并生成 APK
+
+- 用户要求“生成apk，原来的5x和20x消耗倍率仍然稍少，再把时间消耗x2”。仅修改 SimulationManager 两档储备消耗 200→400、500→1000，KingdomUIRoot.prefab 静态按钮文案及两份现有测试预期，共四文件9行替换；实际游戏档位保持1/5/20，按已完成tick扣费、储备耗尽回1×的逻辑保持。没有继续改经济定义，工业至Ultra已有工作完整包含在新包中。
+- 真实Unity EditMode两轮XML均5/5、0跳过，但测试结束后Editor停在退出阶段；无图形复核重复。核验XML已完成、停滞超过120秒及自身命令行后，仅终止本轮PID38264和36340，运行器退出-1原样记录，不冒充正常退出。PlayMode acceleration-play.xml/log为2/2、0跳过、Unity退出0，实际场景的两档文案、档位点击、无文字溢出、扣费、暂停回访与保存通过。未出现脚本编译错误、缺资源、Null/MissingReference异常；Editor许可刷新提示、无图形renderer提示和退出web请求提示保留。
+- 使用现有tools/codex/build-android.ps1打包当前dirty工作区，HEAD abce5400011b0fe26ad636cf216ba97d2915c206。Android设置、UI合约和YAML脚本引用检查通过；真实Unity/IL2CPP编译完成，22:09:40构建运行器及Unity正常退出0，BuildReport 0错误、13警告。APK Builds/Android/Kingdom.apk，213179365字节（203.30MiB），生成22:09:31，SHA256 045DF52D4F1146881F7E4EA5040AF0D5A403F7A1F2B600C2BB2A650E245ECDC9；包com.ZJ.Kingdom、0.5/code1、ARM64、ASTC、min22/target35。apksigner v1/v2验证退出0，aapt包信息退出0，92项ZIP CRC及IL2CPP必需条目通过。
+- 签名兼容性有明确限制：当前既有ANDROID_USER_HOME为D:/Android/UserHome，debug.keystore生成于11月7日，证书44b3da13cb2f19b53ed04a3c484fbd2be43d4dcc9fbea5e69d8c88faf80aea2e；归档11月4日旧APK证书为0876c29ef3ce6f31d6788776de1b1f0c86630207ce5d5953d01605959ef5d908。新旧不一致，不能直接覆盖安装该旧包。检查常用Android目录与项目归档未找到旧key；要同签名覆盖更新，需要定位/提供旧签名文件。本轮未改签名设置、未新建key，不操作设备或真实存档。旧包已保存在.codex/archive/2026-11-10-acceleration-apk/previous-Kingdom.apk并核验原哈希。
+- 证据入口data/acceleration-apk-20261110/verification.md与build-result.json；source-before.json、build-input.json及final-source-audit.json核对构建期间154项输入未变，原既有工作树修改保留。旧主线9/12日、24/32日使用200/500消耗，本次翻倍后没有重跑完整路线，不得将旧天数称为当前APK实测；没有自动放宽旧路线断言。
+- 字体构建前已恢复原SHA256 722BFD776012F77B34C3C33AB7BC512BE7DDDDBC4FD9C44709CE0206689C539F，构建后仍一致；按用户“用ps1清理”执行本轮cleanup-font-backup.ps1，正常退出0，仅删除本轮font-before.backup共32084075字节，已核验目录项不存在且正式字体未变。无Unity进程、相关隔离测试存档或临时验证项目残留；未commit/push或安装依赖。APK生成任务已完成，签名覆盖限制及EditMode退出异常如上保留。
+
+
+## 2026-11-17 续接：底部全局加速栏与全新 ImageGen 图标
+
+- 最终档位 1/5/20/100，每现实秒储备消耗 0/5/40/250。SimulationManager 沿用完成 tick 扣费、切档清积压和耗尽回 1×。工具栏创作于原 Prefab 的 SafeAreaRoot/NotificationBar/OfflineAccelerationToolbar，全局可见。五张全新 ImageGen 图标位于 Assets/Resources/Texture/AccelerationIcons，选中档启用金色 Outline 与琥珀背景。
+- 功能完成时真实 Unity EditMode 17/17、PlayMode 2/2，均退出 0。底部 2640×1200、1920×1080 图像已查看。此结果发生在下述测试精简之前。
+- 用户要求清理历次冗余测试。删除 6 个旧 EditMode 方法，覆盖时代可达、资源来源用途和住房链，其断言已由 ContentProgressionValidatorTests、BuildingVerticalSliceTests、C6IndustrialContentTests 全量覆盖。同步移除独占数组与 helper。
+- 删除加速截图 helper、重复布局/文案/全页面循环断言，保留启动累计、四档选择与描边、跨页可见、保存和空余额禁用。另清除 ButtonMaterial、CardPolish、Collection、PlannerPages、PlayerQaFreshSession、PlayerQaRelicLayout 中自动 PNG 输出与专用 helper，FreshSession 的性能日志/存档拷贝也移除，原行为及几何断言保留。
+- 清理后执行 build-developer-assembly.ps1 -Assembly Editor 和 compile-developer-tests.ps1 -Target All，Runtime/Editor 及两类测试程序集编译退出 0，git diff --check 通过。本次清理未执行真实 Unity 编译，未运行测试用例。没有新增测试或独立清理报告。
+- 报告目录删除曾被自动审批拒绝，用户随后自行清理。2026-11-17 上传与构建前已核验 data/global-acceleration-20261117 不存在，工作区另有 383 项历史 data 文件删除。按用户要求将当前工业/科研、全局加速、新图标、测试精简、字体及报告删除一并提交至现有 main 分支，然后用 tools/codex/build-android.ps1 生成 APK。构建结果以本任务后续实测为准。

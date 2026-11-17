@@ -15,7 +15,7 @@ MonoBehaviour:
   id: InterstellarRouteControlTheory
   Label: "\u661f\u9645\u822a\u8def\u7ba1\u5236\u7406\u8bba"
   Description: "安排航路时隙、轨道泊位与货运交接，让繁忙星港里的船只各循其序。"
-  BaseCost: "1218000000"
+  BaseCost: "54000000"
   prerequisites:
   - {fileID: 11400000, guid: 3f8a4c2e1d7b49f6a0c5e8b2d4f7a913, type: 2}
   - {fileID: 11400000, guid: 8e9f0a1b2c3d4e5f60718293a4b5c6d8, type: 2}

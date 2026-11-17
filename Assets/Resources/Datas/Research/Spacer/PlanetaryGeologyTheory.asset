@@ -15,7 +15,7 @@ MonoBehaviour:
   id: PlanetaryGeologyTheory
   Label: "\u884c\u661f\u5730\u8d28\u5b66\u7406\u8bba"
   Description: "结合轨道遥测、重力扫描与矿芯分析，读懂陌生行星深藏在岩层里的历史。"
-  BaseCost: "352000000"
+  BaseCost: "16000000"
   prerequisites:
   - {fileID: 11400000, guid: 8e5d3c2b1a09876543210fedcba98765, type: 2}
   - {fileID: 11400000, guid: c4d5e6f7a8b9012c3d4e5f60718293a4, type: 2}

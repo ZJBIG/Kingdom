@@ -15,7 +15,7 @@ MonoBehaviour:
   id: PhaseGridSynchronization
   Label: "相位电网同步"
   Description: "同步跨星区电网的负载与相位，让远方的能源设施也能协同应对变化。"
-  BaseCost: "2.4e12"
+  BaseCost: "300000000"
   prerequisites:
   - {fileID: 11400000, guid: a91c4e6d2b7f4a80b3e5d1c9f6a2e7b4, type: 2}
   - {fileID: 11400000, guid: e7b3c9d1f5a64280bc14e6a9d2f7c5b8, type: 2}

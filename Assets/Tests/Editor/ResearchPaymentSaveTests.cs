@@ -106,6 +106,96 @@ public sealed class ResearchPaymentSaveTests
             Is.EqualTo(required.ToDouble()).Within(1e-7));
     }
 
+    [TestCase(false)]
+    [TestCase(true)]
+    public void CurrentSave_FormerMaterialPriceRetainsActualPayment(bool completed)
+    {
+        CreateManager<BuildingManager>();
+        ResearchDef definition = DataBase<ResearchDef>.Find("Quarry");
+        var originalCosts = new List<Pair<ResourceDef, ExpantaNum>>(definition.ResourceRequirements);
+        ResourceManager resources = ResourceManager.Instance;
+        try
+        {
+            foreach (var cost in originalCosts) resources.SetAmount(cost.First, cost.Second * 2);
+            Assert.That(manager.HandleResearchAction(definition), Is.EqualTo(ResearchActionResult.Started));
+            if (completed)
+                manager.Tick((manager.GetState(definition).BaseCost / manager.CurrentResearchSpeed).ToDouble() + 1d);
+            SaveManager.ResearchSaveData saved = manager.CaptureSaveData();
+            var lowerCosts = new List<Pair<ResourceDef, ExpantaNum>>();
+            foreach (var cost in originalCosts) lowerCosts.Add(new Pair<ResourceDef, ExpantaNum>(cost.First, cost.Second / 2));
+            definition.SetResourceRequirementsForEditor(lowerCosts);
+            UnityEngine.Object.DestroyImmediate(manager.gameObject);
+            manager = CreateManager<ResearchManager>();
+            manager.InitializeForEditor();
+
+            manager.RestoreSaveDataForEditor(saved);
+            ResearchState restored = manager.GetState(definition);
+            Assert.That(restored.CostPaid, Is.True);
+            if (completed) Assert.That(restored.Status, Is.EqualTo(ResearchStatus.Completed));
+            else
+            {
+                Assert.That(manager.ActiveResearch, Is.SameAs(restored));
+                Assert.That(manager.RemoveQueuedResearch(definition), Is.True);
+                Assert.That(manager.HandleResearchAction(definition), Is.EqualTo(ResearchActionResult.Started));
+            }
+            manager.RestoreSaveDataForEditor(manager.CaptureSaveData());
+            foreach (var cost in originalCosts)
+            {
+                Assert.That(manager.GetState(definition).GetPaidResourceCost(cost.First).ToDouble(),
+                    Is.EqualTo(cost.Second.ToDouble()).Within(1e-7), "Retain the actual historical payment.");
+                Assert.That(resources.GetAmount(cost.First).ToDouble(), Is.EqualTo(cost.Second.ToDouble()).Within(1e-7),
+                    "Loading, cancelling and restarting paid research neither refunds nor charges materials.");
+            }
+        }
+        finally
+        {
+            definition.SetResourceRequirementsForEditor(originalCosts);
+        }
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public void CurrentSave_FormerResearchCostPreservesEarnedCompletion(bool completed)
+    {
+        CreateManager<BuildingManager>();
+        ResearchDef definition = DataBase<ResearchDef>.Find("Quarry");
+        string originalCost = definition.BaseCost;
+        ResourceManager resources = ResourceManager.Instance;
+        try
+        {
+            foreach (var cost in definition.ResourceRequirements) resources.SetAmount(cost.First, cost.Second * 2);
+            Assert.That(manager.HandleResearchAction(definition), Is.EqualTo(ResearchActionResult.Started));
+            ExpantaNum oldBaseCost = manager.GetState(definition).BaseCost;
+            double seconds = (oldBaseCost / manager.CurrentResearchSpeed).ToDouble();
+            manager.Tick(completed ? seconds + 1d : seconds * 0.75d);
+            SaveManager.ResearchSaveData saved = manager.CaptureSaveData();
+            definition.BaseCost = (oldBaseCost / 2).ToString();
+            UnityEngine.Object.DestroyImmediate(manager.gameObject);
+            manager = CreateManager<ResearchManager>();
+            manager.InitializeForEditor();
+
+            manager.RestoreSaveDataForEditor(saved);
+            ResearchState restored = manager.GetState(definition);
+            Assert.That(restored.Progress.ToDouble(), Is.EqualTo(restored.BaseCost.ToDouble()).Within(1e-7));
+            Assert.That(restored.CostPaid, Is.True);
+            if (!completed)
+            {
+                Assert.That(manager.ActiveResearch, Is.SameAs(restored));
+                manager.Tick(0d); // The normal completion path applies effects exactly once.
+            }
+            Assert.That(restored.Status, Is.EqualTo(ResearchStatus.Completed));
+            Assert.That(manager.ActiveResearch, Is.Null);
+            manager.RestoreSaveDataForEditor(manager.CaptureSaveData());
+            Assert.That(manager.GetState(definition).Status, Is.EqualTo(ResearchStatus.Completed));
+            foreach (var cost in definition.ResourceRequirements)
+                Assert.That(resources.GetAmount(cost.First).ToDouble(), Is.EqualTo(cost.Second.ToDouble()).Within(1e-7));
+        }
+        finally
+        {
+            definition.BaseCost = originalCost;
+        }
+    }
+
     [Test]
     public void CurrentSave_NegativeEfficiencyFailsBeforeResearchStateMutation()
     {
@@ -140,7 +230,8 @@ public sealed class ResearchPaymentSaveTests
     }
 
     [TestCase("duplicate")]
-    [TestCase("overpaid")]
+    [TestCase("negative")]
+    [TestCase("unrelated")]
     [TestCase("incomplete")]
     [TestCase("unknown")]
     public void CurrentSave_InvalidLedgerFailsBeforeResearchStateMutation(string defect)
@@ -152,7 +243,8 @@ public sealed class ResearchPaymentSaveTests
         List<SaveManager.ResearchResourceCostSaveData> costs = invalid.States[0].PaidResourceCosts;
         SaveManager.ResearchResourceCostSaveData paidCost = costs.Find(cost => cost.ResourceId == resource.Id);
         if (defect == "duplicate") costs.Add(new SaveManager.ResearchResourceCostSaveData { ResourceId = resource.Id, Amount = "0" });
-        else if (defect == "overpaid") paidCost.Amount = (required + 1).ToString();
+        else if (defect == "negative") paidCost.Amount = "-1";
+        else if (defect == "unrelated") paidCost.ResourceId = "PhaseMaterial";
         else if (defect == "unknown") paidCost.ResourceId = "MissingResource";
         else paidCost.Amount = "0";
         Assert.Throws(defect == "unknown" ? typeof(KeyNotFoundException) : typeof(InvalidOperationException),

@@ -439,7 +439,7 @@ public sealed partial class KingdomUIRoot
         // placeholder as soon as managers finish initializing.
         BuildDevelopmentGuidance(pages["Overview"]);
         BindOverviewNavigationToolbar(content as RectTransform);
-        BindOfflineAccelerationToolbar(content as RectTransform);
+        BindOfflineAccelerationToolbar();
 
         pageScroll = pageHost.GetComponent<ScrollRect>();
         if (pageScroll == null)

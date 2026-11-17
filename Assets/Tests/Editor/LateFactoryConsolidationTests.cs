@@ -3,6 +3,23 @@ using NUnit.Framework;
 
 public sealed class LateFactoryConsolidationTests
 {
+    [TestCase("University", "DeepSpaceObservatory")]
+    [TestCase("DeepSpaceObservatory", "QuantumComputingArray")]
+    [TestCase("QuantumComputingArray", "InterstellarTheoryNexus")]
+    public void ResearchUpgradeImprovesOutputAndProductivityEfficiency(string sourceId, string targetId)
+    {
+        BuildingDef source = DataBase<BuildingDef>.Find(sourceId);
+        BuildingDef target = DataBase<BuildingDef>.Find(targetId);
+        Assert.That(source.UpgradeTo, Is.SameAs(target));
+        Assert.That(target.ResearchPowerGranted.ToDouble(),
+            Is.GreaterThan(source.ResearchPowerGranted.ToDouble() * 1.5d),
+            "A research upgrade must deliver a visible increase before later optional upgrades.");
+        double sourceYield = (source.ResearchPowerGranted / source.ProductivityConsumption).ToDouble();
+        double targetYield = (target.ResearchPowerGranted / target.ProductivityConsumption).ToDouble();
+        Assert.That(targetYield, Is.GreaterThanOrEqualTo(sourceYield - 1e-8d),
+            "The larger research facility must not reduce research per unit of committed productivity.");
+    }
+
     [Test]
     public void OrbitalProcessingRetainsItsIndustrialFeedstocks()
     {
@@ -19,9 +36,10 @@ public sealed class LateFactoryConsolidationTests
     {
         BuildingDef factory = DataBase<BuildingDef>.Find("AutonomousMatterFabricator");
         double titanium = factory.ResourceConsumptionRates.First(pair => pair.First.Id == "TitaniumAlloy").Second.ToDouble();
-        double alloy = factory.ResourceGenerationRates.First(pair => pair.First.Id == "PhantomAlloy").Second.ToDouble();
-        Assert.That(titanium / alloy, Is.GreaterThanOrEqualTo(10d),
-            "Advanced assembly must retain substantial titanium feedstock per unit of phantom alloy.");
+        BuildingDef predecessor = DataBase<BuildingDef>.Find("PhantomMaterialsFabricator");
+        double previousTitanium = predecessor.ResourceConsumptionRates.First(pair => pair.First.Id == "TitaniumAlloy").Second.ToDouble();
+        Assert.That(titanium, Is.GreaterThanOrEqualTo(previousTitanium * 8d),
+            "The large assembly network must retain substantial industrial throughput as its material yield improves.");
         foreach (string id in new[] { "Electronics", "Machinery", "AdvancedMetalIngot" })
             Assert.That(factory.ResourceConsumptionRates.First(pair => pair.First.Id == id).Second.ToDouble(),
                 Is.GreaterThan(5d), id);

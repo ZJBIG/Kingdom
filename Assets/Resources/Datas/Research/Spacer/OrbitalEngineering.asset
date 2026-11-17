@@ -15,7 +15,7 @@ MonoBehaviour:
   id: OrbitalEngineering
   Label: "轨道工程"
   Description: "研究失重环境下的结构、电力与连接，让工程不再以坚实地面为前提。"
-  BaseCost: "38400000"
+  BaseCost: "8000000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: 75de12faf9372884795af2ccd72dc297, type: 2}
@@ -38,5 +38,105 @@ MonoBehaviour:
     Building: {fileID: 11400000, guid: 9f6e4d2c1b0a9876543210fedcba9876, type: 2}
     Resource: {fileID: 0}
     value: "1.15"
+  - Type: 1
+    Building: {fileID: 11400000, guid: 00e6d4062fd67694882028341311d791, type: 2}
+    Resource: {fileID: 11400000, guid: cab0b756c4a7b1540a580c0e836cd806, type: 2}
+    value: "2"
+  - Type: 1
+    Building: {fileID: 11400000, guid: 00e6d4062fd67694882028341311d791, type: 2}
+    Resource: {fileID: 11400000, guid: eff51b472ae372e4f9c9f24c89d112e3, type: 2}
+    value: "2"
+  - Type: 1
+    Building: {fileID: 11400000, guid: 00e6d4062fd67694882028341311d791, type: 2}
+    Resource: {fileID: 11400000, guid: 605f4f30b687fbf428ee44c2b5715c51, type: 2}
+    value: "2"
+  - Type: 1
+    Building: {fileID: 11400000, guid: 4acdbb942d9189940a48779c3dcde64e, type: 2}
+    Resource: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
+    value: "2"
+  - Type: 1
+    Building: {fileID: 11400000, guid: 4acdbb942d9189940a48779c3dcde64e, type: 2}
+    Resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    value: "2"
+  - Type: 1
+    Building: {fileID: 11400000, guid: f47f54a459b7d77428e496a64da76c61, type: 2}
+    Resource: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
+    value: "2"
+  - Type: 1
+    Building: {fileID: 11400000, guid: 30afe5eba41c80e40ad21a0e658f9170, type: 2}
+    Resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    value: "2"
+  - Type: 1
+    Building: {fileID: 11400000, guid: e1c2d3e4f5674890b1c2d3e4f5678905, type: 2}
+    Resource: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
+    value: "1.5"
+  - Type: 1
+    Building: {fileID: 11400000, guid: e1c2d3e4f5674890b1c2d3e4f5678907, type: 2}
+    Resource: {fileID: 11400000, guid: fea41a5d90eee6d42889456bd49f5ec5, type: 2}
+    value: "2"
+  - Type: 1
+    Building: {fileID: 11400000, guid: e1c2d3e4f5674890b1c2d3e4f5678908, type: 2}
+    Resource: {fileID: 11400000, guid: 368963e163df7904b9e0282d7da20ac4, type: 2}
+    value: "2"
+  - Type: 1
+    Building: {fileID: 11400000, guid: e1c2d3e4f5674890b1c2d3e4f5678908, type: 2}
+    Resource: {fileID: 11400000, guid: f19a0c20ce7222a48a86f190be8d7917, type: 2}
+    value: "2"
+  - Type: 1
+    Building: {fileID: 11400000, guid: e1c2d3e4f5674890b1c2d3e4f5678908, type: 2}
+    Resource: {fileID: 11400000, guid: 8dd04e7a08c489243b94fb4ed6aa6b05, type: 2}
+    value: "2"
+  - Type: 1
+    Building: {fileID: 11400000, guid: e1c2d3e4f5674890b1c2d3e4f5678908, type: 2}
+    Resource: {fileID: 11400000, guid: 2c025959bcb548f1bba4d459df5f2e5c, type: 2}
+    value: "2"
+  - Type: 1
+    Building: {fileID: 11400000, guid: e1c2d3e4f5674890b1c2d3e4f5678908, type: 2}
+    Resource: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
+    value: "2"
+  - Type: 1
+    Building: {fileID: 11400000, guid: e1c2d3e4f5674890b1c2d3e4f5678906, type: 2}
+    Resource: {fileID: 11400000, guid: 3583e10cfbef82d47b5a78f192cc80b7, type: 2}
+    value: "2"
+  - Type: 1
+    Building: {fileID: 11400000, guid: e1c2d3e4f5674890b1c2d3e4f5678906, type: 2}
+    Resource: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
+    value: "2"
+  - Type: 1
+    Building: {fileID: 11400000, guid: 6a2f8c4d1e9b5073a6c2f8e4b1d7a930, type: 2}
+    Resource: {fileID: 11400000, guid: bf2b669cfeb39be4296819ca44b67e98, type: 2}
+    value: "2"
+  - Type: 1
+    Building: {fileID: 11400000, guid: 6a2f8c4d1e9b5073a6c2f8e4b1d7a930, type: 2}
+    Resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    value: "2"
+  - Type: 1
+    Building: {fileID: 11400000, guid: a7b8c9d0e1f24356a7b8c9d0e1f24356, type: 2}
+    Resource: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
+    value: "2"
+  - Type: 1
+    Building: {fileID: 11400000, guid: a1c2d3e4f5674890b1c2d3e4f5678901, type: 2}
+    Resource: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
+    value: "2"
+  - Type: 1
+    Building: {fileID: 11400000, guid: 91dcce6626f54f46b212e145f15b2aae, type: 2}
+    Resource: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
+    value: "1.8"
+  - Type: 1
+    Building: {fileID: 11400000, guid: 91dcce6626f54f46b212e145f15b2aae, type: 2}
+    Resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    value: "1.8"
+  - Type: 1
+    Building: {fileID: 11400000, guid: 91dcce6626f54f46b212e145f15b2aae, type: 2}
+    Resource: {fileID: 11400000, guid: 83c7a054235ab2d4ea6c0135a631aa93, type: 2}
+    value: "1.8"
+  - Type: 1
+    Building: {fileID: 11400000, guid: d7108dfb178fc7742b642aff880bcb8c, type: 2}
+    Resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+    value: "2.5"
+  - Type: 1
+    Building: {fileID: 11400000, guid: f2a3b4c5d6e708192a4b5c6d7e8f9012, type: 2}
+    Resource: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
+    value: "2"
   TechLevel: 4
   AdvancesTechLevel: 1

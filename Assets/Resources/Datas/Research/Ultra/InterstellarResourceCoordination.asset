@@ -15,7 +15,7 @@ MonoBehaviour:
   id: InterstellarResourceCoordination
   Label: "星际资源协同"
   Description: "统筹轨道工厂的物料配送，让不同星区的需要和余裕能够彼此衔接。"
-  BaseCost: "3.8e12"
+  BaseCost: "360000000"
   prerequisites:
   - {fileID: 11400000, guid: f0a9c3e7b1d54682ac95e0f7d3b8c6a1, type: 2}
   - {fileID: 11400000, guid: c4e8a1f7b2d94690ad35ef681c0b7a23, type: 2}

@@ -15,7 +15,7 @@ MonoBehaviour:
   id: OrbitalLogisticsInfrastructure
   Label: "\u8F68\u9053\u540E\u52E4\u57FA\u7840"
   Description: "统一空间站货舱、补给接口与舰队调度，让轨道成为连接家园与远方的可靠驿站。"
-  BaseCost: "160000000"
+  BaseCost: "1800000"
   prerequisites:
   - {fileID: 11400000, guid: b3e1a7c94d2f6081ab35c7e9d4f26018, type: 2}
   - {fileID: 11400000, guid: 36c4ed2ac1bc87046b4e53fe5fe3ea5f, type: 2}

@@ -15,7 +15,7 @@ MonoBehaviour:
   id: SelfRepairingFleetArchitecture
   Label: "舰队自修复架构"
   Description: "统一船体接口与自动检修工序，让远航中的伤痕能够在返港之前得到照料。"
-  BaseCost: "1.05e13"
+  BaseCost: "600000000"
   prerequisites:
   - {fileID: 11400000, guid: c4e8a1f7b2d94690ad35ef681c0b7a23, type: 2}
   - {fileID: 11400000, guid: f0a9c3e7b1d54682ac95e0f7d3b8c6a1, type: 2}

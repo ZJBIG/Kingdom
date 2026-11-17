@@ -57,4 +57,3 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1a64336320babdc47a1001100e678c63, type: 2}
   requiredWorkshopUpgrades:
   - {fileID: 11400000, guid: 786ea0ba62febff4f9a2957b88ba39c2, type: 2}
-  - {fileID: 11400000, guid: 14b5973cf44e9ae418087a64601755ea, type: 2}

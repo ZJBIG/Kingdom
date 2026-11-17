@@ -15,7 +15,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 9ec7185f0842463da6bd98a3c7ad131a, type: 3}
   id: UltraComputingNexus
   Label: "极限计算中枢"
-  Description: "量子阵列与相位结构交织成跨星区的计算网络，为遥远世界的观测与疑问寻找共同答案。"
+  Description: "量子阵列与相位结构交织成跨星区的计算网络，在理论中枢之上扩展科研吞吐，为文明工程与远征持续提供计算能力。"
   TechLevel: 5
   upgradeTo: {fileID: 0}
   costGrowth: "1.25"
@@ -23,7 +23,7 @@ MonoBehaviour:
   productivityConsumption: "1800"
   productivityGranted: "0"
   populationCapacityGranted: "0"
-  researchPowerGranted: "1600"
+  researchPowerGranted: "40000"
   foodProductionRate: "0"
   foodConsumptionRate: "6"
   foodCapacityGranted: "0"

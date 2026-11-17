@@ -16,7 +16,6 @@ public sealed class PlayerQaFreshSessionPlayModeTests
     private int width, height;
     private GameObject renderHost;
     private RenderTexture renderTarget;
-    private readonly string evidence = Path.GetFullPath("data/player-qa-fixes-20261025");
 
     [SetUp] public void SetUp()
     {
@@ -94,7 +93,6 @@ public sealed class PlayerQaFreshSessionPlayModeTests
             if (BuildingManager.Instance.GetState(house).Amount >= ExpantaNum.One) break;
             if (stage != null && stage.CanInteract)
             {
-                if (operation < 3) Capture("fresh-operation-" + operation);
                 RectTransform target = stage.Action == TutorialStageAction.Inspect
                     ? root.transform.Find("SafeAreaRoot/OnboardingOverlay/Panel/Next") as RectTransform
                     : root.OnboardingTargetForEditor;
@@ -114,7 +112,6 @@ public sealed class PlayerQaFreshSessionPlayModeTests
         root.RefreshAutomaticUIForEditor();
         Canvas.ForceUpdateCanvases();
         yield return null;
-        Capture("fresh-first-house");
         Assert.That(TutorialManager.Current.CompletedStageIds, Does.Contain("resources"));
         Assert.That(TutorialManager.Current.CompletedStageIds, Does.Contain("building"));
         TestContext.WriteLine($"QA milestone=first-house acceleratedSeconds={advanced} wood={ResourceManager.Instance.GetAmount(wood)}");
@@ -150,11 +147,8 @@ public sealed class PlayerQaFreshSessionPlayModeTests
             frames++;
         }
         TestContext.WriteLine($"QA idle frames={frames} seconds={watch.Elapsed.TotalSeconds:F3} meanMs={watch.Elapsed.TotalMilliseconds / frames:F3} maxMs={largest:F3} buildings=1 research=0 simulationPaused=true");
-        string perfLog = Path.GetFullPath("Temp/KingdomPerf.log");
-        if (File.Exists(perfLog)) File.Copy(perfLog, Path.Combine(evidence, "KingdomPerf-final.log"), true);
         Assert.That(SaveManager.Instance.SaveNow(true), Is.True);
         Assert.That(File.Exists(Path.Combine(saveRoot, "KingdomSave-v1.json")), Is.True);
-        File.Copy(Path.Combine(saveRoot, "KingdomSave-v1.json"), Path.Combine(evidence, "first-house-isolated-save.json"), true);
     }
 
     private static void Click(RectTransform rect)
@@ -177,48 +171,5 @@ public sealed class PlayerQaFreshSessionPlayModeTests
         pointer.rawPointerPress = hit;
         ExecuteEvents.Execute(pressed, pointer, ExecuteEvents.pointerUpHandler);
         ExecuteEvents.Execute(pressed, pointer, ExecuteEvents.pointerClickHandler);
-    }
-
-    private void Capture(string name)
-    {
-        Canvas canvas = root.GetComponent<Canvas>();
-        RenderMode previousMode = canvas.renderMode;
-        Camera previousCamera = canvas.worldCamera;
-        float previousDistance = canvas.planeDistance;
-        var host = new GameObject("PlayerQaEvidenceCamera");
-        var camera = host.AddComponent<Camera>();
-        var target = new RenderTexture(2640, 1200, 24);
-        var pixels = new Texture2D(2640, 1200, TextureFormat.RGB24, false);
-        RenderTexture previousTarget = RenderTexture.active;
-        try
-        {
-            camera.enabled = false;
-            camera.transform.position = new Vector3(0, 0, -10);
-            camera.clearFlags = CameraClearFlags.SolidColor;
-            camera.backgroundColor = Color.black;
-            target.Create();
-            camera.targetTexture = target;
-            canvas.renderMode = RenderMode.ScreenSpaceCamera;
-            canvas.worldCamera = camera;
-            canvas.planeDistance = 100;
-            Canvas.ForceUpdateCanvases();
-            camera.Render();
-            RenderTexture.active = target;
-            pixels.ReadPixels(new Rect(0, 0, 2640, 1200), 0, 0);
-            pixels.Apply();
-            File.WriteAllBytes(Path.Combine(evidence, name + ".png"), pixels.EncodeToPNG());
-        }
-        finally
-        {
-            RenderTexture.active = previousTarget;
-            canvas.renderMode = previousMode;
-            canvas.worldCamera = previousCamera;
-            canvas.planeDistance = previousDistance;
-            camera.targetTexture = null;
-            target.Release();
-            Object.DestroyImmediate(target);
-            Object.DestroyImmediate(pixels);
-            Object.DestroyImmediate(host);
-        }
     }
 }

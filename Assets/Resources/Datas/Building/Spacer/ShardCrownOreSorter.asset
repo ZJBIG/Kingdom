@@ -15,7 +15,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 0efae75a8b944ed7ac428de09ba82e82, type: 3}
   id: ShardCrownOreSorter
   Label: "碎冠带矿料分选站"
-  Description: "在碎冠带主动部署采掘与分选设备，供给基础、高级与特殊矿料。需要炸药、精炼燃料及机械维护，冶炼仍由既有工业承担。"
+  Description: "利用碎冠带矿群集中采掘与分选，大量供给基础、高级与特殊矿料。设备持续消耗炸药、精炼燃料及机械，矿料仍需送入冶炼与加工设施。"
   TechLevel: 4
   upgradeTo: {fileID: 0}
   costGrowth: "1.25"
@@ -36,11 +36,11 @@ MonoBehaviour:
     amount: "1200"
   resourceGenerationRates:
   - resource: {fileID: 11400000, guid: cab0b756c4a7b1540a580c0e836cd806, type: 2}
-    amount: "96"
+    amount: "1200"
   - resource: {fileID: 11400000, guid: eff51b472ae372e4f9c9f24c89d112e3, type: 2}
-    amount: "24"
+    amount: "300"
   - resource: {fileID: 11400000, guid: 605f4f30b687fbf428ee44c2b5715c51, type: 2}
-    amount: "6"
+    amount: "160"
   resourceConsumptionRates:
   - resource: {fileID: 11400000, guid: 2c025959bcb548f1bba4d459df5f2e5c, type: 2}
     amount: "1"

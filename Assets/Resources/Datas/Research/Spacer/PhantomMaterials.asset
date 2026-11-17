@@ -15,7 +15,7 @@ MonoBehaviour:
   id: PhantomMaterials
   Label: "幽影材料工程"
   Description: "探索钛合金与复合材料在相位条件下的结合，让轻而坚韧的深空结构成为现实。"
-  BaseCost: "320000000"
+  BaseCost: "3600000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: d5a3c9e1f704286ab57d9c3e8f1026b4, type: 2}
@@ -44,5 +44,13 @@ MonoBehaviour:
     Building: {fileID: 11400000, guid: 0f2e6a4b8c1d5079e3f5a7b9c2d4e6f8, type: 2}
     Resource: {fileID: 0}
     value: "1.15"
+  - Type: 1
+    Building: {fileID: 11400000, guid: 0f2e6a4b8c1d5079e3f5a7b9c2d4e6f8, type: 2}
+    Resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+    value: "4"
+  - Type: 1
+    Building: {fileID: 11400000, guid: 0f2e6a4b8c1d5079e3f5a7b9c2d4e6f8, type: 2}
+    Resource: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
+    value: "4"
   TechLevel: 4
   AdvancesTechLevel: 0

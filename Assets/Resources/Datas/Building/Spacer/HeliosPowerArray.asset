@@ -15,13 +15,13 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 51df3a96277a496ca13d08e15b6d2675, type: 3}
   id: HeliosPowerArray
   Label: "曜心定向能源阵列"
-  Description: "在近恒星轨道建设集能与定向输电阵列，为本恒星系设施提供有限能源。耐热结构、电子设备与物流需要持续维护。"
+  Description: "在近恒星轨道建设集能与定向输电阵列，以充足日照支撑大型轨道产业。耐热结构、电子设备与物流需要持续维护。"
   TechLevel: 4
   upgradeTo: {fileID: 0}
   costGrowth: "1.25"
   spaceCost: "0"
   productivityConsumption: "400"
-  powerContribution: 1200
+  powerContribution: 3600
   logisticsContribution: -24
   resourceRequirements:
   - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}

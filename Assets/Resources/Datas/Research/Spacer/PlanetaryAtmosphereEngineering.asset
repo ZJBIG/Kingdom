@@ -15,7 +15,7 @@ MonoBehaviour:
   id: PlanetaryAtmosphereEngineering
   Label: "\u884c\u661f\u5927\u6c14\u5de5\u7a0b\u7406\u8bba"
   Description: "研究密闭种植区的气体循环与碳利用，让一片小小的绿地能够在陌生天穹下延续。"
-  BaseCost: "630000000"
+  BaseCost: "15000000"
   prerequisites:
   - {fileID: 11400000, guid: b8e4d2c6f1a34790a5c8e3d7f2b61904, type: 2}
   - {fileID: 11400000, guid: 176f45e4409e4631b6c9041f641c7eaf, type: 2}

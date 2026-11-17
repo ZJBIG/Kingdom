@@ -22,7 +22,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1a64336320babdc47a1001100e678c63, type: 2}
   resourceRequirements:
   - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
-    amount: "40000"
+    amount: "25000"
   - resource: {fileID: 11400000, guid: 83c7a054235ab2d4ea6c0135a631aa93, type: 2}
     amount: "28000"
   - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}

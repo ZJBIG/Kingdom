@@ -1,7 +1,13 @@
+using System;
+
 public static class ProgressionVisibilityRules
 {
     public const string ProductionResearchId = "FactoryOrganization";
     public const string EraResearchId = "CivilizationPlanning";
+
+    public static bool UnlocksProgressionPage(ResearchDef research) => research != null &&
+        (string.Equals(research.Id, ProductionResearchId, StringComparison.OrdinalIgnoreCase) ||
+         string.Equals(research.Id, EraResearchId, StringComparison.OrdinalIgnoreCase));
 
     public static bool IsResearchUnlocked(GameState state) => state != null && state.HasBuiltHousing;
 

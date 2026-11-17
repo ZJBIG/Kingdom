@@ -15,7 +15,7 @@ MonoBehaviour:
   id: InterstellarNavigation
   Label: "星际导航"
   Description: "测定恒星方位、规划燃料与航线，让母恒星系之外的微光第一次成为可以抵达的目的地。"
-  BaseCost: "227500000"
+  BaseCost: "1500000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: ea25df4d3b4dae645b0cec00cf53d779, type: 2}

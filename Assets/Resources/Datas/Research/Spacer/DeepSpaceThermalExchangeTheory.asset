@@ -15,7 +15,7 @@ MonoBehaviour:
   id: DeepSpaceThermalExchangeTheory
   Label: "\u6df1\u7a7a\u70ed\u4ea4\u6362\u7406\u8bba"
   Description: "追踪舱段中的余热，研究热交换与辐射散热，让冰冷真空中的设备维持适宜温度。"
-  BaseCost: "308000000"
+  BaseCost: "8000000"
   prerequisites:
   - {fileID: 11400000, guid: a9f3c7e1d5b248609c4e2f7a1b8d6350, type: 2}
   - {fileID: 11400000, guid: c5d6e7f8091a2b3c4d5e6f708192a4b5, type: 2}

@@ -15,7 +15,7 @@ MonoBehaviour:
   id: DeepSpaceFleet
   Label: "深空舰队"
   Description: "把远征舰船、推进剂补给与指挥体系连为一体，让族人的航迹能够越过母恒星的光芒。"
-  BaseCost: "360000000"
+  BaseCost: "3000000"
   prerequisites:
   - {fileID: 11400000, guid: d5a3c9e1f704286ab57d9c3e8f1026b4, type: 2}
   - {fileID: 11400000, guid: 333f1c13aad1437693a1025de304aeaa, type: 2}

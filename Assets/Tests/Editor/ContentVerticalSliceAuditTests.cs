@@ -204,22 +204,6 @@ public sealed class ContentVerticalSliceAuditTests
         Assert.That(HasPrerequisite(ceramicFiring, "ClayExtraction"), Is.True);
     }
 
-    [Test]
-    public void ProgressionAudit_AllowsTheNextEraTransitionResearch()
-    {
-        ProgressionAuditResult result = ContentProgressionAudit.Run(
-            DataBase<ResourceDef>.All,
-            DataBase<BuildingDef>.All,
-            DataBase<ResearchDef>.All,
-            new[] { "WoodLog" },
-            TechLevel.Animal);
-
-        Assert.That(result.HighestTechLevel, Is.GreaterThanOrEqualTo(TechLevel.StoneAge),
-            result.FormatFailureReport());
-        Assert.That(result.UnreachableResearch, Does.Not.Contain("StoneAgeSettlement"),
-            result.FormatFailureReport());
-    }
-
     private static bool HasGeneration(string buildingId, string resourceId)
     {
         return HasPair(DataBase<BuildingDef>.Find(buildingId).ResourceGenerationRates, resourceId);

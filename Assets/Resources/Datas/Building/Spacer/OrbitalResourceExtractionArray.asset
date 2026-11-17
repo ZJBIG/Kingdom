@@ -15,7 +15,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: dd1c57ac2b584c4e80ff7a1770434aa0, type: 3}
   id: OrbitalResourceExtractionArray
   Label: "轨道综合资源工厂"
-  Description: "在轨道整合采矿、建材、机械、线材、推进剂与相位材料生产，并提供物流和舰队支援。运行需要地面工业原料及幽影材料；食物、生物质与原木由生态农业阵列供应。"
+  Description: "将采掘、冶金、机加工、建材与电子生产连接为大型轨道厂群，一座即可承接多组专用工厂的产量。需要持续供给化工品、燃料、生物质及幽影材料，并配备充足人口和能源。"
   TechLevel: 4
   upgradeTo: {fileID: 0}
   costGrowth: 1.24
@@ -60,35 +60,35 @@ MonoBehaviour:
     amount: 86400
   resourceGenerationRates:
   - resource: {fileID: 11400000, guid: 605f4f30b687fbf428ee44c2b5715c51, type: 2}
-    amount: "36"
+    amount: "300"
   - resource: {fileID: 11400000, guid: eff51b472ae372e4f9c9f24c89d112e3, type: 2}
-    amount: "132"
+    amount: "800"
   - resource: {fileID: 11400000, guid: cab0b756c4a7b1540a580c0e836cd806, type: 2}
-    amount: "560"
+    amount: "2400"
   - resource: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
-    amount: "200"
+    amount: "2400"
   - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
-    amount: "20.48"
+    amount: "180"
   - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
-    amount: "56"
+    amount: "360"
   - resource: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
-    amount: "19.2"
+    amount: "480"
   - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
-    amount: "6.4"
+    amount: "160"
   - resource: {fileID: 11400000, guid: 83c7a054235ab2d4ea6c0135a631aa93, type: 2}
-    amount: "32"
+    amount: "800"
   - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
-    amount: "16"
+    amount: "360"
   - resource: {fileID: 11400000, guid: 28d8840d779dbfc46988c80bb4226e24, type: 2}
-    amount: "3.2"
+    amount: "72"
   - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
-    amount: "7.2"
+    amount: "240"
   - resource: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
-    amount: "22.4"
+    amount: "480"
   - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    amount: "5.6"
+    amount: "160"
   - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
-    amount: "0.32"
+    amount: "8"
   resourceConsumptionRates:
   - resource: {fileID: 11400000, guid: 2c025959bcb548f1bba4d459df5f2e5c, type: 2}
     amount: 12

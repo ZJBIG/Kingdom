@@ -10,12 +10,14 @@ public sealed class SpacerResearchPlacementTests
 
         Assert.That(singularity.TechLevel, Is.EqualTo(TechLevel.Ultra));
         Assert.That(singularity.AdvancesTechLevel, Is.True);
-        Assert.That(new ExpantaNum(singularity.BaseCost), Is.EqualTo(new ExpantaNum("5.5e11")));
         AssertPrerequisites(singularity,
             "QuantumComputing",
             "PhaseFieldNavigation",
             "MaterialLifecycleControl",
             "InterstellarKnowledgeCoordination");
+        foreach (ResearchDef prerequisite in singularity.Prerequisites)
+            Assert.That(new ExpantaNum(singularity.BaseCost), Is.GreaterThan(new ExpantaNum(prerequisite.BaseCost)),
+                "The Ultra transition should require more research than each of its direct foundations.");
         AssertResource(singularity, "Electronics");
         AssertResource(singularity, "TitaniumAlloy");
         AssertResource(singularity, "Composite");

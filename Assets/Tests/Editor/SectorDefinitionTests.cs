@@ -105,10 +105,11 @@ public sealed class SectorDefinitionTests
         SectorDef mars = DataBase<SectorDef>.Find("Terminus");
 
         Assert.That(mars.ColonizationDurationSeconds, Is.GreaterThan(moon.ColonizationDurationSeconds));
-        Assert.That(mars.ColonizationFoodPerSecond, Is.GreaterThan(moon.ColonizationFoodPerSecond));
-        Assert.That(FindColonizationRate(mars, "RocketFuel"), Is.GreaterThan(FindColonizationRate(moon, "RocketFuel")));
-        Assert.That(FindColonizationRate(mars, "Composite"), Is.GreaterThan(FindColonizationRate(moon, "Composite")));
-        Assert.That(FindColonizationRate(mars, "Electronics"), Is.GreaterThan(FindColonizationRate(moon, "Electronics")));
+        Assert.That(mars.ColonizationFoodPerSecond * mars.ColonizationDurationSeconds,
+            Is.GreaterThan(moon.ColonizationFoodPerSecond * moon.ColonizationDurationSeconds));
+        foreach (string resourceId in new[] { "RocketFuel", "Composite", "AdvancedMetalIngot", "Electronics" })
+            Assert.That(FindColonizationRate(mars, resourceId) * mars.ColonizationDurationSeconds,
+                Is.GreaterThan(FindColonizationRate(moon, resourceId) * moon.ColonizationDurationSeconds), resourceId);
     }
 
     [Test]

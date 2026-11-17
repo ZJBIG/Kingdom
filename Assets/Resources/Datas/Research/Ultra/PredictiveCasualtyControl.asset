@@ -15,7 +15,7 @@ MonoBehaviour:
   id: PredictiveCasualtyControl
   Label: "预测损伤控制"
   Description: "从远征记录中辨认危险的先兆，为受损舱段争取隔离和撤离的时间。"
-  BaseCost: "1.65e13"
+  BaseCost: "600000000"
   prerequisites:
   - {fileID: 11400000, guid: 3e5a7c9f1b2d4f6081a3c5e7b9d0f2a4, type: 2}
   - {fileID: 11400000, guid: 5a7c9e1f3b2d4f6081a3c5e7b9d0f2a4, type: 2}

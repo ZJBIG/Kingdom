@@ -23,9 +23,9 @@ MonoBehaviour:
   requiredUpgrades: []
   resourceRequirements:
   - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
-    amount: "120000"
+    amount: "6000"
   - resource: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
-    amount: "44000"
+    amount: "4000"
   effects:
   - Type: 2
     Building: {fileID: 0}

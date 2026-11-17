@@ -1,1 +1,0 @@
-Font remains byte-identical to pre-build backup. Temporary Editor helpers and their meta files are absent. Backup deletion command was blocked by automatic approval; preserved font backup at .codex/archive/apk-size-20261101/0-SIMSUN SDF.asset. Backup is outside Assets and APK. Targeted git diff --check passed.

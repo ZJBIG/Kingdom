@@ -15,7 +15,7 @@ MonoBehaviour:
   id: ClosedLoopAgroecology
   Label: "闭环农业生态"
   Description: "回收营养与水分，协调轨道种植，让一轮收获滋养下一轮生长。"
-  BaseCost: "2.0e13"
+  BaseCost: "420000000"
   prerequisites:
   - {fileID: 11400000, guid: e7b3c9d1f5a64280bc14e6a9d2f7c5b8, type: 2}
   - {fileID: 11400000, guid: d6b2f8a4c0e73915ab6d1f9e2c5a7b30, type: 2}

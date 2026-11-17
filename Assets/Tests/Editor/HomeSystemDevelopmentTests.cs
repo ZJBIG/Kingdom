@@ -45,16 +45,16 @@ public sealed class HomeSystemDevelopmentTests
         ProgressionModifierManager.Rebuild(null);
     }
 
-    [TestCase("DawnRing", "DawnOrbitalObservatory")]
-    [TestCase("AzurePool", "EarthMoonLogisticsHub")]
-    [TestCase("AzurePool", "AzureIceSeaArk")]
-    [TestCase("Terminus", "TerminusMaterialsWorks")]
-    [TestCase("ShardCrown", "ShardCrownOreSorter")]
-    [TestCase("HeliosCore", "DawnDysonSphere")]
-    [TestCase("ThunderGate", "ThunderGatePropellantWorks")]
-    [TestCase("HeliosCore", "HeliosPowerArray")]
+    [TestCase("DawnRing", "DawnOrbitalObservatory", 2)]
+    [TestCase("AzurePool", "EarthMoonLogisticsHub", 1)]
+    [TestCase("AzurePool", "AzureIceSeaArk", 1)]
+    [TestCase("Terminus", "TerminusMaterialsWorks", 3)]
+    [TestCase("ShardCrown", "ShardCrownOreSorter", 3)]
+    [TestCase("HeliosCore", "DawnDysonSphere", 1)]
+    [TestCase("ThunderGate", "ThunderGatePropellantWorks", 1)]
+    [TestCase("HeliosCore", "HeliosPowerArray", 3)]
     public void AuthoredDevelopmentRequiresOccupationPaysAtomicallyAndRespectsLocalLimit(
-        string sectorId, string buildingId)
+        string sectorId, string buildingId, int expectedLimit)
     {
         SectorBuildingDef building = DataBase<SectorBuildingDef>.Find(buildingId);
         Assert.That(building, Is.Not.Null);
@@ -62,7 +62,8 @@ public sealed class HomeSystemDevelopmentTests
         Assert.That(building.Sector, Is.SameAs(sector));
         Assert.That(building.SpaceCost, Is.EqualTo(ExpantaNum.Zero), "Sector buildings use their local limit.");
         Assert.That(building.HasValidCostGrowth, Is.True);
-        Assert.That(building.MaxAmount, Is.GreaterThan(0));
+        Assert.That(building.MaxAmount, Is.EqualTo(expectedLimit),
+            "The authored local construction limit is a discrete design contract.");
         Assert.That(sector.ResourceRewards, Is.Empty);
         Assert.That(sector.OccupiedResourceRatesPerSecond, Is.Empty);
         foreach (ResearchDef required in building.RequiredResearch) CompleteResearch(required);
@@ -99,6 +100,70 @@ public sealed class HomeSystemDevelopmentTests
         Assert.That(failure, Is.EqualTo(BuildFailure.BuildingLimitReached));
         AssertBalances(before);
         Near(buildings.GetState(building).Amount, new ExpantaNum(building.MaxAmount));
+    }
+
+    [TestCase("EarthMoonLogisticsHub", "RailHub", "Logistics")]
+    [TestCase("TerminusMaterialsWorks", "OrbitalMachiningComplex", "Composite")]
+    [TestCase("TerminusMaterialsWorks", "OrbitalMachiningComplex", "Machinery")]
+    [TestCase("ShardCrownOreSorter", "IntegratedMetalMine", "BasicMetalOre")]
+    [TestCase("ShardCrownOreSorter", "IntegratedMetalMine", "AdvancedMetalOre")]
+    [TestCase("ShardCrownOreSorter", "IntegratedMetalMine", "SpecialMetalOre")]
+    [TestCase("HeliosPowerArray", "OrbitalSolarArray", "Power")]
+    public void SuppliedSectorFacilityPreservesOutputPerProductivityAgainstContemporaryIndustry(
+        string facilityId, string ordinaryId, string outputId)
+    {
+        SectorBuildingDef facility = DataBase<SectorBuildingDef>.Find(facilityId);
+        BuildingDef ordinary = DataBase<BuildingDef>.Find(ordinaryId);
+        Assert.That(facility, Is.Not.Null);
+        Assert.That(ordinary, Is.Not.Null);
+        CompleteResearch(DataBase<ResearchDef>.Find("IndustrialWorkshop"));
+        CompleteResearch(DataBase<ResearchDef>.Find("OrbitalEngineering"));
+        foreach (BuildingDef definition in new BuildingDef[] { ordinary, facility })
+        {
+            foreach (ResearchDef required in definition.RequiredResearch) CompleteResearch(required);
+            foreach (WorkshopUpgradeDef required in definition.RequiredWorkshopUpgrades)
+                PurchaseComparisonUpgrade(required);
+        }
+        if (ordinaryId == "RailHub")
+            PurchaseComparisonUpgrade(DataBase<WorkshopUpgradeDef>.Find("BlockSignalling"));
+        Occupy(facility.Sector, false);
+        ProgressionModifierManager.Rebuild(new List<ResearchState>(research.States.Values),
+            new List<WorkshopUpgradeState>(workshop.States.Values));
+
+        // Population, land and supply are controlled fixtures. Both compared buildings
+        // and required workshops are paid for; this is not a natural progression route.
+        // Modest flow support keeps subtraction of the measured utility gains precise.
+        AddNeutralSupport(10000d);
+        game.State.RestorePopulationForEditor(game.State.Population.PopulationCapacity);
+        game.State.AdjustTerritoryTotalForEditor(ordinary.SpaceCost);
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
+            resources.SetAmount(resource, new ExpantaNum(1e6d));
+        ExpantaNum supportOutput = MeasureSuppliedOutput(outputId);
+
+        FundConstruction(ordinary);
+        Assert.That(buildings.TryBuild(ordinary, ExpantaNum.One, out BuildFailure failure),
+            Is.True, failure.ToString());
+        ExpantaNum ordinaryOutput = MeasureSuppliedOutput(outputId) - supportOutput;
+        Assert.That(ordinaryOutput, Is.GreaterThan(ExpantaNum.Zero), ordinaryId);
+
+        FundConstruction(facility);
+        Assert.That(buildings.TryBuild(facility, ExpantaNum.One, out failure),
+            Is.True, failure.ToString());
+        var beforeOperation = SnapshotResources();
+        ExpantaNum facilityOutput = MeasureSuppliedOutput(outputId) - supportOutput - ordinaryOutput;
+        Near(buildings.GetState(ordinary).Efficiency, buildings.GetState(facility).Efficiency);
+        foreach (var maintenance in facility.ResourceConsumptionRates)
+            Assert.That(resources.GetAmount(maintenance.First), Is.LessThan(beforeOperation[maintenance.First]),
+                "The measured sector facility must consume its authored maintenance.");
+
+        TestContext.WriteLine($"SECTOR_OUTPUT {ordinaryId}->{facilityId} {outputId}: " +
+            $"output={ordinaryOutput}->{facilityOutput}, " +
+            $"productivity={ordinary.ProductivityConsumption}->{facility.ProductivityConsumption}");
+        Assert.That(facilityOutput, Is.GreaterThan(ordinaryOutput),
+            "Limited local facilities must provide more output than one contemporary ordinary facility.");
+        Assert.That((facilityOutput / facility.ProductivityConsumption).ToDouble(),
+            Is.GreaterThanOrEqualTo((ordinaryOutput / ordinary.ProductivityConsumption).ToDouble() * (1d - 1e-6d)),
+            "The local environment must preserve output per committed productivity after the ordinary facility's upgrades.");
     }
 
     [TestCase(false)]
@@ -468,6 +533,32 @@ public sealed class HomeSystemDevelopmentTests
         foreach (var cost in upgrade.ResourceRequirements) resources.AddAmount(cost.First, cost.Second);
     }
 
+    private void PurchaseComparisonUpgrade(WorkshopUpgradeDef upgrade)
+    {
+        if (workshop.IsPurchased(upgrade)) return;
+        foreach (ResearchDef required in upgrade.RequiredResearch) CompleteResearch(required);
+        foreach (WorkshopUpgradeDef required in upgrade.RequiredUpgrades) PurchaseComparisonUpgrade(required);
+        ProgressionModifierManager.Rebuild(new List<ResearchState>(research.States.Values),
+            new List<WorkshopUpgradeState>(workshop.States.Values));
+        FundUpgrade(upgrade);
+        Assert.That(workshop.TryPurchase(upgrade, out WorkshopPurchaseFailure failure),
+            Is.True, $"{upgrade.Id}: {failure}");
+    }
+
+    private ExpantaNum MeasureSuppliedOutput(string outputId)
+    {
+        if (outputId == "Power" || outputId == "Logistics")
+        {
+            simulation.ManualTick(60d);
+            return outputId == "Power" ? game.State.PowerProductionRate : game.State.LogisticsProductionRate;
+        }
+        ResourceDef output = DataBase<ResourceDef>.Find(outputId);
+        Assert.That(output, Is.Not.Null);
+        ExpantaNum before = resources.GetAmount(output);
+        simulation.ManualTick(60d);
+        return (resources.GetAmount(output) - before) / 60d;
+    }
+
     private void AssertPurchaseRejectedWithoutMutation(WorkshopUpgradeDef upgrade, WorkshopPurchaseFailure expected)
     {
         var before = SnapshotResources();
@@ -539,7 +630,7 @@ public sealed class HomeSystemDevelopmentTests
         else simulation.ManualTick(60d);
     }
 
-    private void AddNeutralSupport()
+    private void AddNeutralSupport(double flowSupply = 1e9d)
     {
         support = ScriptableObject.CreateInstance<BuildingDef>();
         support.SetIdForEditor("PlanetDevelopmentNeutralSupport");
@@ -547,8 +638,8 @@ public sealed class HomeSystemDevelopmentTests
             growth: 1.15d, territory: 0d, productivityConsumptionValue: 0d, productivity: 1e9d,
             populationCapacity: 1e9d, researchPower: 0d, foodProduction: 1e9d, foodConsumption: 0d,
             foodCapacity: 1e9d,
-            powerContributionValue: 1e9d,
-            logisticsContributionValue: 1e9d, attack: 0d, defense: 0d, manpower: 0d,
+            powerContributionValue: flowSupply,
+            logisticsContributionValue: flowSupply, attack: 0d, defense: 0d, manpower: 0d,
             requirements: new List<Pair<ResourceDef, ExpantaNum>>(), generation: new List<Pair<ResourceDef, ExpantaNum>>(),
             consumption: new List<Pair<ResourceDef, ExpantaNum>>());
         buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(support), ExpantaNum.One);

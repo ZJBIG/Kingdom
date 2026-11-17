@@ -15,7 +15,7 @@ MonoBehaviour:
   id: QuantumComputing
   Label: "\u91CF\u5B50\u8BA1\u7B97"
   Description: "在低温与相位约束中维持量子态，让细微的概率变化承担深空测绘和理论验证所需的复杂计算。"
-  BaseCost: "1100000000"
+  BaseCost: "24000000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: 0f1e2d3c4b5a69788796a5b4c3d2e1f0, type: 2}

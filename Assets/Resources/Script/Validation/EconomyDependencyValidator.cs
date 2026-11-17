@@ -43,7 +43,9 @@ public static class EconomyDependencyValidator
             ResearchDef research = researches[i];
             if (research == null)
                 continue;
-            if (research.Effects == null || research.Effects.Count == 0)
+            if ((research.Effects == null || research.Effects.Count == 0) &&
+                !research.AdvancesTechLevel &&
+                !ProgressionVisibilityRules.UnlocksProgressionPage(research))
             {
                 error = $"科研“{research.Id}”没有任何效果，必须至少声明一个真实效果。";
                 return false;

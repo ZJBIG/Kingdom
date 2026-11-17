@@ -1,5 +1,0 @@
-Kingdom Unity Test Runner - Latest Error Report
-Generated: 2026-11-04T13:12:48.7298895+08:00
-Platform: EditMode
-Result: Failed(Timeout)
-Unity EditMode tests timed out after 240 seconds. Log=D:/GitHub/Kingdom/data/performance-20261104/runtime-before.log

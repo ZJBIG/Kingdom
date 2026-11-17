@@ -114,7 +114,6 @@ public sealed class PlannerPagesPlayModeTests
                         Assert.That(archive.childCount, Is.EqualTo(1), "Civilization identity is one combined card.");
                         Assert.That(archive.Find("EraIdentity"), Is.Not.Null);
                     }
-                    Capture(camera, target, page.ToLowerInvariant());
                 }
                 camera.targetTexture = null;
                 target.Release();
@@ -156,7 +155,6 @@ public sealed class PlannerPagesPlayModeTests
                 }
                 foreach (Button button in gallery.GetComponentsInChildren<Button>())
                     AssertInside(galleryBounds, (RectTransform)button.transform);
-                Capture(camera, target, kind == KingdomUIPrefabLibrary.ResourceCard ? "resource-era-gallery" : "building-era-gallery");
                 Object.Destroy(gallery);
                 gallery = null;
                 yield return null;
@@ -256,25 +254,5 @@ public sealed class PlannerPagesPlayModeTests
             Assert.That(point.x, Is.InRange(outer.rect.xMin - 1f, outer.rect.xMax + 1f), child.name);
             Assert.That(point.y, Is.InRange(outer.rect.yMin - 1f, outer.rect.yMax + 1f), child.name);
         }
-    }
-
-    private static void Capture(Camera camera, RenderTexture target, string name)
-    {
-        string directory = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "data", "planner-pages-20261013"));
-        Directory.CreateDirectory(directory);
-        string path = Path.Combine(directory, name + "-" + target.width + "x" + target.height + ".png");
-        RenderTexture previous = RenderTexture.active;
-        Texture2D pixels = new Texture2D(target.width, target.height, TextureFormat.RGB24, false);
-        try
-        {
-            camera.Render();
-            RenderTexture.active = target;
-            pixels.ReadPixels(new Rect(0, 0, target.width, target.height), 0, 0);
-            pixels.Apply();
-            File.WriteAllBytes(path, pixels.EncodeToPNG());
-            Assert.That(new FileInfo(path).Length, Is.GreaterThan(0));
-            Debug.Log("[PlannerScreenshot] " + path);
-        }
-        finally { RenderTexture.active = previous; Object.Destroy(pixels); }
     }
 }

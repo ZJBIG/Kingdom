@@ -15,7 +15,7 @@ MonoBehaviour:
   id: OrbitalTextileFabrication
   Label: "\u8F68\u9053\u7EBA\u7EC7\u5236\u9020\u7406\u8BBA"
   Description: "研究微重力张力、耐辐照处理与密闭纺织，让纤维在太空环境中也能可靠成形。"
-  BaseCost: "608000000"
+  BaseCost: "24000000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: c4f2b8d0e6a17395bc46d8f2a7019e3c, type: 2}

@@ -223,33 +223,6 @@ public sealed class KingdomButtonMaterialPlayModeTests
             Assert.That(icon.sprite, Is.Not.Null);
             Assert.That(icon.sprite, Is.Not.SameAs(((Image)button.targetGraphic).sprite));
         }
-        Canvas canvas = root.GetComponent<Canvas>();
-        RenderMode oldMode = canvas.renderMode;
-        Camera oldCamera = canvas.worldCamera;
-        float oldDistance = canvas.planeDistance;
-        GameObject cameraObject = new GameObject("MusicControlsEvidenceCamera");
-        Camera camera = cameraObject.AddComponent<Camera>();
-        RenderTexture target = new RenderTexture(1760, 800, 24);
-        target.Create();
-        try
-        {
-            camera.targetTexture = target;
-            canvas.renderMode = RenderMode.ScreenSpaceCamera;
-            canvas.worldCamera = camera;
-            canvas.planeDistance = 100;
-            Canvas.ForceUpdateCanvases();
-            Capture(camera, target, "music-controls-1760x800");
-        }
-        finally
-        {
-            canvas.renderMode = oldMode;
-            canvas.worldCamera = oldCamera;
-            canvas.planeDistance = oldDistance;
-            camera.targetTexture = null;
-            target.Release();
-            Object.Destroy(target);
-            Object.Destroy(cameraObject);
-        }
     }
 
     [UnityTest]
@@ -329,7 +302,6 @@ public sealed class KingdomButtonMaterialPlayModeTests
                     AssertPageContentGeometry(page);
                     AssertClippingAndBoundDetails(page);
                     AssertBackgroundGeometry(root);
-                    Capture(camera, target, page + "-" + size.x + "x" + size.y);
                 }
                 camera.targetTexture = null;
                 target.Release();
@@ -574,30 +546,6 @@ public sealed class KingdomButtonMaterialPlayModeTests
             Assert.That(image.sprite, Is.Not.Null, name);
             Assert.That(image.type, Is.EqualTo(Image.Type.Sliced), name);
             Assert.That(image.raycastTarget, Is.False, name);
-        }
-    }
-
-    private static void Capture(Camera camera, RenderTexture target, string page)
-    {
-        string directory = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "data", "scroll-frames-20261013", "pages"));
-        Directory.CreateDirectory(directory);
-        string path = Path.Combine(directory, page.ToLowerInvariant() + ".png");
-        RenderTexture previous = RenderTexture.active;
-        Texture2D pixels = new Texture2D(target.width, target.height, TextureFormat.RGB24, false);
-        try
-        {
-            camera.Render();
-            RenderTexture.active = target;
-            pixels.ReadPixels(new Rect(0, 0, target.width, target.height), 0, 0);
-            pixels.Apply();
-            File.WriteAllBytes(path, pixels.EncodeToPNG());
-            Assert.That(new FileInfo(path).Length, Is.GreaterThan(0));
-            Debug.Log("[ButtonMaterialScreenshot] " + path);
-        }
-        finally
-        {
-            RenderTexture.active = previous;
-            Object.Destroy(pixels);
         }
     }
 }

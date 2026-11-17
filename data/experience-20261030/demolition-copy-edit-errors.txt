@@ -1,5 +1,0 @@
-Kingdom Unity Test Runner - Latest Error Report
-Generated: 2026-10-30T18:00:20.6153535+08:00
-Platform: EditMode
-Result: Failed(Timeout)
-Unity EditMode tests timed out after 120 seconds. Log=D:\GitHub\Kingdom/data/experience-20261030/demolition-copy-edit.log

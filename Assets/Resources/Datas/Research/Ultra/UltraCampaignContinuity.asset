@@ -15,7 +15,7 @@ MonoBehaviour:
   id: UltraCampaignContinuity
   Label: "极致战役连续性"
   Description: "为远距离行动安排交接窗口与补给冗余，让指令、舰队与物资跨越时差相互接续。"
-  BaseCost: "1.35e13"
+  BaseCost: "900000000"
   prerequisites:
   - {fileID: 11400000, guid: 1f3a5c7e9b2d4f6081a3c5e7b9d0f2a4, type: 2}
   - {fileID: 11400000, guid: d6b2f8a4c0e73915ab6d1f9e2c5a7b30, type: 2}
